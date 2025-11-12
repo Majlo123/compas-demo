@@ -1,0 +1,21 @@
+http:
+  routers:
+    frontend:
+      rule: "PathPrefix(`/`)"
+      service: frontend
+      entryPoints: [ "web" ]
+
+    backend:
+      rule: "PathPrefix(`/api`)"
+      service: backend
+      entryPoints: [ "web" ]
+
+  services:
+    frontend:
+      loadBalancer:
+        servers:
+          - url: "http://frontend:5173"
+    backend:
+      loadBalancer:
+        servers:
+          - url: "http://backend:3000"

@@ -1,0 +1,25 @@
+import path from 'path';
+
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
+
+const isProduction = process.env.NODE_ENV === 'production';
+
+export default defineConfig({
+  plugins: [react()],
+  server: {
+    host: '0.0.0.0',
+    port: 5173,
+    allowedHosts: isProduction ? [] : true,
+  },
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+  build: {
+    sourcemap: !isProduction,
+    target: 'es2020',
+    manifest: true,
+  },
+});

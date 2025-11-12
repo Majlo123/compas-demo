@@ -1,0 +1,27 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --toastify-color-success: #1f875f !important;
+  --toastify-icon-color-success: #1f875f !important;
+  --toastify-color-progress-success: #1f875f !important;
+}
+
+.arrowless-input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+  -webkit-appearance: none;
+
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+}
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
