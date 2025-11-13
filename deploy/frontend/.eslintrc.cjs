@@ -47,12 +47,13 @@ module.exports = {
     ecmaVersion: 'latest',
     sourceType: 'module',
     project: ['./tsconfig.json', './tsconfig.node.json'],
+    tsconfigRootDir: __dirname,
   },
   plugins: ['@typescript-eslint', 'react', 'prettier'],
   rules: {
     'prettier/prettier': 'error',
     indent: 'off',
-    'linebreak-style': ['error', 'unix'],
+    'linebreak-style': ['error', 'unix', 'windows'],
     semi: ['error', 'always'],
     '@typescript-eslint/ban-ts-comment': [
       'error',

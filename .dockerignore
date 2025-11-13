@@ -1,0 +1,42 @@
+# Ignore node modules everywhere
+node_modules/
+**/node_modules/
+
+# Ignore local env files
+.env
+.env.*
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Build output
+dist/
+dist-ssr/
+build/
+
+# Editor directories and files
+.vscode/
+.idea/
+.DS_Store
+
+# Git
+.git
+.gitignore
+
+# Docker
+docker-compose.override.yml
+**/.dockerignore
+
+# OS files
+Thumbs.db
+
+# Optional: ignore local package manager stores
+.pnpm-store/
+
+# Ignore any host-level node_modules bin artifacts that can break the context
+**/.bin/
