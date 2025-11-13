@@ -10,6 +10,7 @@ RUN bun add -g pm2
 
 COPY deploy/backend/ ./
 COPY deploy/tools/docker/backend/entrypoint.sh ./
+RUN sed -i 's/\r$//' ./entrypoint.sh || true
 RUN chmod +x ./entrypoint.sh
 
 EXPOSE 3000
