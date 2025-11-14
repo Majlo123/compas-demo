@@ -92,11 +92,16 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           </div>
         </div>
 
-        {error && (
-          <span className="flex flex-col justify-center text-p2 text-red h-8 w-full">
-            {error}
-          </span>
-        )}
+        <span
+          className={classNameBuilder(
+            'flex flex-col justify-center text-p2 h-8 w-full',
+            error ? 'text-red' : 'text-transparent'
+          )}
+          aria-live="polite"
+          role={error ? 'alert' : undefined}
+        >
+          {error ?? '\u00A0'}
+        </span> 
       </div>
     );
   }
