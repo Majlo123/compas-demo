@@ -1,17 +1,29 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
 import PrimaryButton from '@/components/controls/button/PrimaryButton';
 import FormTextInput from '@/components/controls/FormTextInput';
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
-type LoginFormValues = {
-  email: string;
-  password: string;
-};
+const loginSchema = z.object({
+  email: z
+    .string()
+    .min(1, 'Email is required')
+    .email('Please enter a valid email address'),
+  password: z
+    .string()
+    .min(1, 'Password is required')
+    .min(6, 'Password must be at least 6 characters'),
+});
+
+type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   const { control, handleSubmit, formState } = useForm<LoginFormValues>({
+    resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
+    mode: 'onChange'
   });
 
   const onSubmit = (values: LoginFormValues) => {
@@ -27,7 +39,7 @@ const LoginPage: React.FC = () => {
         
         <h1 className="text-2xl font-semibold text-gray-800 mb-8 text-center">Vacation Tracker</h1>
         
-        <form className="w-full flex flex-col gap-10" onSubmit={handleSubmit(onSubmit)}>
+        <form className="w-full flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
           <FormTextInput
             name="email"
             control={control}
