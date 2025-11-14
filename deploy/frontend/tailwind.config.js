@@ -7,6 +7,9 @@ const config = {
   theme: {
     extend: {
       colors: {
+        primary: '#1E88E5',
+        'primary-hover': '#0675DB',
+        secondary: '#0883F2',
         // TODO: Need name for color
         pureBlack: '#000000',
         // TODO: Need name for color

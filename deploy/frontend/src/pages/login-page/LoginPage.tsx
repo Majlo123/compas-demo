@@ -53,7 +53,7 @@ const LoginPage: React.FC = () => {
         </form>
         
         <div className="mt-6 text-center text-m text-gray-500">
-          Don't have an account? <a href="/register" className="text-[var(--primary-color)] hover:text-[var(--primary-hover-color)] no-underline font-medium cursor-pointer hover:underline transition-colors">Register</a>
+          Don't have an account? <a href="/register" className="text-primary hover:text-primary-hover no-underline font-medium cursor-pointer hover:underline transition-colors">Register</a>
         </div>
       </div>
     </div>
