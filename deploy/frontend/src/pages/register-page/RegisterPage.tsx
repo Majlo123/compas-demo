@@ -69,13 +69,13 @@ const RegisterPage: React.FC = () => {
             placeholder='Password'
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2 bg-[var(--primary-color)]">
+          <PrimaryButton type="submit" className="w-full mt-2">
             Register
           </PrimaryButton>
 
           <div className="text-center text-p2 text-darkGrey mt-3">
             Already have an account?{' '}
-            <a href="/login" className="text-[var(--primary-color)] underline)">
+            <a href="/login" className="text-primary underline)">
               Log In
             </a>
           </div>

@@ -25,7 +25,7 @@ const PrimaryButton = ({
         large && 'w-[450px]',
         'text-h4 text-white',
         disabled && 'opacity-100 bg-darkGrey/20 cursor-not-allowed',
-        !disabled && 'hover:opacity-90 bg-blue'
+        !disabled && 'hover:opacity-90 bg-primary hover:bg-primary-hover'
       )}
       disabled={disabled}
       {...rest}
