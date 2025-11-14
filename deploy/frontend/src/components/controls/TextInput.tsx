@@ -1,7 +1,7 @@
 import { ComponentPropsWithRef, forwardRef, useState } from 'react';
 
-import PasswordIconHide from '@/components/images/PasswordIconHide';
-import PasswordIconShow from '@/components/images/PasswordIconShow';
+//import PasswordIconHide from '@/components/images/PasswordIconHide';
+//import PasswordIconShow from '@/components/images/PasswordIconShow';
 import classNameBuilder from '@/utils/classNameBuilder';
 
 type TextInputProps = {
@@ -58,7 +58,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             InputclassName,
             'w-full',
             'input-container',
-            'flex flex-row justify-between items-center h-10 relative',
+            'flex flex-row justify-between items-center relative',
             'border rounded-lg transition-colors overflow-hidden',
             !error && !disabled && '!border-someGrey',
             error && !disabled && '!border-red',
@@ -70,7 +70,8 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             ref={ref}
             id={id}
             className={classNameBuilder(
-              'h-full w-full px-3 py-2',
+              'w-full px-4 py-4',
+              InputclassName,
               'outline-none border-none !ring-0 bg-transparent text-p2 text-[12px] text-darkGrey',
               disabled && 'bg-transparent !cursor-not-allowed'
             )}
@@ -80,12 +81,12 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           <div className="absolute right-[16px] flex items-center justify-center">
             {passwordToggle && isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(false)}>
-                <PasswordIconShow className="stroke-darkGrey" />
+                {/* <PasswordIconShow className="stroke-darkGrey" /> */}
               </button>
             )}
             {passwordToggle && !isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(true)}>
-                <PasswordIconHide className="stroke-darkGrey" />
+                {/* <PasswordIconHide className="stroke-darkGrey" /> */}
               </button>
             )}
           </div>
