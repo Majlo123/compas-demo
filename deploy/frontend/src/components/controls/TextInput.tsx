@@ -1,7 +1,7 @@
 import { ComponentPropsWithRef, forwardRef, useState } from 'react';
 
-import PasswordIconHide from '@/components/images/PasswordIconHide';
-import PasswordIconShow from '@/components/images/PasswordIconShow';
+// import PasswordIconHide from '@/components/images/PasswordIconHide';
+// import PasswordIconShow from '@/components/images/PasswordIconShow';
 import classNameBuilder from '@/utils/classNameBuilder';
 
 type TextInputProps = {
@@ -80,12 +80,12 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           <div className="absolute right-[16px] flex items-center justify-center">
             {passwordToggle && isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(false)}>
-                <PasswordIconShow className="stroke-darkGrey" />
+                {/* <PasswordIconShow className="stroke-darkGrey" /> */}
               </button>
             )}
             {passwordToggle && !isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(true)}>
-                <PasswordIconHide className="stroke-darkGrey" />
+                {/* <PasswordIconHide className="stroke-darkGrey" /> */}
               </button>
             )}
           </div>
