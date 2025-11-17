@@ -1,19 +1,17 @@
 import createBaseRepository from 'repos/utils/baseRepository';
 
-export type Organization = {
+export type User = {
   id?: string;
-  name: string;
-  domain?: string;
-  address?: string;
+  fullName: string;
   email: string;
-  phone?: string;
+  passwordHash: string;
   createdAt?: Date;
   updatedAt?: Date;
 };
 
-export type CreateOrganization = Omit<Organization, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
-  createBaseRepository<Organization>('organizations');
+  createBaseRepository<User>('users');
 
 export { create, findById, findByField, findAll, updateById, deleteById };

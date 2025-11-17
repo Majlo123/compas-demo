@@ -10,6 +10,6 @@ export type ErrorRecord = {
   updatedAt?: Date;
 };
 
-const { create } = createBaseRepository<ErrorRecord>();
+const { create } = createBaseRepository<ErrorRecord>('errors');
 
 export { create };

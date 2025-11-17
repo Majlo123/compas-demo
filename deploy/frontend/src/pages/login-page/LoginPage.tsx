@@ -2,9 +2,13 @@ import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useNavigate } from 'react-router-dom';
 import PrimaryButton from '@/components/controls/button/PrimaryButton';
 import FormTextInput from '@/components/controls/FormTextInput';
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
+import { login } from '@/api/auth/auth.actions';
+import { setToLocalStorage } from '@/services/local.storage';
+import { isApiSuccess } from '@/api/shared.types';
 
 const loginSchema = z.object({
   email: z
@@ -20,14 +24,24 @@ const loginSchema = z.object({
 type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
+  const navigate = useNavigate();
   const { control, handleSubmit, formState } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
     mode: 'onChange'
   });
 
-  const onSubmit = (values: LoginFormValues) => {
-    console.log('Login submitted:', values);
+  const onSubmit = async (values: LoginFormValues) => {
+    const response = await login({
+      email: values.email,
+      password: values.password,
+    });
+
+    if (isApiSuccess(response)) {
+      setToLocalStorage('token', response.content.token);
+      setToLocalStorage('user', JSON.stringify(response.content.user));
+      navigate('/home');
+    }
   };
 
   return (
