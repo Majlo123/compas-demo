@@ -17,6 +17,28 @@ export const LoginSchema = z
     },
   });
 
+// Register request schema
+export const RegisterSchema = z
+  .object({
+    fullName: z
+      .string()
+      .min(3, 'Full name must be at least 3 characters')
+      .regex(
+        /^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/,
+        'Name should contain only letters, spaces, hyphens or apostrophes'
+      ),
+    email: z.string().email('Invalid email address'),
+    password: z.string().min(8, 'Password must be at least 8 characters'),
+  })
+  .openapi({
+    description: 'Request body for user registration',
+    example: {
+      fullName: 'John Doe',
+      email: 'user@example.com',
+      password: 'password123',
+    },
+  });
+
 // Login success response schema
 export const LoginSuccessSchema = z
   .object({

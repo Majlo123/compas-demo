@@ -11,3 +11,18 @@ export type LoginResponse = {
     fullName: string;
   };
 };
+
+export type RegisterRequest = {
+  email: string;
+  password: string;
+  fullName: string;
+};
+
+export type RegisterResponse = {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+  };
+};
