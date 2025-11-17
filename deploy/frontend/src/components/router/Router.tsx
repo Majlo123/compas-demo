@@ -7,6 +7,8 @@ import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import HomePage from '@/pages/home-page/HomePage';
+import LoginPage from '@/pages/login-page/LoginPage';
+import RegisterPage from '@/pages/register-page/RegisterPage';
 
 const Router: FC = () => {
   return (
@@ -23,7 +25,11 @@ const Router: FC = () => {
         </Route>
 
         <Route path="*" element={<NotFoundPage />} />
+
         <Route path='/home' element={<HomePage />} />
+        <Route path='/login' element={<LoginPage />} />
+
+        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   );

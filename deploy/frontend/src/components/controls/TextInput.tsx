@@ -58,7 +58,7 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             InputclassName,
             'w-full',
             'input-container',
-            'flex flex-row justify-between items-center h-10 relative',
+            'flex flex-row justify-between items-center relative',
             'border rounded-lg transition-colors overflow-hidden',
             !error && !disabled && '!border-someGrey',
             error && !disabled && '!border-red',
@@ -70,7 +70,8 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
             ref={ref}
             id={id}
             className={classNameBuilder(
-              'h-full w-full px-3 py-2',
+              'w-full px-4 py-4',
+              InputclassName,
               'outline-none border-none !ring-0 bg-transparent text-p2 text-[12px] text-darkGrey',
               disabled && 'bg-transparent !cursor-not-allowed'
             )}
@@ -80,22 +81,27 @@ const TextInput = forwardRef<HTMLInputElement, TextInputProps>(
           <div className="absolute right-[16px] flex items-center justify-center">
             {passwordToggle && isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(false)}>
-                <PasswordIconShow className="stroke-darkGrey" />
+                {<PasswordIconShow className="stroke-darkGrey" />}
               </button>
             )}
             {passwordToggle && !isPasswordVisible && (
               <button type="button" onClick={() => setIsPasswordVisible(true)}>
-                <PasswordIconHide className="stroke-darkGrey" />
+                {<PasswordIconHide className="stroke-darkGrey" />}
               </button>
             )}
           </div>
         </div>
 
-        {error && (
-          <span className="flex flex-col justify-center text-p2 text-red h-8 w-full">
-            {error}
-          </span>
-        )}
+        <span
+          className={classNameBuilder(
+            'flex flex-col justify-center text-p2 h-8 w-full',
+            error ? 'text-red' : 'text-transparent'
+          )}
+          aria-live="polite"
+          role={error ? 'alert' : undefined}
+        >
+          {error ?? '\u00A0'}
+        </span> 
       </div>
     );
   }
