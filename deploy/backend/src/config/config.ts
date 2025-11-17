@@ -16,6 +16,9 @@ const envVars = cleanEnv(
     CORS_ALLOWED: str(),
     SERVICE_API_KEY: str(),
     JOB_API_KEY: str(),
+    JWT_SECRET: str(),
+    JWT_EXPIRES_IN: str({ default: '24h' }),
+    DATABASE_URL: str({ default: '' }),
   },
   {
     reporter: ({ errors }) => {
@@ -45,6 +48,13 @@ const config = {
   corsAllowed: envVars.CORS_ALLOWED,
   serviceApiKey: envVars.SERVICE_API_KEY,
   jobApiKey: envVars.JOB_API_KEY,
+  jwt: {
+    secret: envVars.JWT_SECRET,
+    expiresIn: envVars.JWT_EXPIRES_IN,
+  },
+  database: {
+    url: envVars.DATABASE_URL,
+  },
 };
 
 export default config;

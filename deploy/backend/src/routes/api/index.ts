@@ -4,10 +4,15 @@ import { swaggerDocs } from 'docs/swagger';
 import express from 'express';
 import { Router } from 'express-serve-static-core';
 import createOrganizationRoute from 'routes/api/organization.route';
+import createAuthRoute from 'routes/api/auth.route';
 
 const apiRouter = express.Router();
 
 const defaultRoutes: { path: string; route: any }[] = [
+  {
+    path: '/auth',
+    route: createAuthRoute('/auth'),
+  },
   {
     path: '/organization',
     route: createOrganizationRoute('/organization'),

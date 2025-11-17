@@ -38,10 +38,11 @@ export const errorHandler = (err: any, _req: any, res: any, next: any): void => 
 
   logger.error(err);
 
-  errorRepository.create({
-    message: err.message || 'An unexpected error occurred',
-    stack: err.stack || 'Stack not available',
-  });
+  // TODO: Create errors table in database before enabling this
+  // errorRepository.create({
+  //   message: err.message || 'An unexpected error occurred',
+  //   stack: err.stack || 'Stack not available',
+  // });
 
   if (!res.headersSent) {
     res.status(statusCode).send(response);
