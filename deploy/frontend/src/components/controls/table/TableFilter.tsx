@@ -1,7 +1,6 @@
 import { FC, useState } from 'react';
 
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
-import SecondaryButton from '@/components/controls/button/SecondaryButton.tsx';
+import Button from '@/components/controls/button/Button';
 import Select, { SelectOption } from '@/components/controls/Select';
 import TextInput from '@/components/controls/TextInput';
 import useFilter from '@/hooks/useFilter';
@@ -129,7 +128,7 @@ const TableFilter: FC<TableFilterProps> = ({ className, filterOptions }) => {
               />
             </div>
 
-            <PrimaryButton onClick={handleAddFilter}>Add</PrimaryButton>
+            <Button onClick={handleAddFilter}>Add</Button>
           </div>
         </section>
 
@@ -161,9 +160,9 @@ const TableFilter: FC<TableFilterProps> = ({ className, filterOptions }) => {
         </section>
 
         <section className="flex w-full justify-center">
-          <SecondaryButton onClick={handleClearFilters} className="w-[200px]">
+          <Button onClick={handleClearFilters} className="w-[200px]">
             Clear All
-          </SecondaryButton>
+          </Button>
         </section>
       </section>
     </div>

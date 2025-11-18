@@ -1,6 +1,6 @@
 import { FC, useState } from 'react';
 
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import usePagination from '@/hooks/usePagination';
 import classNameBuilder from '@/utils/classNameBuilder';
 
@@ -70,12 +70,12 @@ const GoToPage: FC<PaginationProps> = ({ className, total, onChange }) => {
           'focus:outline-none focus:ring-transparent focus:!border-blue'
         )}
       />
-      <PrimaryButton
+      <Button
         className="!h-8"
         onClick={() => handleGoToPage(inputValue)}
       >
         Go
-      </PrimaryButton>
+      </Button>
     </div>
   );
 };

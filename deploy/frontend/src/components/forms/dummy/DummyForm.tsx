@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { toast } from 'react-toastify';
 import * as z from 'zod';
 
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import DummyFormFields from '@/components/forms/dummy/DummyFormFields';
 import FormErrorSection from '@/components/forms/FormErrorSection';
 import { isFormSubmittable } from '@/components/forms/formsUtil.ts';
@@ -59,13 +59,13 @@ const DummyForm: FC<DummyFormProps> = ({ className }) => {
 
       <DummyFormFields className="mb-6" control={control} errors={errors} />
 
-      <PrimaryButton
+      <Button
         type="submit"
         className="w-full h-[55px]"
         disabled={disableSubmit}
       >
         Submit
-      </PrimaryButton>
+      </Button>
     </form>
   );
 };
