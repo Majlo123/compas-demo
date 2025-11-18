@@ -1,14 +1,36 @@
 import config from 'config/config';
 import { NextFunction, Request, Response } from 'express';
+import httpStatus from 'http-status';
+import { authService } from 'services';
+import ApiError from 'shared/error/ApiError';
 
 export const authorize = async (
-  _req: Request,
-  res: Response,
-  _next: NextFunction,
+  req: Request,
+  _res: Response,
+  next: NextFunction,
 ): Promise<void> => {
-  res.status(501).json({
-    message: 'Authorization middleware not implemented.',
-  });
+  try {
+    // Extract token from Authorization header
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      throw new ApiError('No token provided', httpStatus.UNAUTHORIZED);
+    }
+
+    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
+    
+    // Verify token and extract payload
+    const decoded = authService.verifyToken(token);
+    
+    // Attach user info to request for use in controllers
+    (req as any).user = {
+      id: decoded.sub,
+      email: decoded.email,
+    };
+    
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const checkJobApiKey = (req: Request, res: Response, next: NextFunction): void => {
