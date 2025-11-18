@@ -108,7 +108,7 @@ const handleUnauthorizedResponse = async (error: any): Promise<any> => {
   }
 
   if (error.config.url !== '/user/me') {
-    window.location.href = '/sign-in/';
+    window.location.href = '/login/';
   }
 
   return {

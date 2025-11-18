@@ -76,13 +76,13 @@ export const login = async (credentials: LoginCredentials): Promise<LoginRespons
 
   const user = await authRepository.findByField('email', email);
   if (!user) {
-    throw new ApiError('Invalid email or password', httpStatus.UNAUTHORIZED);
+    throw new ApiError('Invalid email or password', httpStatus.BAD_REQUEST);
   }
 
   const passwordMatches = await bcrypt.compare(password, user.passwordHash);
 
   if (!passwordMatches) {
-    throw new ApiError('Invalid email or password', httpStatus.UNAUTHORIZED);
+    throw new ApiError('Invalid email or password', httpStatus.BAD_REQUEST);
   }
 
   const token = jwt.sign(
