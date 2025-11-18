@@ -18,7 +18,7 @@ const loginSchema = z.object({
   password: z
     .string()
     .min(1, 'Password is required')
-    .min(6, 'Password must be at least 6 characters'),
+    .min(8, 'Password must be at least 8 characters'),
 });
 
 type LoginFormValues = z.infer<typeof loginSchema>;
@@ -45,20 +45,22 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white rounded-2xl shadow-lg py-12 px-10 w-full max-w-md flex flex-col items-center">
-        <div className="mb-6">
-          <CalendarIconLarge />
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
+        <div className="flex flex-col items-center mb-6">
+          <div className="mb-6">
+            <CalendarIconLarge />
+          </div>
+          <h2 className="font-inter font-extrabold text-2xl leading-7 text-center text-gray-800">Vacation Tracker</h2>
         </div>
-        
-        <h1 className="text-2xl font-semibold text-gray-800 mb-8 text-center">Vacation Tracker</h1>
-        
-        <form className="w-full flex flex-col gap-2" onSubmit={handleSubmit(onSubmit)}>
+
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
           <FormTextInput
             name="email"
             control={control}
             errors={formState.errors}
             type="email"
+            inputClassName="w-full"
             placeholder="Email"
             required
           />
@@ -68,6 +70,7 @@ const LoginPage: React.FC = () => {
             control={control}
             errors={formState.errors}
             type="password"
+            inputClassName="w-full"
             placeholder="Password"
             passwordToggle
             required
@@ -76,10 +79,13 @@ const LoginPage: React.FC = () => {
           <PrimaryButton type="submit" className="w-full mt-2">
             Log in
           </PrimaryButton>
+
         </form>
-        
-        <div className="mt-6 text-center text-m text-gray-500">
-          Don't have an account? <a href="/register" className="text-primary hover:text-primary-hover no-underline font-medium cursor-pointer hover:underline transition-colors">Register</a>
+        <div className="text-center text-p2 text-darkGrey mt-3">
+          Don't have an account?{' '}
+          <a href="/register" className="text-primary hover:underline">
+            Register
+          </a>
         </div>
       </div>
     </div>

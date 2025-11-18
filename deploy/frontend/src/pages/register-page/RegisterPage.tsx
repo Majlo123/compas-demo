@@ -9,7 +9,6 @@ import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
 import { register as registerUser } from '@/api/auth/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
-import { useAuthStore } from '@/stores/useAuthStore';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
@@ -19,7 +18,7 @@ const registerSchema = z.object({
   fullName: z.string().min(3, 'Full name must be at least 3 characters')
     .regex(/^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/, 'Name should contain only letters, spaces, hyphens or apostrophes'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(8, 'Password must be at least 8 characters'),
+  password: z.string().min(6, 'Password must be at least 6 characters'),
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -27,12 +26,12 @@ type RegisterForm = z.infer<typeof registerSchema>;
 const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuthStore();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
+    reset,
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '' },
@@ -40,6 +39,7 @@ const RegisterPage: React.FC = () => {
   });
 
   const onSubmit = async (data: RegisterForm) => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     
     try {
@@ -50,13 +50,10 @@ const RegisterPage: React.FC = () => {
       });
 
       if (isApiSuccess(response)) {
-        toast.success('Registration successful! Welcome aboard!');
-        
-        // Auto-login: store token and update auth state
-        login(response.content.token);
-        
-        // Redirect to home page
-        navigate('/home');
+        toast.success('Registration successful! Please log in to continue.');
+        // Reset the form and redirect to login page
+        reset();
+        navigate('/login');
       } else {
         toast.error(response.error?.message || 'Registration failed. Please try again.');
       }
@@ -70,7 +67,7 @@ const RegisterPage: React.FC = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded  -xl shadow-md p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
         <div className="flex flex-col items-center mb-6">
           <div className="mb-6">
             <CalendarIconLarge />
@@ -79,7 +76,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-        <FormTextInput
+          <FormTextInput
             name="fullName"
             control={control}
             errors={errors}
@@ -87,6 +84,7 @@ const RegisterPage: React.FC = () => {
             type="text"
             inputClassName="w-full"
             placeholder="Full Name"
+            disabled={isSubmitting}
           />
 
           <FormTextInput
@@ -97,6 +95,7 @@ const RegisterPage: React.FC = () => {
             type="email"
             inputClassName="w-full"
             placeholder='Email'
+            disabled={isSubmitting}
           />
 
           <FormTextInput
@@ -107,19 +106,22 @@ const RegisterPage: React.FC = () => {
             passwordToggle
             inputClassName="w-full"
             placeholder='Password'
+            disabled={isSubmitting}
           />
 
           <PrimaryButton type="submit" className="w-full mt-2" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating Account...' : 'Register'}
+            {isSubmitting ? 'Registering...' : 'Register'}
           </PrimaryButton>
 
-          <div className="text-center text-p2 text-darkGrey mt-3">
+          
+        </form>
+
+        <div className="text-center text-p2 text-darkGrey mt-3">
             Already have an account?{' '}
-            <a href="/login" className="text-primary underline)">
+            <a href="/login" className="text-primary hover:underline">
               Log In
             </a>
           </div>
-        </form>
       </div>
     </div>
   );
