@@ -10,6 +10,11 @@ import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import HomePage from '@/pages/home-page/HomePage';
 import LoginPage from '@/pages/login-page/LoginPage';
 import RegisterPage from '@/pages/register-page/RegisterPage';
+import DashboardPage from '@/pages/dashboard-page/DashboardPage';
+import MyLeaveRequestsPage from '@/pages/my-leave-requests-page/MyLeaveRequestsPage';
+import TeamCalendarPage from '@/pages/team-calendar-page/TeamCalendarPage';
+import ReportsPage from '@/pages/reports-page/ReportsPage';
+import SettingsPage from '@/pages/settings-page/SettingsPage';
 
 const Router: FC = () => {
   return (
@@ -25,6 +30,13 @@ const Router: FC = () => {
         </Route>
 
         <Route element={<AuthenticatedRoutes />}>
+          <Route element={<DashboardLayout />}>
+            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
+            <Route path="/team-calendar" element={<TeamCalendarPage />} />
+            <Route path="/reports" element={<ReportsPage />} />
+            <Route path="/settings" element={<SettingsPage />} />
+          </Route>
           <Route path="/home" element={<HomePage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Route>

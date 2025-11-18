@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
 
       if (result.success) {
         toast.success('Login successful! Welcome back!');
-        navigate('/home');
+        navigate('/dashboard');
       } else {
         toast.error(result.message || 'Login failed');
       }
