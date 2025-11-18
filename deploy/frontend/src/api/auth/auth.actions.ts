@@ -2,6 +2,7 @@ import { formatError } from '@/api/handle.error';
 import { LoginRequest, LoginResponse } from '@/api/auth/auth.types';
 import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
+import { removeFromLocalStorage } from '@/services/local.storage';
 
 const endpoint = '/auth';
 
@@ -14,4 +15,9 @@ export const login = async (
   } catch (error) {
     return formatError(error);
   }
+};
+
+export const logout = (): void => {
+  removeFromLocalStorage('token');
+  removeFromLocalStorage('user');
 };

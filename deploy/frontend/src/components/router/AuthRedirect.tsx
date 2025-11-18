@@ -1,16 +1,15 @@
 import { FC } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
-
+import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
 
-const UnauthenticatedRoutes: FC = () => {
+const AuthRedirect: FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   if (isLoggedIn) {
     return <Navigate to="/home" replace />;
   }
-
-  return <Outlet />;
+  
+  return <Navigate to="/login" replace />;
 };
 
-export default UnauthenticatedRoutes;
+export default AuthRedirect;

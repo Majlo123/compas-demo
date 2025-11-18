@@ -4,6 +4,7 @@ import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import AuthenticationLayout from '@/components/layout/AuthenticationLayout.tsx';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
+import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import HomePage from '@/pages/home-page/HomePage';
@@ -16,20 +17,17 @@ const Router: FC = () => {
       future={{ v7_startTransition: true, v7_relativeSplatPath: true }}
     >
       <Routes>
+        <Route path="/" element={<AuthRedirect />} />
+        
         <Route element={<UnauthenticatedRoutes />}>
-          <Route element={<AuthenticationLayout />} />
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
         </Route>
 
         <Route element={<AuthenticatedRoutes />}>
-          <Route element={<DashboardLayout />} />
+          <Route path="/home" element={<HomePage />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
-
-        <Route path="*" element={<NotFoundPage />} />
-
-        <Route path='/home' element={<HomePage />} />
-        <Route path='/login' element={<LoginPage />} />
-
-        <Route path="/register" element={<RegisterPage />} />
       </Routes>
     </BrowserRouter>
   );

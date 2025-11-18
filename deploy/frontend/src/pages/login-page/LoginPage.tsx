@@ -9,6 +9,7 @@ import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 import { login } from '@/api/auth/auth.actions';
 import { setToLocalStorage } from '@/services/local.storage';
 import { isApiSuccess } from '@/api/shared.types';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 const loginSchema = z.object({
   email: z
@@ -25,6 +26,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login: setLogin } = useAuthStore();
   const { control, handleSubmit, formState } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
@@ -38,7 +40,7 @@ const LoginPage: React.FC = () => {
     });
 
     if (isApiSuccess(response)) {
-      setToLocalStorage('token', response.content.token);
+      setLogin(response.content.token);
       setToLocalStorage('user', JSON.stringify(response.content.user));
       navigate('/home');
     }
