@@ -1,5 +1,5 @@
 import React from 'react';
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 
 const MyLeaveRequestsPage: React.FC = () => {
   const handleNewRequest = () => {
@@ -11,9 +11,9 @@ const MyLeaveRequestsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-semibold text-gray-800">My Leave Requests</h1>
-        <PrimaryButton onClick={handleNewRequest}>
+        <Button onClick={handleNewRequest}>
           + New Leave Request
-        </PrimaryButton>
+        </Button>
       </div>
 
       {/* Content Area */}

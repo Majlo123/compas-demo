@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { getFromLocalStorage, removeFromLocalStorage } from '@/services/local.storage';
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const HomePage: React.FC = () => {
@@ -42,9 +42,9 @@ const HomePage: React.FC = () => {
                 </div>
               )}
             </div>
-            <PrimaryButton onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
+            <Button onClick={handleLogout} className="bg-red-500 hover:bg-red-600">
               Log out
-            </PrimaryButton>
+            </Button>
           </div>
           
           <div className="border-t pt-6">
