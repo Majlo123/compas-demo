@@ -19,6 +19,58 @@ export type LoginResponse = {
   };
 };
 
+export type RegisterInput = {
+  email: string;
+  password: string;
+  fullName: string;
+};
+
+export type RegisterResponse = {
+  token: string;
+  user: {
+    id: string;
+    email: string;
+    fullName: string;
+  };
+};
+
+export const register = async (input: RegisterInput): Promise<RegisterResponse> => {
+  const { email, password, fullName } = input;
+
+  const existingUser = await authRepository.findByField('email', email);
+  if (existingUser) {
+    throw new ApiError('Email already registered', httpStatus.BAD_REQUEST);
+  }
+
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  const user = await authRepository.create({
+    email,
+    passwordHash,
+    fullName,
+  });
+
+  const token = jwt.sign(
+    {
+      sub: user.id,
+      email: user.email,
+    },
+    config.jwt.secret,
+    {
+      expiresIn: config.jwt.expiresIn as any,
+    }
+  );
+
+  return {
+    token,
+    user: {
+      id: user.id!,
+      email: user.email,
+      fullName: user.fullName,
+    },
+  };
+};
+
 export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
   const { email, password } = credentials;
 

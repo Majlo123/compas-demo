@@ -1,9 +1,15 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import PrimaryButton from '@/components/controls/button/PrimaryButton';
 import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
+import { register as registerUser } from '@/api/auth/auth.actions';
+import { isApiSuccess } from '@/api/shared.types';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
@@ -13,26 +19,53 @@ const registerSchema = z.object({
   fullName: z.string().min(3, 'Full name must be at least 3 characters')
     .regex(/^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/, 'Name should contain only letters, spaces, hyphens or apostrophes'),
   email: z.string().email('Invalid email address'),
-  password: z.string().min(6, 'Password must be at least 6 characters'),
+  password: z.string().min(8, 'Password must be at least 8 characters'),
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+  const { login } = useAuthStore();
+
   const {
     control,
     handleSubmit,
     formState: { errors },
-    reset,
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '' },
     mode: 'onChange',
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    console.log('Register submit:', data);
-    reset();
+  const onSubmit = async (data: RegisterForm) => {
+    setIsSubmitting(true);
+    
+    try {
+      const response = await registerUser({
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+      });
+
+      if (isApiSuccess(response)) {
+        toast.success('Registration successful! Welcome aboard!');
+        
+        // Auto-login: store token and update auth state
+        login(response.content.token);
+        
+        // Redirect to home page
+        navigate('/home');
+      } else {
+        toast.error(response.error?.message || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -76,8 +109,8 @@ const RegisterPage: React.FC = () => {
             placeholder='Password'
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2">
-            Register
+          <PrimaryButton type="submit" className="w-full mt-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Creating Account...' : 'Register'}
           </PrimaryButton>
 
           <div className="text-center text-p2 text-darkGrey mt-3">

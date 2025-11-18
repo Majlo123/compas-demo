@@ -7,9 +7,9 @@ const CustomIcon: ToastIcon = ({ isLoading, type }: IconProps) => {
 
   switch (type) {
     case 'success':
-      return <span className="stroke-white">Success</span>;
+      return <span className="stroke-white">✓</span>;
     case 'error':
-      return <span className="stroke-white">Error</span>;
+      return <span className="stroke-white">✕</span>;
     default:
       return null;
   }
