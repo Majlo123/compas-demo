@@ -4,7 +4,7 @@ import { z } from 'zod';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
 import { register as registerUser } from '@/api/auth/auth.actions';
@@ -109,9 +109,9 @@ const RegisterPage: React.FC = () => {
             disabled={isSubmitting}
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2" disabled={isSubmitting}>
+          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
             {isSubmitting ? 'Registering...' : 'Register'}
-          </PrimaryButton>
+          </Button>
 
           
         </form>

@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 import { login } from '@/api/auth/auth.actions';
@@ -76,9 +76,9 @@ const LoginPage: React.FC = () => {
             required
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2">
+          <Button type="submit" className="w-full mt-2">
             Log in
-          </PrimaryButton>
+          </Button>
 
         </form>
         <div className="text-center text-p2 text-darkGrey mt-3">
