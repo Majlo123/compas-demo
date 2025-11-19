@@ -1,29 +1,33 @@
+import { isAxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/api/shared.types';
 
 export const getErrorMessage = (
   err: unknown,
   fallback = 'An unknown error occurred'
 ): string => {
-  if (err instanceof Error && err.message) {
-    return err.message;
+  if (isAxiosError(err)) {
+    return err.message || fallback;
   }
-  if (
-    typeof err === 'object' &&
-    err &&
-    'message' in err &&
-    typeof err.message === 'string'
-  ) {
-    return err.message;
-  }
+  console.error('Generic error', err);
   return fallback;
 };
 
 export const formatError = (error: unknown): ApiErrorResponse => {
+  if (isAxiosError(error)) {
+    return {
+      success: false,
+      error: {
+        code: error.response?.status || 500,
+        message: error.response?.data?.message || error.message,
+      },
+    };
+  }
+  console.error('Generic error', error);
   return {
     success: false,
     error: {
       code: 500,
-      message: getErrorMessage(error, 'Unexpected error, please try again'),
+      message: getErrorMessage(error),
     },
   };
 };

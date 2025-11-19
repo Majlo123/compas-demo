@@ -4,7 +4,7 @@ import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
-import { LoginSchema, LoginSuccessSchema } from 'types/zod/auth.schema';
+import { LoginSchema, RegisterSchema, LoginSuccessSchema } from 'types/zod/auth.schema';
 import {
   BadRequestResponseSchema,
   UnauthorizedResponseSchema,
@@ -12,6 +12,7 @@ import {
 
 enum AuthFunctions {
   login = 'login',
+  register = 'register',
 }
 
 const createAuthRoute = (basePath: string): Router => {
@@ -42,10 +43,32 @@ const createAuthRoute = (basePath: string): Router => {
       functionName: AuthFunctions.login,
       basePath,
     },
+    {
+      name: 'Register',
+      desc: 'Register a new user and return JWT token',
+      path: '/register',
+      method: 'post',
+      requestBodySchema: RegisterSchema,
+      responses: [
+        {
+          code: httpStatus.CREATED,
+          desc: 'Registration successful',
+          schema: LoginSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid request or email already registered',
+          schema: BadRequestResponseSchema,
+        },
+      ],
+      functionName: AuthFunctions.register,
+      basePath,
+    },
   ];
 
   const authControllerFunctions: Record<AuthFunctions, RequestHandler> = {
     login: authController.login,
+    register: authController.register,
   };
 
   const router = Router();

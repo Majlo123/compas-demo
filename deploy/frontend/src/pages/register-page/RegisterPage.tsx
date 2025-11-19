@@ -1,9 +1,14 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
 import PrimaryButton from '@/components/controls/button/PrimaryButton';
 import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
+import { register as registerUser } from '@/api/auth/auth.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
@@ -19,6 +24,9 @@ const registerSchema = z.object({
 type RegisterForm = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const navigate = useNavigate();
+
   const {
     control,
     handleSubmit,
@@ -30,14 +38,36 @@ const RegisterPage: React.FC = () => {
     mode: 'onChange',
   });
 
-  const onSubmit = (data: RegisterForm) => {
-    console.log('Register submit:', data);
-    reset();
+  const onSubmit = async (data: RegisterForm) => {
+    if (isSubmitting) return;
+    setIsSubmitting(true);
+    
+    try {
+      const response = await registerUser({
+        email: data.email,
+        password: data.password,
+        fullName: data.fullName,
+      });
+
+      if (isApiSuccess(response)) {
+        toast.success('Registration successful! Please log in to continue.');
+        // Reset the form and redirect to login page
+        reset();
+        navigate('/login');
+      } else {
+        toast.error(response.error?.message || 'Registration failed. Please try again.');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
+      console.error('Registration error:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded  -xl shadow-md p-8">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
         <div className="flex flex-col items-center mb-6">
           <div className="mb-6">
             <CalendarIconLarge />
@@ -46,7 +76,7 @@ const RegisterPage: React.FC = () => {
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
-        <FormTextInput
+          <FormTextInput
             name="fullName"
             control={control}
             errors={errors}
@@ -54,6 +84,7 @@ const RegisterPage: React.FC = () => {
             type="text"
             inputClassName="w-full"
             placeholder="Full Name"
+            disabled={isSubmitting}
           />
 
           <FormTextInput
@@ -64,6 +95,7 @@ const RegisterPage: React.FC = () => {
             type="email"
             inputClassName="w-full"
             placeholder='Email'
+            disabled={isSubmitting}
           />
 
           <FormTextInput
@@ -74,19 +106,22 @@ const RegisterPage: React.FC = () => {
             passwordToggle
             inputClassName="w-full"
             placeholder='Password'
+            disabled={isSubmitting}
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2">
-            Register
+          <PrimaryButton type="submit" className="w-full mt-2" disabled={isSubmitting}>
+            {isSubmitting ? 'Registering...' : 'Register'}
           </PrimaryButton>
 
-          <div className="text-center text-p2 text-darkGrey mt-3">
+          
+        </form>
+
+        <div className="text-center text-p2 text-darkGrey mt-3">
             Already have an account?{' '}
-            <a href="/login" className="text-primary underline)">
+            <a href="/login" className="text-primary hover:underline">
               Log In
             </a>
           </div>
-        </form>
       </div>
     </div>
   );
