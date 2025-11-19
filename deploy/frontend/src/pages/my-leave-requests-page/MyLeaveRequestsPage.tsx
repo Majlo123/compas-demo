@@ -54,6 +54,27 @@ const MyLeaveRequestsPage: React.FC = () => {
       endDate: 'Dec 10, 2024',
       status: 'declined',
     },
+    {
+      _id: '5',
+      type: 'Sick',
+      startDate: 'Dec 2, 2024',
+      endDate: 'Dec 10, 2024',
+      status: 'declined',
+    },
+    {
+      _id: '5',
+      type: 'Sick',
+      startDate: 'Dec 2, 2024',
+      endDate: 'Dec 10, 2024',
+      status: 'declined',
+    },
+    {
+      _id: '5',
+      type: 'Sick',
+      startDate: 'Dec 2, 2024',
+      endDate: 'Dec 10, 2024',
+      status: 'declined',
+    },
   ];
 
   const columns: Column[] = [
@@ -99,9 +120,9 @@ const MyLeaveRequestsPage: React.FC = () => {
         <Table
           columns={columns}
           data={leaveRequests}
-          tableClassName="text-lg"
-          headerClassName="text-xl font-bold"
-          cellClassName="text-xl"
+          tableClassName="text-sm lg:text-lg"
+          headerClassName="text-sm lg:text-xl font-bold"
+          cellClassName="text-sm lg:text-xl"
           rowHeight={64}
           headerHeight={56}
         />
