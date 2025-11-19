@@ -16,7 +16,7 @@ const DashboardLayout: React.FC = () => {
       >
         <HeaderNav />
         <div className="flex-1 overflow-auto pt-10">
-          <div className="bg-[#F9FAFD] rounded-2xl shadow-sm p-8 h-full">
+          <div className="bg-[#F9FAFD] rounded-2xl p-8">
             <Outlet />
           </div>
         </div>

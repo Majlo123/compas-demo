@@ -91,7 +91,7 @@ const handleTokenExpiredResponse = async (error: any): Promise<any> => {
     }
 
     if (originalRequest.url !== '/user/me') {
-      window.location.href = '/sign-in/';
+      window.location.href = '/login/';
     }
 
     return {

@@ -7,7 +7,7 @@ import { tv } from 'tailwind-variants';
 type ButtonVariant = 'primary' | 'secondary' | 'ghost';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
-type PrimaryButtonProps = (ButtonWithIcon | ButtonWithoutIcon) & {
+type ButtonProps = (ButtonWithIcon | ButtonWithoutIcon) & {
   variant?: ButtonVariant;
   size?: ButtonSize;
   large?: boolean;
@@ -81,7 +81,7 @@ const Button = ({
   iconClassName = '',
   disabled = false,
   ...rest
-}: PrimaryButtonProps): JSX.Element => {
+}: ButtonProps): JSX.Element => {
   return (
     <button
       className={buttonVariants({ variant, size, disabled, large, className })}

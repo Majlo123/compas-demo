@@ -1,7 +1,7 @@
 import { FC } from 'react';
+import { tv } from 'tailwind-variants';
 
 import TableColumnSort from '@/components/controls/table/TableColumnSort';
-import classNameBuilder from '@/utils/classNameBuilder';
 
 export type Row = {
   _id: string;
@@ -12,77 +12,80 @@ export type Column = {
   accessor: keyof Row;
   header: string;
   formatter?: (value: Row[keyof Row], row: Row) => React.ReactNode;
-  width?: number;
+  width?: number | string;
   sortKey?: string;
 };
 
 type TableProps = {
   className?: string;
   rowHeight?: number;
+  headerHeight?: number;
   columns: Column[];
   data: Row[];
+
+  headerClassName?: string;
+  bodyClassName?: string;
+  rowClassName?: string;
+  cellClassName?: string;
+  tableClassName?: string;
 };
 
 const DEFAULT_ROW_HEIGHT = 46;
 const DEFAULT_HEADER_HEIGHT = 46;
+
+const tableVariants = tv({
+  slots: {
+    wrapper: 'relative w-full overflow-hidden',
+    canvas: 'w-full overflow-x-auto',
+    table: 'flex flex-col w-full bg-white rounded-lg overflow-hidden',
+    header: 'flex bg-gray-50 border-b border-gray-200',
+    headerCell: 'h-full flex items-center justify-center',
+    headerCellInner: 'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*8px)] flex justify-start items-center',
+    headerText: 'whitespace-nowrap text-gray-600',
+    body: 'flex flex-col bg-white',
+    row: 'flex border-b last-of-type:border-none border-gray-100 hover:bg-gray-50 transition-colors',
+    cellOuter: 'h-full flex items-center justify-center',
+    cellInner: 'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*4px)] flex justify-start items-center',
+    footer: 'min-h-[15px] w-full',
+  },
+});
+
+const { wrapper, canvas, table, header, headerCell, headerCellInner, headerText, body, row, cellOuter, cellInner, footer } = tableVariants();
 
 const Table: FC<TableProps> = ({
   className,
   columns,
   data,
   rowHeight = DEFAULT_ROW_HEIGHT,
+  headerHeight = DEFAULT_HEADER_HEIGHT,
+  headerClassName,
+  bodyClassName,
+  rowClassName,
+  cellClassName,
+  tableClassName,
 }) => {
   return (
-    <div
-      className={classNameBuilder(
-        className,
-        'acutro-table-outer-wrapper',
-        'relative'
-      )}
-    >
+    <div className={wrapper({ className })}>
       {/* Canvas */}
-      <div
-        className={classNameBuilder(
-          'acutro-table-canvas',
-          'absolute inset-0 overflow-x-auto'
-        )}
-      >
+      <div className={canvas()}>
         {/* Table */}
-        <div
-          className={classNameBuilder(
-            'acutro-table',
-            'flex flex-col min-w-max w-full h-full',
-            'bg-white rounded-t-lg overflow-hidden'
-          )}
-        >
+        <div className={table({ className: tableClassName })}>
           {/* Header */}
           <div
-            className={classNameBuilder(
-              'acutro-table-header',
-              'flex ',
-              'bg-ghostWhite'
-            )}
+            className={header({ className: headerClassName })}
             style={{
-              height: `${DEFAULT_HEADER_HEIGHT}px`,
-              minHeight: `${DEFAULT_HEADER_HEIGHT}px`,
+              height: `${headerHeight}px`,
+              minHeight: `${headerHeight}px`,
             }}
           >
             {columns.map((col) => (
               <div
                 key={String(col.accessor)}
-                className={classNameBuilder(
-                  'acutro-table-header-cell',
-                  'h-full flex items-center justify-center'
-                )}
+                className={headerCell({ className: cellClassName })}
                 style={{ width: col.width }}
               >
-                <div
-                  className={classNameBuilder(
-                    'acutro-table-header-cell-inner',
-                    'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*8px)] flex justify-start items-center'
-                  )}
-                >
-                  <span className="whitespace-nowrap text-darkGrey text-h4 !font-bold">
+                <div className={headerCellInner({ className: cellClassName })}>
+                  <span className={headerText({ className: headerClassName })}>
                     {col.header}
                   </span>
                   {Boolean(col.sortKey) && (
@@ -93,42 +96,26 @@ const Table: FC<TableProps> = ({
             ))}
           </div>
           {/* Body */}
-          <div
-            className={classNameBuilder(
-              'acutro-table-body',
-              'flex flex-col bg-white overflow-y-auto max-h-[100%]'
-            )}
-          >
-            {data.map((row) => (
+          <div className={body({ className: bodyClassName })}>
+            {data.map((rowData) => (
               <div
-                key={row._id}
-                className={classNameBuilder(
-                  'acutro-table-row',
-                  'flex border-b last-of-type:border-none border-grey hover:bg-grey95'
-                )}
+                key={rowData._id}
+                className={row({ className: rowClassName })}
                 style={{
                   height: `${rowHeight}px`,
                   minHeight: `${rowHeight}px`,
                 }}
               >
                 {columns.map((col) => {
-                  const value = row[col.accessor];
+                  const value = rowData[col.accessor];
                   return (
                     <div
                       key={String(col.accessor)}
-                      className={classNameBuilder(
-                        'acutro-table-cell-outer',
-                        'h-full flex items-center justify-center'
-                      )}
+                      className={cellOuter({ className: cellClassName })}
                       style={{ width: col.width }}
                     >
-                      <div
-                        className={classNameBuilder(
-                          'acutro-table-cell-inner',
-                          'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*4px)] flex justify-start items-center'
-                        )}
-                      >
-                        {col.formatter ? col.formatter(value, row) : value}
+                      <div className={cellInner({ className: cellClassName })}>
+                        {col.formatter ? col.formatter(value, rowData) : value}
                       </div>
                     </div>
                   );
@@ -137,12 +124,7 @@ const Table: FC<TableProps> = ({
             ))}
           </div>
           {/* Footer */}
-          <div
-            className={classNameBuilder(
-              'acutro-table-footer',
-              'min-h-[15px] w-full'
-            )}
-          />
+          <div className={footer()} />
         </div>
       </div>
     </div>
@@ -150,3 +132,4 @@ const Table: FC<TableProps> = ({
 };
 
 export default Table;
+

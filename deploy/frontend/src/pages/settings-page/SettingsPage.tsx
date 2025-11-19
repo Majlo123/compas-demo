@@ -3,9 +3,14 @@ import React from 'react';
 const SettingsPage: React.FC = () => {
   return (
     <>
-      <h1 className="text-3xl font-semibold text-gray-800 mb-6">Settings</h1>
-      <div className="text-gray-500 text-center py-12">
-        Settings will be displayed here
+      {/* Page Header */}
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-extrabold text-gray-800">Settings</h1>
+      </div>
+      
+      {/* Content Area */}
+      <div>
+        Settings content will be displayed here
       </div>
     </>
   );
