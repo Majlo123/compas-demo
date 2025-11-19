@@ -3,7 +3,7 @@ import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import CustomDialog from '@/components/dialog/dialog-props';
-import Select from '@/components/controls/Select';
+import Select, { SelectOption } from '@/components/controls/Select';
 import DateInput from '@/components/controls/DateInput';
 
 type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
@@ -17,13 +17,10 @@ interface LeaveRequest extends Row {
 
 const MyLeaveRequestsPage: React.FC = () => {
   const [isDialogOpen, setDialogOpen] = useState(false);
+  const [selectedLeaveType, setSelectedLeaveType] = useState<SelectOption | null>(null);
 
   const handleNewRequest = () => {
     setDialogOpen(true);
-  };
-
-  const handleCloseDialog = () => {
-    setDialogOpen(false);
   };
   
   // Sample data
@@ -146,15 +143,17 @@ const MyLeaveRequestsPage: React.FC = () => {
       >
         <form>
           <div className="mb-4">
-            <label className="block text-sm font-medium text-gray-700">Leave Type</label>
             <Select
               options={[
-                { label: 'Vacation', value: 'vacation' },
-                { label: 'Sick', value: 'sick' },
-                { label: 'Personal', value: 'personal' },
+                { label: 'Vacation', value: 'Vacation' },
+                { label: 'Sick Leave', value: 'Sick Leave' },
+                { label: 'Personal Leave', value: 'Personal Leave' },
+                { label: 'Unpaid Leave', value: 'Unpaid Leave' },
               ]}
-              value={null}
+              label='Leave Type'
+              value={selectedLeaveType}
               placeholder="Select Leave Type"
+              onChange={(selectedOption: SelectOption | null) => setSelectedLeaveType(selectedOption)}
             />
           </div>
           <div className="mb-4">

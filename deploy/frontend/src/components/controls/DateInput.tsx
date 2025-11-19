@@ -65,17 +65,6 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
             type="date"
           />
         </div>
-
-        <span
-          className={classNameBuilder(
-            'flex flex-col justify-center text-p2 h-8 w-full',
-            error ? 'text-red' : 'text-transparent'
-          )}
-          aria-live="polite"
-          role={error ? 'alert' : undefined}
-        >
-          {error ?? '\u00A0'}
-        </span>
       </div>
     );
   }
