@@ -6,9 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import PrimaryButton from '@/components/controls/button/PrimaryButton';
 import FormTextInput from '@/components/controls/FormTextInput';
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
-import { login } from '@/api/auth/auth.actions';
-import { setToLocalStorage } from '@/services/local.storage';
-import { isApiSuccess } from '@/api/shared.types';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { toast } from 'react-toastify';
 
 const loginSchema = z.object({
   email: z
@@ -25,6 +24,7 @@ type LoginFormValues = z.infer<typeof loginSchema>;
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
+  const { login } = useAuthStore();
   const { control, handleSubmit, formState } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
     defaultValues: { email: '', password: '' },
@@ -32,15 +32,20 @@ const LoginPage: React.FC = () => {
   });
 
   const onSubmit = async (values: LoginFormValues) => {
-    const response = await login({
-      email: values.email,
-      password: values.password,
-    });
+    try {
+      const result = await login({
+        email: values.email,
+        password: values.password,
+      });
 
-    if (isApiSuccess(response)) {
-      setToLocalStorage('token', response.content.token);
-      setToLocalStorage('user', JSON.stringify(response.content.user));
-      navigate('/home');
+      if (result.success) {
+        toast.success('Login successful! Welcome back!');
+        navigate('/home');
+      } else {
+        toast.error(result.message || 'Login failed');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred. Please try again.');
     }
   };
 

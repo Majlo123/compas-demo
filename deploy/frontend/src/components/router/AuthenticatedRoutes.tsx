@@ -4,10 +4,10 @@ import { Outlet, Navigate } from 'react-router-dom';
 import { useAuthStore } from '@/stores/useAuthStore';
 
 const AuthenticatedRoutes: FC = () => {
-  const { isLoggedIn } = useAuthStore();
+  const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   if (!isLoggedIn) {
-    return <Navigate to="/sign-in" />;
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;

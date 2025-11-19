@@ -10,7 +10,6 @@ export const authorize = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    // Extract token from Authorization header
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
       throw new ApiError('No token provided', httpStatus.UNAUTHORIZED);
@@ -18,10 +17,8 @@ export const authorize = async (
 
     const token = authHeader.substring(7); // Remove 'Bearer ' prefix
     
-    // Verify token and extract payload
     const decoded = authService.verifyToken(token);
     
-    // Attach user info to request for use in controllers
     (req as any).user = {
       id: decoded.sub,
       email: decoded.email,

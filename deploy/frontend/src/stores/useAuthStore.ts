@@ -6,6 +6,9 @@ import {
   setToLocalStorage,
   removeFromLocalStorage,
 } from '@/services/local.storage';
+import { login as loginApi } from '@/api/auth/auth.actions';
+import { isApiSuccess } from '@/api/shared.types';
+import { LoginRequest } from '@/api/auth/auth.types';
 
 enum TokenActionTypeENUM {
   FORGOT_PASSWORD = 'FORGOT_PASSWORD',
@@ -20,7 +23,7 @@ type DecodedToken = {
 type AuthState = {
   isInitialized: boolean;
   isLoggedIn: boolean;
-  login: (token: string) => void;
+  login: (credentials: LoginRequest) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   initialize: () => void;
 };
@@ -43,20 +46,22 @@ export const useAuthStore = create<AuthState>((set) => {
     isInitialized: false,
     isLoggedIn: false,
 
-    login: (accessToken): void => {
-      setToLocalStorage('token', accessToken);
+    login: async (credentials: LoginRequest): Promise<{ success: boolean; message?: string }> => {
+      const response = await loginApi(credentials);
+      
+      if (!isApiSuccess(response)) {
+        return { success: false, message: response.error?.message || 'Login failed' };
+      }
 
-      set({
-        isLoggedIn: isAccessToken(accessToken),
-      });
+      setToLocalStorage('token', response.content.token);
+      set({ isLoggedIn: isAccessToken(response.content.token) });
+      
+      return { success: true };
     },
 
     logout: (): void => {
       removeFromLocalStorage('token');
-
-      set({
-        isLoggedIn: false,
-      });
+      set({ isLoggedIn: false });
     },
 
     initialize: (): void => {
