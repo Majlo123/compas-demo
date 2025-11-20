@@ -1,7 +1,7 @@
 import { FC } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 import TableColumnSort from '@/components/controls/table/TableColumnSort';
-import classNameBuilder from '@/utils/classNameBuilder';
 
 export type Row = {
   _id: string;
@@ -12,124 +12,70 @@ export type Column = {
   accessor: keyof Row;
   header: string;
   formatter?: (value: Row[keyof Row], row: Row) => React.ReactNode;
-  width?: number;
   sortKey?: string;
 };
 
 type TableProps = {
   className?: string;
-  rowHeight?: number;
   columns: Column[];
   data: Row[];
-};
 
-const DEFAULT_ROW_HEIGHT = 46;
-const DEFAULT_HEADER_HEIGHT = 46;
+  headerClassName?: string;
+  bodyClassName?: string;
+  rowClassName?: string;
+  cellClassName?: string;
+  tableClassName?: string;
+  headerCellClassName?: string;
+};
 
 const Table: FC<TableProps> = ({
   className,
   columns,
   data,
-  rowHeight = DEFAULT_ROW_HEIGHT,
+  headerClassName,
+  bodyClassName,
+  rowClassName,
+  cellClassName,
+  tableClassName,
+  headerCellClassName,
 }) => {
   return (
-    <div
-      className={classNameBuilder(
-        className,
-        'acutro-table-outer-wrapper',
-        'relative'
-      )}
-    >
+    <div className={twMerge('relative w-full overflow-hidden', className)}>
       {/* Canvas */}
-      <div
-        className={classNameBuilder(
-          'acutro-table-canvas',
-          'absolute inset-0 overflow-x-auto'
-        )}
-      >
+      <div className="w-full overflow-x-auto">
         {/* Table */}
-        <div
-          className={classNameBuilder(
-            'acutro-table',
-            'flex flex-col min-w-max w-full h-full',
-            'bg-white rounded-t-lg overflow-hidden'
-          )}
-        >
+        <div className={twMerge('flex flex-col w-full bg-white rounded-lg overflow-hidden', tableClassName)}>
           {/* Header */}
-          <div
-            className={classNameBuilder(
-              'acutro-table-header',
-              'flex ',
-              'bg-ghostWhite'
-            )}
-            style={{
-              height: `${DEFAULT_HEADER_HEIGHT}px`,
-              minHeight: `${DEFAULT_HEADER_HEIGHT}px`,
-            }}
-          >
+          <div className={twMerge('flex bg-gray-50 border-b border-gray-200', headerClassName)}>
             {columns.map((col) => (
               <div
                 key={String(col.accessor)}
-                className={classNameBuilder(
-                  'acutro-table-header-cell',
-                  'h-full flex items-center justify-center'
-                )}
-                style={{ width: col.width }}
+                className={twMerge('flex-1 flex items-center px-5 py-5', headerCellClassName)}
               >
-                <div
-                  className={classNameBuilder(
-                    'acutro-table-header-cell-inner',
-                    'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*8px)] flex justify-start items-center'
-                  )}
-                >
-                  <span className="whitespace-nowrap text-darkGrey text-h4 !font-bold">
-                    {col.header}
-                  </span>
-                  {Boolean(col.sortKey) && (
-                    <TableColumnSort sortKey={col.sortKey} />
-                  )}
-                </div>
+                <span className="whitespace-nowrap text-gray-600">
+                  {col.header}
+                </span>
+                {Boolean(col.sortKey) && (
+                  <TableColumnSort sortKey={col.sortKey} />
+                )}
               </div>
             ))}
           </div>
           {/* Body */}
-          <div
-            className={classNameBuilder(
-              'acutro-table-body',
-              'flex flex-col bg-white overflow-y-auto max-h-[100%]'
-            )}
-          >
-            {data.map((row) => (
+          <div className={twMerge('flex flex-col bg-white', bodyClassName)}>
+            {data.map((rowData) => (
               <div
-                key={row._id}
-                className={classNameBuilder(
-                  'acutro-table-row',
-                  'flex border-b last-of-type:border-none border-grey hover:bg-grey95'
-                )}
-                style={{
-                  height: `${rowHeight}px`,
-                  minHeight: `${rowHeight}px`,
-                }}
+                key={rowData._id}
+                className={twMerge('flex border-b last-of-type:border-none border-gray-100 hover:bg-gray-50 transition-colors', rowClassName)}
               >
                 {columns.map((col) => {
-                  const value = row[col.accessor];
+                  const value = rowData[col.accessor];
                   return (
                     <div
                       key={String(col.accessor)}
-                      className={classNameBuilder(
-                        'acutro-table-cell-outer',
-                        'h-full flex items-center justify-center'
-                      )}
-                      style={{ width: col.width }}
+                      className={twMerge('flex-1 flex items-center px-5 py-3', cellClassName)}
                     >
-                      <div
-                        className={classNameBuilder(
-                          'acutro-table-cell-inner',
-                          'overflow-hidden w-[calc(100%-2*20px)] h-[calc(100%-2*4px)] flex justify-start items-center'
-                        )}
-                      >
-                        {col.formatter ? col.formatter(value, row) : value}
-                      </div>
+                      {col.formatter ? col.formatter(value, rowData) : value}
                     </div>
                   );
                 })}
@@ -137,12 +83,7 @@ const Table: FC<TableProps> = ({
             ))}
           </div>
           {/* Footer */}
-          <div
-            className={classNameBuilder(
-              'acutro-table-footer',
-              'min-h-[15px] w-full'
-            )}
-          />
+          <div className="min-h-[15px] w-full" />
         </div>
       </div>
     </div>
@@ -150,3 +91,4 @@ const Table: FC<TableProps> = ({
 };
 
 export default Table;
+

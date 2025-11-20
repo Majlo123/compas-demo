@@ -1,7 +1,6 @@
 import { FC } from 'react';
 
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
-import SecondaryButton from '@/components/controls/button/SecondaryButton.tsx';
+import Button from '@/components/controls/button/Button';
 import classNameBuilder from '@/utils/classNameBuilder';
 
 type FormFooterProps = {
@@ -30,19 +29,19 @@ const FormFooter: FC<FormFooterProps> = ({
       )}
     >
       {!!onCancel && (
-        <SecondaryButton type="button" onClick={onCancel} className="w-[112px]">
+        <Button type="button" onClick={onCancel} className="w-[112px]">
           {cancelText}
-        </SecondaryButton>
+        </Button>
       )}
       {!!onSubmit && (
-        <PrimaryButton
+        <Button
           type="submit"
           onClick={onSubmit}
           disabled={disableSubmit}
           className="w-[112px]"
         >
           {confirmText}
-        </PrimaryButton>
+        </Button>
       )}
     </div>
   );

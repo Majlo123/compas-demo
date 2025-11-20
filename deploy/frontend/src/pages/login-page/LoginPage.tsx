@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import PrimaryButton from '@/components/controls/button/PrimaryButton';
+import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -40,7 +40,7 @@ const LoginPage: React.FC = () => {
 
       if (result.success) {
         toast.success('Login successful! Welcome back!');
-        navigate('/home');
+        navigate('/dashboard');
       } else {
         toast.error(result.message || 'Login failed');
       }
@@ -81,9 +81,9 @@ const LoginPage: React.FC = () => {
             required
           />
 
-          <PrimaryButton type="submit" className="w-full mt-2">
+          <Button type="submit" className="w-full mt-2">
             Log in
-          </PrimaryButton>
+          </Button>
 
         </form>
         <div className="text-center text-p2 text-darkGrey mt-3">

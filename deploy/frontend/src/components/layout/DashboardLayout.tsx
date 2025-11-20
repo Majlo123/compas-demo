@@ -1,18 +1,25 @@
 import React from 'react';
 import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import HeaderNav from './HeaderNav';
 
 const DashboardLayout: React.FC = () => {
   return (
     <div
       id="dashboard-layout"
-      className="flex flex-row w-full h-full overflow-hidden bg-lightGrey"
+      className="flex flex-row w-full h-full overflow-hidden bg-layoutBg p-10 rounded-2xl"
     >
-      {/* <DashboardSidebar /> */}
+      <Sidebar />
       <main
         id="dashboard-main"
-        className="flex flex-col flex-auto h-full overflow-hidden"
+        className="flex flex-col flex-auto h-full overflow-hidden pl-10"
       >
-        <Outlet />
+        <HeaderNav />
+        <div className="flex-1 overflow-auto pt-10">
+          <div className="bg-layoutBg rounded-2xl p-8">
+            <Outlet />
+          </div>
+        </div>
       </main>
     </div>
   );
