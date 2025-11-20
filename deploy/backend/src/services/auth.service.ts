@@ -4,37 +4,9 @@ import bcrypt from 'bcrypt';
 import { authRepository } from 'repos/index';
 import ApiError from 'shared/error/ApiError';
 import config from 'config/config';
+import { RegisterRequest, RegisterResponse, LoginRequest, LoginResponse } from '../../../shared/auth.types';
 
-export type LoginCredentials = {
-  email: string;
-  password: string;
-};
-
-export type LoginResponse = {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    fullName: string;
-  };
-};
-
-export type RegisterInput = {
-  email: string;
-  password: string;
-  fullName: string;
-};
-
-export type RegisterResponse = {
-  token: string;
-  user: {
-    id: string;
-    email: string;
-    fullName: string;
-  };
-};
-
-export const register = async (input: RegisterInput): Promise<RegisterResponse> => {
+export const register = async (input: RegisterRequest): Promise<RegisterResponse> => {
   const { email, password, fullName } = input;
 
   const existingUser = await authRepository.findByField('email', email);
@@ -71,7 +43,7 @@ export const register = async (input: RegisterInput): Promise<RegisterResponse> 
   };
 };
 
-export const login = async (credentials: LoginCredentials): Promise<LoginResponse> => {
+export const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
   const { email, password } = credentials;
 
   const user = await authRepository.findByField('email', email);
