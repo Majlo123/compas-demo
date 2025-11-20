@@ -7,7 +7,7 @@ const UnauthenticatedRoutes: FC = () => {
   const isLoggedIn = useAuthStore((state) => state.isLoggedIn);
 
   if (isLoggedIn) {
-    return <Navigate to="/home" replace />;
+    return <Navigate to="/dashboard" replace />;
   }
 
   return <Outlet />;

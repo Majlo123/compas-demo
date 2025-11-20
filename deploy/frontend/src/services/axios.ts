@@ -118,8 +118,11 @@ const handleUnauthorizedResponse = async (error: any): Promise<any> => {
 
 axiosServer.interceptors.request.use(
   (reqConfig) => {
-    // eslint-disable-next-line no-param-reassign
-    reqConfig.headers.token = getFromLocalStorage('token');
+    const token = getFromLocalStorage('token');
+    if (token) {
+      reqConfig.headers.Authorization = `Bearer ${token}`;
+    }
+    reqConfig.headers.token = token;
 
     return reqConfig;
   },

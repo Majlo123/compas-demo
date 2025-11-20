@@ -10,20 +10,23 @@ export const authorize = async (
   next: NextFunction,
 ): Promise<void> => {
   try {
-    const authHeader = req.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    // Accept either standard Authorization header or legacy/custom 'token' header
+    const authHeader = (req.headers.authorization as string) || (req.headers.token as string);
+
+    if (!authHeader) {
       throw new ApiError('No token provided', httpStatus.UNAUTHORIZED);
     }
 
-    const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-    
+    // Support both 'Bearer <token>' and raw token formats
+    const token = authHeader.startsWith('Bearer ') ? authHeader.substring(7) : authHeader;
+
     const decoded = authService.verifyToken(token);
-    
+
     (req as any).user = {
       id: decoded.sub,
       email: decoded.email,
     };
-    
+
     next();
   } catch (error) {
     next(error);

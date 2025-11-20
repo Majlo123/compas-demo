@@ -5,6 +5,7 @@ import express from 'express';
 import { Router } from 'express-serve-static-core';
 import createOrganizationRoute from 'routes/api/organization.route';
 import createAuthRoute from 'routes/api/auth.route';
+import createLeaveRequestRoute from 'routes/api/leaveRequest.route';
 
 const apiRouter = express.Router();
 
@@ -16,6 +17,10 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/organization',
     route: createOrganizationRoute('/organization'),
+  },
+  {
+    path: '/leave-request',
+    route: createLeaveRequestRoute('/leave-request'),
   },
 ];
 
@@ -32,8 +37,8 @@ const addRoutes = (router: Router, routes: any[]): void => {
   });
 
   swaggerDocs(router, {
-    title: 'The [Enter app name] API',
-    description: 'This is an API for [Enter app name]',
+    title: 'Vacation Tracker API',
+    description: 'This is an API for Vacation Tracker',
     version: Package.version(),
     serverUrl: config.server.api_url,
   });
