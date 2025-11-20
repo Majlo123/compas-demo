@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express';
 import httpStatus from 'http-status';
 import { authService } from 'services';
 import ApiError from 'shared/error/ApiError';
+import { Role } from '../../../shared/auth.types';
 
 export const authorize = async (
   req: Request,
@@ -25,6 +26,7 @@ export const authorize = async (
     (req as any).user = {
       id: decoded.sub,
       email: decoded.email,
+      role: decoded.role,
     };
 
     next();

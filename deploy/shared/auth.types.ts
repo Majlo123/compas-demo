@@ -1,3 +1,5 @@
+export type Role = 'employee' | 'manager' | 'admin';
+
 export type RegisterRequest = {
   email: string;
   password: string;
@@ -10,6 +12,7 @@ export type RegisterResponse = {
     id: string;
     email: string;
     fullName: string;
+    role: Role;
   };
 };
 
@@ -24,5 +27,6 @@ export type LoginResponse = {
     id: string;
     email: string;
     fullName: string;
+    role: Role;
   };
 };
