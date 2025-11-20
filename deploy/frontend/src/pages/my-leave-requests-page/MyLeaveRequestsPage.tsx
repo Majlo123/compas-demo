@@ -85,22 +85,18 @@ const MyLeaveRequestsPage: React.FC = () => {
     {
       accessor: 'type',
       header: 'Type',
-      width: '25%',
     },
     {
       accessor: 'startDate',
       header: 'Start Date',
-      width: '25%',
     },
     {
       accessor: 'endDate',
       header: 'End Date',
-      width: '25%',
     },
     {
       accessor: 'status',
       header: 'Status',
-      width: '25%',
       formatter: (value: LeaveRequestStatus) => (
         <StatusBadge status={value}>
           {value.charAt(0).toUpperCase() + value.slice(1)}
@@ -127,8 +123,6 @@ const MyLeaveRequestsPage: React.FC = () => {
           tableClassName="text-sm lg:text-lg"
           headerClassName="text-sm lg:text-xl font-bold"
           cellClassName="text-sm lg:text-xl"
-          rowHeight={64}
-          headerHeight={56}
         />
       </div>
       <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
