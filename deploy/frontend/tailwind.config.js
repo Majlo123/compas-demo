@@ -75,7 +75,18 @@ const config = {
         md : '16px',
         lg : '24px',
         xl : '32px',
-      }
+      },
+      borderRadius: {
+        'button': '10px',
+      },
+      height: {
+        'button-sm': '32px',
+        'button-md': '42px',
+        'button-lg': '48px',
+      },
+      width: {
+        'button-large': '450px',
+      },
     },
   },
   safelist: [

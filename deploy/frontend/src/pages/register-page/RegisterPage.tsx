@@ -66,16 +66,16 @@ const RegisterPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50 p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
-        <div className="flex flex-col items-center mb-6">
-          <div className="mb-6">
+    <div className="min-h-screen flex items-center justify-center bg-gray-50">
+      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-xl">
+        <div className="flex flex-col items-center mb-lg">
+          <div className="mb-lg">
             <CalendarIconLarge />
           </div>
-          <h2 className="font-inter font-extrabold text-2xl leading-7 text-center text-gray-800">Vacation Tracker</h2>
+          <h2 className="font-inter font-extrabold text-h2 text-center text-gray-800">Vacation Tracker</h2>
         </div>
 
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-2">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-md">
           <FormTextInput
             name="fullName"
             control={control}
@@ -109,14 +109,14 @@ const RegisterPage: React.FC = () => {
             disabled={isSubmitting}
           />
 
-          <Button type="submit" className="w-full mt-2" disabled={isSubmitting}>
-            {isSubmitting ? 'Registering...' : 'Register'}
+          <Button type="submit" variant="primary" className="w-full mt-md" disabled={isSubmitting}>
+            Register
           </Button>
 
           
         </form>
 
-        <div className="text-center text-p2 text-darkGrey mt-3">
+        <div className="text-center text-p2 text-darkGrey mt-md">
             Already have an account?{' '}
             <a href="/login" className="text-primary hover:underline">
               Log In

@@ -52,7 +52,7 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
             onChange={(e) => setStartDate(e.target.value)}
           />
         </div>
-        <div className="mb-md">
+        <div className="mb-xl">
           <DateInput
             label="End Date"
             required

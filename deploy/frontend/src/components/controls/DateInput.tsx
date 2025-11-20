@@ -59,11 +59,15 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
               'w-full p-md',
               InputclassName,
               'outline-none border-none !ring-0 bg-transparent text-p2 text-darkGrey',
+              'hover:cursor-pointer', // Add hover effect for pointer cursor
               disabled && 'bg-transparent !cursor-not-allowed'
             )}
             disabled={disabled}
             type="date"
           />
+          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+            <span className="icon-calendar hover:cursor-pointer" />
+          </div>
         </div>
       </div>
     );
