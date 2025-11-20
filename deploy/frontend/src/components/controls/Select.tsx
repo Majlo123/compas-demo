@@ -78,9 +78,9 @@ const Select: FC<SelectProps> = ({
       {label && (
         <label
           htmlFor={id}
-          className="flex items-center text-p1 text-pureBlack h-8 mb-[10px]"
+          className="flex items-center mb-sm"
         >
-          <span className="mr-1">{label}</span>
+          <span className="text-p2 text-pureBlack">{label}</span>
           {required && <span className="text-red"> *</span>}
         </label>
       )}
@@ -91,14 +91,16 @@ const Select: FC<SelectProps> = ({
         onClick={toggleDropdown}
         disabled={disabled}
         className={classNameBuilder(
-          'w-full h-10 flex flex-row justify-between items-center px-3',
+          'w-full',
           'border rounded-lg focus:outline-none bg-transparent border-someGrey',
           'disabled:opacity-50 disabled:cursor-not-allowed',
           options.length === 0 && 'cursor-not-allowed'
         )}
       >
-        <span>{value ? value.label : placeholder || 'Select'}</span>
-        <ModalIconChevronDown className="ml-auto stroke-someGrey" />
+        <div className="flex flex-row justify-between items-center w-full p-md text-p2 text-darkGrey">
+          <span>{value ? value.label : placeholder || 'Select'}</span>
+          <ModalIconChevronDown className="ml-auto stroke-someGrey" />
+        </div>
       </button>
       {error && (
         <span className="flex flex-col justify-center text-p2 text-red h-8 w-full">
@@ -110,7 +112,7 @@ const Select: FC<SelectProps> = ({
           ref={dropdownRef}
           className={classNameBuilder(
             'absolute w-full h-fit max-h-[400px] overflow-hidden overflow-y-auto z-50',
-            'bg-white border border-someGrey rounded-b-lg shadow-lg',
+            'bg-white border border-someGrey rounded-b-lg shadow-lg text-p2 text-darkGrey',
             openDirection === 'down'
               ? 'top-full mt-1 origin-top animate-scale-in'
               : 'bottom-full mb-1 origin-bottom animate-scale-in'
@@ -123,7 +125,7 @@ const Select: FC<SelectProps> = ({
                 onChange?.(option);
                 setIsOpen(false);
               }}
-              className="px-3 py-2 cursor-pointer hover:bg-lightGrey transition"
+              className="py-sm px-md cursor-pointer hover:bg-lightGrey transition"
             >
               {option.label}
             </div>

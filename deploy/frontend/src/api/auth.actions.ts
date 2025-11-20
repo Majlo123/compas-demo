@@ -1,6 +1,6 @@
 import { formatError } from '@/api/handle.error';
-import { LoginRequest, LoginResponse } from '../../../../shared/auth.types';
-import { RegisterRequest,RegisterResponse } from '../../../../shared/auth.types';
+import { LoginRequest, LoginResponse } from '../../../shared/auth.types';
+import { RegisterRequest,RegisterResponse } from '../../../shared/auth.types';
 import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
 

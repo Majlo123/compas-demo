@@ -5,6 +5,7 @@ import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
+import DialogForm from '@/components/dialog/DialogForm';
 
 interface LeaveRequestRow extends Row {
   type: string;
@@ -14,6 +15,9 @@ interface LeaveRequestRow extends Row {
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -59,7 +63,7 @@ const MyLeaveRequestsPage: React.FC = () => {
   };
 
   const handleNewRequest = () => {
-    console.log('New leave request clicked');
+    setDialogOpen(true);
   };
 
   const columns: Column[] = [
@@ -126,6 +130,7 @@ const MyLeaveRequestsPage: React.FC = () => {
           />
         )}
       </div>
+      <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 };
