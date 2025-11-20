@@ -2,9 +2,7 @@ import React, { useState } from 'react';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
-import CustomDialog from '@/components/dialog/dialog-props';
-import Select, { SelectOption } from '@/components/controls/Select';
-import DateInput from '@/components/controls/DateInput';
+import DialogForm from '@/components/dialog/DialogForm';
 
 type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
 
@@ -16,8 +14,8 @@ interface LeaveRequest extends Row {
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
-  const [isDialogOpen, setDialogOpen] = useState(false);
-  const [selectedLeaveType, setSelectedLeaveType] = useState<SelectOption | null>(null);
+
+  const [dialogOpen, setDialogOpen] = useState(false);
 
   const handleNewRequest = () => {
     setDialogOpen(true);
@@ -133,48 +131,7 @@ const MyLeaveRequestsPage: React.FC = () => {
           headerHeight={56}
         />
       </div>
-
-      {/* Dialog */}
-      <CustomDialog
-        title="New Leave Request"
-        description="Fill out the form to create a new leave request."
-        isOpen={isDialogOpen}
-        onOpenChange={setDialogOpen}
-      >
-        <form>
-          <div className="mb-4">
-            <Select
-              options={[
-                { label: 'Vacation', value: 'Vacation' },
-                { label: 'Sick Leave', value: 'Sick Leave' },
-                { label: 'Personal Leave', value: 'Personal Leave' },
-                { label: 'Unpaid Leave', value: 'Unpaid Leave' },
-              ]}
-              label='Leave Type'
-              value={selectedLeaveType}
-              placeholder="Select Leave Type"
-              onChange={(selectedOption: SelectOption | null) => setSelectedLeaveType(selectedOption)}
-            />
-          </div>
-          <div className="mb-4">
-            <DateInput
-              label="Start Date"
-              required
-              className="mb-4"
-            />
-          </div>
-          <div className="mb-4">
-            <DateInput
-              label="End Date"
-              required
-              className="mb-4"
-            />
-          </div>
-          <div className="flex justify-end">
-            <Button type='submit' className="w-full">Submit</Button>
-          </div>
-        </form>
-      </CustomDialog>
+      <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 };

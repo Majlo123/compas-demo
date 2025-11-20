@@ -33,7 +33,7 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
         {label && (
           <label
             htmlFor={id}
-            className="flex items-center text-p1 text-pureBlack h-8 mb-[10px]"
+            className="flex items-center text-p2 text-pureBlack mb-sm"
           >
             <span className="mr-1">{label}</span>
             {required && <span className="text-red">*</span>}
@@ -56,9 +56,9 @@ const DateInput = forwardRef<HTMLInputElement, DateInputProps>(
             ref={ref}
             id={id}
             className={classNameBuilder(
-              'w-full px-4 py-4',
+              'w-full p-md',
               InputclassName,
-              'outline-none border-none !ring-0 bg-transparent text-p2 text-[12px] text-darkGrey',
+              'outline-none border-none !ring-0 bg-transparent text-p2 text-darkGrey',
               disabled && 'bg-transparent !cursor-not-allowed'
             )}
             disabled={disabled}

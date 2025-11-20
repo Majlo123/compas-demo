@@ -64,6 +64,18 @@ const config = {
           { lineHeight: '100%', letterSpacing: '0', fontWeight: '400' },
         ],
       },
+      padding: {
+        sm : '8px',
+        md : '16px',
+        lg : '24px',
+        xl : '32px',
+      },
+      margin: {
+        sm : '8px',
+        md : '16px',
+        lg : '24px',
+        xl : '32px',
+      }
     },
   },
   safelist: [
