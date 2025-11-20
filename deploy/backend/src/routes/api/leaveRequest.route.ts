@@ -5,14 +5,20 @@ import httpStatus from 'http-status';
 import { authorize } from 'middlewares/authorization';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
-import { LeaveRequestSuccessSchema } from 'types/zod/leaveRequest.schema';
+import { 
+  LeaveRequestSuccessSchema,
+  CreateLeaveRequestBodySchema,
+  CreateLeaveRequestSuccessSchema,
+} from 'types/zod/leaveRequest.schema';
 import {
   UnauthorizedResponseSchema,
   ForbiddenResponseSchema,
+  BadRequestResponseSchema,
 } from 'types/zod/shared.schema';
 
 enum LeaveRequestFunctions {
   getMyLeaveRequests = 'getMyLeaveRequests',
+  createLeaveRequest = 'createLeaveRequest',
 }
 
 const createLeaveRequestRoute = (basePath: string): Router => {
@@ -43,10 +49,43 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       functionName: LeaveRequestFunctions.getMyLeaveRequests,
       basePath,
     },
+    {
+      name: 'Create Leave Request',
+      desc: 'Create a new leave request for the authenticated user',
+      path: '/',
+      method: 'post',
+      authorize: true,
+      requestBodySchema: CreateLeaveRequestBodySchema,
+      responses: [
+        {
+          code: httpStatus.CREATED,
+          desc: 'Leave request created successfully',
+          schema: CreateLeaveRequestSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid request data',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User not authorized',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.createLeaveRequest,
+      basePath,
+    },
   ];
 
   const leaveRequestControllerFunctions: Record<LeaveRequestFunctions, RequestHandler> = {
     getMyLeaveRequests: leaveRequestController.getMyLeaveRequests,
+    createLeaveRequest: leaveRequestController.createLeaveRequest,
   };
 
   const router = Router();

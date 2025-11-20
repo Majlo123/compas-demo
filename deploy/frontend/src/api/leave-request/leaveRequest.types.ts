@@ -13,3 +13,10 @@ export type LeaveRequest = {
 };
 
 export type LeaveRequestListResponse = LeaveRequest[];
+
+export type CreateLeaveRequestData = {
+  type: LeaveRequestType;
+  startDate: string;
+  endDate: string;
+  reason?: string;
+};
