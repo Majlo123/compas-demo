@@ -30,6 +30,16 @@ const config = {
         red: '#FF0000',
         green: '#22BB33',
         needBetterNameGrey: '#F7F7F7',
+        // Layout colors
+        layoutBg: '#F9FAFD',
+        headerBg: '#FEFEFE',  
+        headerBorder: '#F2F3F7',
+        // Sidebar colors
+        sidebarNavHover: 'rgba(255, 255, 255, 0.1)',
+        sidebarNavActive: 'rgba(255, 255, 255, 0.2)',
+        sidebarBorder: 'rgba(255, 255, 255, 0.1)',
+        sidebarText: 'rgba(255, 255, 255, 0.8)',
+        sidebarFooterBg: 'rgba(255, 255, 255, 0.2)',
       },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],

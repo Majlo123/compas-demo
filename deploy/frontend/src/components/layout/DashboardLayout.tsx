@@ -7,7 +7,7 @@ const DashboardLayout: React.FC = () => {
   return (
     <div
       id="dashboard-layout"
-      className="flex flex-row w-full h-full overflow-hidden bg-[#F9FAFD] p-10 rounded-2xl"
+      className="flex flex-row w-full h-full overflow-hidden bg-layoutBg p-10 rounded-2xl"
     >
       <Sidebar />
       <main
@@ -16,7 +16,7 @@ const DashboardLayout: React.FC = () => {
       >
         <HeaderNav />
         <div className="flex-1 overflow-auto pt-10">
-          <div className="bg-[#F9FAFD] rounded-2xl p-8">
+          <div className="bg-layoutBg rounded-2xl p-8">
             <Outlet />
           </div>
         </div>
