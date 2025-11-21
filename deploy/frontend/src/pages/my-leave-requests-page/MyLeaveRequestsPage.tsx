@@ -2,10 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
-import StatusBadge from '@/components/controls/badge/StatusBadge';
+// StatusBadge moved into shared columns factory; remove direct import
+import { getRequestColumns } from '@/components/layout/requestsColumns';
 import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
 import DialogForm from '@/components/dialog/DialogForm';
+import RequestsLayout from '@/components/layout/RequestsLayout';
 
 interface LeaveRequestRow extends Row {
   type: string;
@@ -66,72 +68,32 @@ const MyLeaveRequestsPage: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const columns: Column[] = [
-    {
-      accessor: 'type',
-      header: 'Type',
-    },
-    {
-      accessor: 'startDate',
-      header: 'Start Date',
-    },
-    {
-      accessor: 'endDate',
-      header: 'End Date',
-    },
-    {
-      accessor: 'status',
-      header: 'Status',
-      formatter: (value: LeaveRequestStatus) => (
-        <StatusBadge status={value}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
-        </StatusBadge>
-      ),
-    },
-  ];
+  const columns: Column[] = getRequestColumns();
 
   return (
-    <>
-      {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-extrabold text-gray-800">My Leave Requests</h1>
-        <Button onClick={handleNewRequest} className="text-lg font-medium">
+    <RequestsLayout
+      title="My Leave Requests"
+      action={
+        <Button onClick={handleNewRequest}>
           + New Leave Request
         </Button>
-      </div>
-
-      {/* Content Area */}
-      <div>
-        {isLoading ? (
-          <div className="flex justify-center items-center py-12">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
-          </div>
-        ) : hasError ? (
-          <div className="flex flex-col justify-center items-center py-12 text-center">
-            <p className="text-gray-500 text-lg mb-4">Failed to load leave requests</p>
-            <Button onClick={fetchLeaveRequests} variant="primary" size="md">
-              Try Again
-            </Button>
-          </div>
-        ) : leaveRequests.length === 0 ? (
-          <div className="flex flex-col justify-center items-center py-12 text-center">
-            <p className="text-gray-500 text-lg mb-2">No leave requests yet</p>
-            <p className="text-gray-400 text-sm">
-              Click "New Leave Request" to submit your first request
-            </p>
-          </div>
-        ) : (
-          <Table
-            columns={columns}
-            data={leaveRequests}
-            tableClassName="text-sm lg:text-lg"
-            headerClassName="text-sm lg:text-xl font-bold"
-            cellClassName="text-sm lg:text-xl"
-          />
-        )}
-      </div>
+      }
+      isLoading={isLoading}
+      hasError={hasError}
+      isEmpty={leaveRequests.length === 0}
+      onRetry={fetchLeaveRequests}
+      emptyMessage="No leave requests yet"
+      emptyDescription="Click 'New Leave Request' to submit your first request"
+    >
+      <Table
+        columns={columns}
+        data={leaveRequests}
+        tableClassName="text-sm lg:text-md"
+        headerClassName="text-sm lg:text-md font-bold"
+        cellClassName="text-sm lg:text-md"
+      />
       <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
-    </>
+    </RequestsLayout>
   );
 };
 
