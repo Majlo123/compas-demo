@@ -7,7 +7,7 @@ import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
-import { register as registerUser } from '@/api/auth/auth.actions';
+import { register as registerUser } from '@/api/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';

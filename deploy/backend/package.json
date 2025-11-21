@@ -1,7 +1,7 @@
 {
-  "name": "enter-project-name-backend",
+  "name": "vacation-tracker-backend",
   "version": "1.0.0",
-  "description": "The [Enter name] app project by 2C Solution",
+  "description": "The Vacation Tracker app project by 2C Solution",
   "main": "index.js",
   "repository": "https://github.com/2C-Solution/project-template.git",
   "author": "Vuk Macanovic <vuk.macanovic@2c-solution.net>",

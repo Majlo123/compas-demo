@@ -1,12 +1,13 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
+import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
+import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
 import DialogForm from '@/components/dialog/DialogForm';
 
-type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
-
-interface LeaveRequest extends Row {
+interface LeaveRequestRow extends Row {
   type: string;
   startDate: string;
   endDate: string;
@@ -17,69 +18,53 @@ const MyLeaveRequestsPage: React.FC = () => {
 
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
+
+  useEffect(() => {
+    fetchLeaveRequests();
+  }, []);
+
+  const fetchLeaveRequests = async () => {
+    setIsLoading(true);
+    setHasError(false);
+
+    const response = await getMyLeaveRequests();
+
+    if (response.success && response.content) {
+      const formattedData: LeaveRequestRow[] = response.content.map((request: LeaveRequest) => ({
+        _id: request.id,
+        type: formatLeaveType(request.type),
+        startDate: formatDate(request.startDate),
+        endDate: formatDate(request.endDate),
+        status: request.status,
+      }));
+      setLeaveRequests(formattedData);
+    } else {
+      setHasError(true);
+      toast.error(response.message || 'Failed to load leave requests. Please try again.');
+    }
+
+    setIsLoading(false);
+  };
+
+  const formatLeaveType = (type: string): string => {
+    return type.charAt(0).toUpperCase() + type.slice(1);
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
   const handleNewRequest = () => {
     setDialogOpen(true);
   };
-  
-  // Sample data
-  const leaveRequests: LeaveRequest[] = [ 
-    {
-      _id: '1',
-      type: 'Vacation',
-      startDate: 'Aug 12, 2024',
-      endDate: 'Aug 16, 2024',
-      status: 'approved',
-    },
-    {
-      _id: '2',
-      type: 'Sick',
-      startDate: 'Sep 23, 2024',
-      endDate: 'Sep 24, 2024',
-      status: 'pending',
-    },
-    {
-      _id: '3',
-      type: 'Vacation',
-      startDate: 'Oct 17, 2024',
-      endDate: 'Oct 18, 2024',
-      status: 'declined',
-    },
-    {
-      _id: '4',
-      type: 'Vacation',
-      startDate: 'Nov 28, 2024',
-      endDate: 'Dec 2, 2024',
-      status: 'approved',
-    },
-    {
-      _id: '5',
-      type: 'Sick',
-      startDate: 'Dec 2, 2024',
-      endDate: 'Dec 10, 2024',
-      status: 'declined',
-    },
-    {
-      _id: '5',
-      type: 'Sick',
-      startDate: 'Dec 2, 2024',
-      endDate: 'Dec 10, 2024',
-      status: 'declined',
-    },
-    {
-      _id: '5',
-      type: 'Sick',
-      startDate: 'Dec 2, 2024',
-      endDate: 'Dec 10, 2024',
-      status: 'declined',
-    },
-    {
-      _id: '5',
-      type: 'Sick',
-      startDate: 'Dec 2, 2024',
-      endDate: 'Dec 10, 2024',
-      status: 'declined',
-    },
-  ];
 
   const columns: Column[] = [
     {
@@ -117,13 +102,33 @@ const MyLeaveRequestsPage: React.FC = () => {
 
       {/* Content Area */}
       <div>
-        <Table
-          columns={columns}
-          data={leaveRequests}
-          tableClassName="text-sm lg:text-lg"
-          headerClassName="text-sm lg:text-xl font-bold"
-          cellClassName="text-sm lg:text-xl"
-        />
+        {isLoading ? (
+          <div className="flex justify-center items-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+          </div>
+        ) : hasError ? (
+          <div className="flex flex-col justify-center items-center py-12 text-center">
+            <p className="text-gray-500 text-lg mb-4">Failed to load leave requests</p>
+            <Button onClick={fetchLeaveRequests} variant="primary" size="md">
+              Try Again
+            </Button>
+          </div>
+        ) : leaveRequests.length === 0 ? (
+          <div className="flex flex-col justify-center items-center py-12 text-center">
+            <p className="text-gray-500 text-lg mb-2">No leave requests yet</p>
+            <p className="text-gray-400 text-sm">
+              Click "New Leave Request" to submit your first request
+            </p>
+          </div>
+        ) : (
+          <Table
+            columns={columns}
+            data={leaveRequests}
+            tableClassName="text-sm lg:text-lg"
+            headerClassName="text-sm lg:text-xl font-bold"
+            cellClassName="text-sm lg:text-xl"
+          />
+        )}
       </div>
       <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
     </>

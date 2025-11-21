@@ -6,7 +6,7 @@ import {
   setToLocalStorage,
   removeFromLocalStorage,
 } from '@/services/local.storage';
-import { login as loginApi } from '@/api/auth/auth.actions';
+import { login as loginApi } from '@/api/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { LoginRequest } from '@/api/auth/auth.types';
 
