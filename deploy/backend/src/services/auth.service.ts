@@ -20,12 +20,14 @@ export const register = async (input: RegisterRequest): Promise<RegisterResponse
     email,
     passwordHash,
     fullName,
+    role: 'employee',
   });
 
   const token = jwt.sign(
     {
       sub: user.id,
       email: user.email,
+      role: user.role,
     },
     config.jwt.secret,
     {
@@ -39,6 +41,7 @@ export const register = async (input: RegisterRequest): Promise<RegisterResponse
       id: user.id!,
       email: user.email,
       fullName: user.fullName,
+      role: user.role,
     },
   };
 };
@@ -61,6 +64,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
     {
       sub: user.id,
       email: user.email,
+      role: user.role,
     },
     config.jwt.secret,
     {
@@ -74,6 +78,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
       id: user.id!,
       email: user.email,
       fullName: user.fullName,
+      role: user.role,
     },
   };
 };

@@ -1,7 +1,6 @@
 import { FC } from 'react';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
-import AuthenticationLayout from '@/components/layout/AuthenticationLayout.tsx';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';

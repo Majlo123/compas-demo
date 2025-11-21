@@ -1,10 +1,12 @@
 import createBaseRepository from 'repos/utils/baseRepository';
+import { Role } from '../../../shared/auth.types';
 
 export type User = {
   id?: string;
   fullName: string;
   email: string;
   passwordHash: string;
+  role: Role;
   createdAt?: Date;
   updatedAt?: Date;
 };
