@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
+import DialogForm from '@/components/dialog/DialogForm';
 
 type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
 
@@ -13,8 +14,11 @@ interface LeaveRequest extends Row {
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
+
+  const [dialogOpen, setDialogOpen] = useState(false);
+
   const handleNewRequest = () => {
-    console.log('New leave request clicked');
+    setDialogOpen(true);
   };
   
   // Sample data
@@ -121,6 +125,7 @@ const MyLeaveRequestsPage: React.FC = () => {
           cellClassName="text-sm lg:text-xl"
         />
       </div>
+      <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
     </>
   );
 };

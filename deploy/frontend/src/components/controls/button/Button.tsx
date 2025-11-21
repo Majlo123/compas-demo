@@ -14,7 +14,7 @@ type ButtonProps = (ButtonWithIcon | ButtonWithoutIcon) & {
 };
 
 const buttonVariants = tv({
-  base: 'flex align-center justify-center items-center rounded-[10px]',
+  base: 'flex align-center justify-center items-center rounded-button',
   variants: {
     variant: {
       primary: 'bg-primary !text-white hover:opacity-90 hover:bg-primary-hover',
@@ -22,15 +22,15 @@ const buttonVariants = tv({
       ghost: 'bg-transparent text-primary hover:opacity-90',
     },
     size: {
-      sm: 'h-8 px-3 text-sm',
-      md: 'h-[42px] px-4 text-h4',
-      lg: 'h-12 px-6 text-lg',
+      sm: 'h-button-sm px-sm text-h5',
+      md: 'h-button-md px-md text-h4',
+      lg: 'h-button-lg px-lg text-h3',
     },
     disabled: {
       true: 'opacity-100 bg-darkGrey/20 cursor-not-allowed',
     },
     large: {
-      true: 'w-[450px]',
+      true: 'w-button-large',
     },
   },
   compoundVariants: [
@@ -53,7 +53,7 @@ const iconVariants = tv({
     size: {
       sm: 'w-4 h-4',
       md: 'w-6 h-6',
-      lg: 'w-7 h-7',
+      lg: 'w-8 h-8',
     },
     variant: {
       primary: 'stroke-white',
