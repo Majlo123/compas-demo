@@ -31,7 +31,8 @@ const FormSelect = <T extends FieldValues>({
   className,
   disabled,
 }: FormSelectInputProps<T>): JSX.Element => {
-  const error = (errors[name] as any)?.value?.message as string | undefined;
+  const fieldError = errors[name];
+  const error = fieldError?.message as string | undefined;
   return (
     <Controller
       control={control}
