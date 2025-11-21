@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
-// StatusBadge moved into shared columns factory; remove direct import
-import { getRequestColumns } from '@/components/layout/requestsColumns';
+import StatusBadge from '@/components/controls/badge/StatusBadge';
 import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
 import DialogForm from '@/components/dialog/DialogForm';
@@ -68,7 +67,29 @@ const MyLeaveRequestsPage: React.FC = () => {
     setDialogOpen(true);
   };
 
-  const columns: Column[] = getRequestColumns();
+  const columns: Column[] = [
+    {
+      accessor: 'type',
+      header: 'Type',
+    },
+    {
+      accessor: 'startDate',
+      header: 'Start Date',
+    },
+    {
+      accessor: 'endDate',
+      header: 'End Date',
+    },
+    {
+      accessor: 'status',
+      header: 'Status',
+      formatter: (value: LeaveRequestStatus) => (
+        <StatusBadge status={value}>
+          {value.charAt(0).toUpperCase() + value.slice(1)}
+        </StatusBadge>
+      ),
+    },
+  ];
 
   return (
     <RequestsLayout

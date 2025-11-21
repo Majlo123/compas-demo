@@ -4,6 +4,7 @@ import Button from '@/components/controls/button/Button';
 type RequestsLayoutProps = {
   title: string;
   action?: React.ReactNode;
+  actionPosition?: 'inline' | 'below';
   isLoading: boolean;
   hasError: boolean;
   isEmpty: boolean;
@@ -16,6 +17,7 @@ type RequestsLayoutProps = {
 const RequestsLayout: React.FC<RequestsLayoutProps> = ({
   title,
   action,
+  actionPosition = 'inline',
   isLoading,
   hasError,
   isEmpty,
@@ -27,9 +29,14 @@ const RequestsLayout: React.FC<RequestsLayoutProps> = ({
   return (
     <div>
       {/* Page Header */}
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-h1 font-extrabold text-gray-800">{title}</h1>
-        {action && <div>{action}</div>}
+      <div className="mb-6">
+        <div className="flex justify-between items-center">
+          <h1 className="text-h1 font-extrabold text-gray-800">{title}</h1>
+          {action && actionPosition === 'inline' && <div>{action}</div>}
+        </div>
+        {action && actionPosition === 'below' && (
+          <div className="mt-4">{action}</div>
+        )}
       </div>
 
       {/* Content Area */}

@@ -7,7 +7,6 @@ import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
-import HomePage from '@/pages/home-page/HomePage';
 import LoginPage from '@/pages/login-page/LoginPage';
 import RegisterPage from '@/pages/register-page/RegisterPage';
 import DashboardPage from '@/pages/dashboard-page/DashboardPage';
@@ -15,6 +14,7 @@ import MyLeaveRequestsPage from '@/pages/my-leave-requests-page/MyLeaveRequestsP
 import TeamCalendarPage from '@/pages/team-calendar-page/TeamCalendarPage';
 import ReportsPage from '@/pages/reports-page/ReportsPage';
 import SettingsPage from '@/pages/settings-page/SettingsPage';
+import TeamRequestsPage from '@/pages/team-requests-page/TeamRequestsPage';
 
 const Router: FC = () => {
   return (
@@ -32,6 +32,7 @@ const Router: FC = () => {
         <Route element={<AuthenticatedRoutes />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
+            <Route path="/team-requests" element={<TeamRequestsPage />} />
             <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
             <Route path="/reports" element={<ReportsPage />} />

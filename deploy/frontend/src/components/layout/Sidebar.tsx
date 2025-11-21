@@ -15,6 +15,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
+  { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
