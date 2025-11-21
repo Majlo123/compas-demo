@@ -1,9 +1,32 @@
-import { FC, useState } from 'react';
+import { FC } from 'react';
+import { useForm } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import { z } from 'zod';
+import { toast } from 'react-toastify';
 import CustomDialog from '@/components/dialog/dialog-props';
-import Select, { SelectOption } from '@/components/controls/Select';
+import FormSelect from '@/components/controls/FormSelect';
 import DateInput from '@/components/controls/DateInput';
 import Button from '@/components/controls/button/Button';
 import { LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
+
+const leaveRequestSchema = z.object({
+  leaveType: z.object({
+    label: z.string(),
+    value: z.string(),
+  }).nullable().refine(val => val !== null, 'Leave type is required'),
+  startDate: z.string().min(1, 'Start date is required'),
+  endDate: z.string().min(1, 'End date is required'),
+}).refine(
+  (data) => {
+    if (data.startDate && data.endDate) {
+      return new Date(data.startDate) <= new Date(data.endDate);
+    }
+    return true;
+  },
+  { message: 'End date must be after start date', path: ['endDate'] }
+);
+
+type LeaveRequestForm = z.infer<typeof leaveRequestSchema>;
 
 type DialogFormProps = {
   isOpen: boolean;
@@ -12,71 +35,28 @@ type DialogFormProps = {
 };
 
 const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
-  const [selectedLeaveType, setSelectedLeaveType] = useState<SelectOption | null>(null);
-  const [startDate, setStartDate] = useState('');
-  const [endDate, setEndDate] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<{ leaveType?: string; startDate?: string; endDate?: string }>({});
+  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<LeaveRequestForm>({
+    resolver: zodResolver(leaveRequestSchema),
+    defaultValues: { leaveType: null, startDate: '', endDate: '' },
+    mode: 'onChange',
+  });
 
-  const validateForm = (): boolean => {
-    const newErrors: { leaveType?: string; startDate?: string; endDate?: string } = {};
-
-    if (!selectedLeaveType) {
-      newErrors.leaveType = 'Please select a leave type';
-    }
-
-    if (!startDate) {
-      newErrors.startDate = 'Start date is required';
-    }
-
-    if (!endDate) {
-      newErrors.endDate = 'End date is required';
-    }
-
-    if (startDate && endDate) {
-      const start = new Date(startDate);
-      const end = new Date(endDate);
-      const today = new Date();
-      today.setHours(0, 0, 0, 0);
-
-      if (start < today) {
-        newErrors.startDate = 'Start date cannot be in the past';
-      }
-
-      if (end < start) {
-        newErrors.endDate = 'End date cannot be before start date';
-      }
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
-
-    if (onSubmit && selectedLeaveType) {
-      setIsSubmitting(true);
-      try {
-        await onSubmit({ 
-          type: selectedLeaveType.value as LeaveRequestType, 
-          startDate, 
-          endDate 
+  const onSubmitHandler = async (data: LeaveRequestForm) => {
+    try {
+      if (onSubmit && data.leaveType) {
+        await onSubmit({
+          type: data.leaveType.value,
+          startDate: data.startDate,
+          endDate: data.endDate,
         });
-        // Reset form on success
-        setSelectedLeaveType(null);
-        setStartDate('');
-        setEndDate('');
-        setErrors({});
-      } catch (error) {
-        // Error handling is done in parent component
-      } finally {
-        setIsSubmitting(false);
+      } else if (data.leaveType) {
+        // If no onSubmit provided, just show success message
+        toast.success('Leave request submitted successfully!');
       }
+      reset();
+      onOpenChange(false);
+    } catch (error: any) {
+      toast.error(error?.message || 'Failed to submit leave request');
     }
   };
 
@@ -87,72 +67,42 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >
-      <form onSubmit={handleSubmit}>
-        <div className="mb-md">
-          <Select
-            options={[
-              { label: 'Vacation', value: 'vacation' },
-              { label: 'Sick Leave', value: 'sick' },
-              { label: 'Personal Leave', value: 'personal' },
-              { label: 'Other', value: 'other' },
-            ]}
-            label="Leave Type"
-            value={selectedLeaveType}
-            placeholder="Select Leave Type"
-            onChange={(selectedOption: SelectOption | null) => {
-              setSelectedLeaveType(selectedOption);
-              if (errors.leaveType) {
-                setErrors({ ...errors, leaveType: undefined });
-              }
-            }}
-          />
-          {errors.leaveType && (
-            <p className="text-red text-sm mt-1">{errors.leaveType}</p>
-          )}
-        </div>
-        <div className="mb-md">
-          <DateInput
-            label="Start Date"
-            required
-            value={startDate}
-            error={errors.startDate}
-            onChange={(e) => {
-              setStartDate(e.target.value);
-              if (errors.startDate) {
-                setErrors({ ...errors, startDate: undefined });
-              }
-            }}
-          />
-        </div>
-        <div className="mb-xl">
-          <DateInput
-            label="End Date"
-            required
-            value={endDate}
-            error={errors.endDate}
-            onChange={(e) => {
-              setEndDate(e.target.value);
-              if (errors.endDate) {
-                setErrors({ ...errors, endDate: undefined });
-              }
-            }}
-          />
-        </div>
+      <form onSubmit={handleSubmit(onSubmitHandler)} className="flex flex-col gap-md">
+        <FormSelect
+          name="leaveType"
+          control={control}
+          errors={errors}
+          label="Leave Type"
+          placeholder="Select Leave Type"
+          options={[
+            { label: 'Vacation', value: 'vacation' },
+            { label: 'Sick Leave', value: 'sick' },
+            { label: 'Personal Leave', value: 'personal' },
+            { label: 'Unpaid Leave', value: 'other' },
+          ]}
+          required
+          disabled={isSubmitting}
+        />
+
+        <DateInput
+          {...register('startDate')}
+          label="Start Date"
+          required
+          error={errors.startDate?.message}
+          disabled={isSubmitting}
+        />
+
+        <DateInput
+          {...register('endDate')}
+          label="End Date"
+          required
+          error={errors.endDate?.message}
+          disabled={isSubmitting}
+        />
+
         <div className="flex justify-end">
-          <Button 
-            type="submit" 
-            variant="primary" 
-            className="w-full"
-            disabled={isSubmitting}
-          >
-            {isSubmitting ? (
-              <span className="flex items-center justify-center">
-                <span className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></span>
-                Submitting...
-              </span>
-            ) : (
-              'Submit'
-            )}
+          <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
+            {isSubmitting ? 'Submitting...' : 'Submit'}
           </Button>
         </div>
       </form>

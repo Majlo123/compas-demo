@@ -34,7 +34,7 @@ const registerEndpointRoutes = (
     const middleware: RequestHandler[] = [];
 
     if (endpoint.authorize) {
-      middleware.push(authorize);
+      middleware.push(authorize(endpoint.allowedRoles));
     }
 
     if (endpoint.querySchema) {

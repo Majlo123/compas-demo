@@ -2,7 +2,6 @@ import { leaveRequestController } from 'controllers';
 import { EndpointMeta } from 'docs/swagger';
 import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
-import { authorize } from 'middlewares/authorization';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import { 
@@ -29,6 +28,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/my-requests',
       method: 'get',
       authorize: true,
+      allowedRoles: ['employee'],
       responses: [
         {
           code: httpStatus.OK,
@@ -89,7 +89,6 @@ const createLeaveRequestRoute = (basePath: string): Router => {
   };
 
   const router = Router();
-  router.use(authorize);
   registerEndpointRoutes(router, endpointsMeta, leaveRequestControllerFunctions);
   return router;
 };
