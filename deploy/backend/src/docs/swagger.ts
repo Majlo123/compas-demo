@@ -7,6 +7,7 @@ import fs from 'fs';
 import { StatusCode } from 'status-code-enum';
 import swaggerUi from 'swagger-ui-express';
 import { ZodTypeAny } from 'zod';
+import { Role } from '../../../shared/auth.types';
 
 export type EndpointParam = {
   name: string;
@@ -32,6 +33,7 @@ export type EndpointMeta = {
     schema?: ZodTypeAny;
   }[];
   authorize?: boolean;
+  allowedRoles?: Role[];
   functionName: string;
   noCacheHeaders?: boolean;
   requireApiKey?: boolean;
