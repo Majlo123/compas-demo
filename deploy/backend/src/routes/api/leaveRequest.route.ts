@@ -7,16 +7,20 @@ import { RoleEnum } from '../../../../shared/auth.types';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import { 
   LeaveRequestSuccessSchema, 
+  CreateLeaveRequestBodySchema,
+  CreateLeaveRequestSuccessSchema,
   PaginatedLeaveRequestSuccessSchema,
 } from 'types/zod/leaveRequest.schema';
 import {
   UnauthorizedResponseSchema,
   ForbiddenResponseSchema,
+  BadRequestResponseSchema,
   QuerySchema,
 } from 'types/zod/shared.schema';
 
 enum LeaveRequestFunctions {
   getMyLeaveRequests = 'getMyLeaveRequests',
+  createLeaveRequest = 'createLeaveRequest',
   getTeamLeaveRequests = 'getTeamLeaveRequests',
 }
 
@@ -47,6 +51,39 @@ const createLeaveRequestRoute = (basePath: string): Router => {
         },
       ],
       functionName: LeaveRequestFunctions.getMyLeaveRequests,
+      basePath,
+    },
+    {
+      name: 'Create Leave Request',
+      desc: 'Create a new leave request for the authenticated user',
+      path: '/',
+      method: 'post',
+      authorize: true,
+      allowedRoles: [RoleEnum.Employee],
+      requestBodySchema: CreateLeaveRequestBodySchema,
+      responses: [
+        {
+          code: httpStatus.CREATED,
+          desc: 'Leave request created successfully',
+          schema: CreateLeaveRequestSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid request data',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User not authorized',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.createLeaveRequest,
       basePath,
     },
     {
@@ -81,6 +118,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
 
   const leaveRequestControllerFunctions: Record<LeaveRequestFunctions, RequestHandler> = {
     getMyLeaveRequests: leaveRequestController.getMyLeaveRequests,
+    createLeaveRequest: leaveRequestController.createLeaveRequest,
     getTeamLeaveRequests: leaveRequestController.getTeamLeaveRequests,
   };
 

@@ -3,8 +3,8 @@ import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
-import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
-import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
+import { getMyLeaveRequests, createLeaveRequest } from '@/api/leave-request/leaveRequest.actions';
+import { LeaveRequest, LeaveRequestStatus, LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 import DialogForm from '@/components/dialog/DialogForm';
 
 interface LeaveRequestRow extends Row {
@@ -15,9 +15,7 @@ interface LeaveRequestRow extends Row {
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
-
   const [dialogOpen, setDialogOpen] = useState(false);
-
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -30,20 +28,35 @@ const MyLeaveRequestsPage: React.FC = () => {
     setIsLoading(true);
     setHasError(false);
 
-    const response = await getMyLeaveRequests();
+    try {
+      // Debug: check token
+      const token = localStorage.getItem('token');
+      if (token) {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        console.log('Token payload:', payload);
+      }
+      
+      const response = await getMyLeaveRequests();
+      console.log('Leave requests response:', response);
 
-    if (response.success && response.content) {
-      const formattedData: LeaveRequestRow[] = response.content.map((request: LeaveRequest) => ({
-        _id: request.id,
-        type: formatLeaveType(request.type),
-        startDate: formatDate(request.startDate),
-        endDate: formatDate(request.endDate),
-        status: request.status,
-      }));
-      setLeaveRequests(formattedData);
-    } else {
+      if (response.success && response.content) {
+        const formattedData: LeaveRequestRow[] = response.content.map((request: LeaveRequest) => ({
+          _id: request.id,
+          type: formatLeaveType(request.type),
+          startDate: formatDate(request.startDate),
+          endDate: formatDate(request.endDate),
+          status: request.status,
+        }));
+        setLeaveRequests(formattedData);
+      } else {
+        console.error('Failed to fetch leave requests:', response);
+        setHasError(true);
+        toast.error(response.message || 'Failed to load leave requests. Please try again.');
+      }
+    } catch (error) {
+      console.error('Error fetching leave requests:', error);
       setHasError(true);
-      toast.error(response.message || 'Failed to load leave requests. Please try again.');
+      toast.error('Failed to load leave requests. Please try again.');
     }
 
     setIsLoading(false);
@@ -64,6 +77,19 @@ const MyLeaveRequestsPage: React.FC = () => {
 
   const handleNewRequest = () => {
     setDialogOpen(true);
+  };
+
+  const handleFormSubmit = async (data: { type: LeaveRequestType; startDate: string; endDate: string }) => {
+    const response = await createLeaveRequest(data);
+
+    if (response.success) {
+      toast.success(response.message || 'Leave request submitted successfully');
+      setDialogOpen(false);
+      fetchLeaveRequests();
+    } else {
+      toast.error(response.message || 'Failed to submit leave request. Please try again.');
+      throw new Error(response.message);
+    }
   };
 
   const columns: Column[] = [
@@ -130,7 +156,11 @@ const MyLeaveRequestsPage: React.FC = () => {
           />
         )}
       </div>
-      <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
+      <DialogForm 
+        isOpen={dialogOpen} 
+        onOpenChange={setDialogOpen}
+        onSubmit={handleFormSubmit}
+      />
     </>
   );
 };
