@@ -34,3 +34,12 @@ export const createLeaveRequest = catchAsync(async (req: Request, res: Response)
     content: leaveRequest,
   });
 });
+
+export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Response) => {
+  const result = await leaveRequestService.getTeamLeaveRequests(req.queryParams);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: result,
+  });
+});

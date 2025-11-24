@@ -120,7 +120,7 @@ const MyLeaveRequestsPage: React.FC = () => {
     <>
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-extrabold text-gray-800">My Leave Requests</h1>
+        <h1 className="text-h1 font-extrabold text-gray-800">My Leave Requests</h1>
         <Button onClick={handleNewRequest} className="text-lg font-medium">
           + New Leave Request
         </Button>
@@ -150,9 +150,9 @@ const MyLeaveRequestsPage: React.FC = () => {
           <Table
             columns={columns}
             data={leaveRequests}
-            tableClassName="text-sm lg:text-lg"
-            headerClassName="text-sm lg:text-xl font-bold"
-            cellClassName="text-sm lg:text-xl"
+            tableClassName="text-p2 lg:text-p1"
+            headerClassName="text-p2 lg:text-p1 font-bold"
+            cellClassName="text-p2 lg:text-p1"
           />
         )}
       </div>

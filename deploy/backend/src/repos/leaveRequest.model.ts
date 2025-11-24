@@ -1,5 +1,7 @@
 import createBaseRepository from 'repos/utils/baseRepository';
 import pool from 'config/database';
+import QueryParams from 'repos/utils/query/QueryParams';
+import { PaginatedResult } from 'repos/utils/pagination';
 
 export type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
 
@@ -15,6 +17,10 @@ export type LeaveRequest = {
   reason?: string;
   createdAt?: Date;
   updatedAt?: Date;
+};
+
+export type LeaveRequestWithEmployee = LeaveRequest & {
+  employeeName?: string;
 };
 
 export type CreateLeaveRequest = Omit<LeaveRequest, 'id' | 'createdAt' | 'updatedAt'>;
@@ -43,6 +49,62 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
+};
+
+/**
+ * Find all leave requests (for managers)
+ */
+export const findAllWithQuery = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
+  const page = queryParams.pagination?.page || 1;
+  const pageSize = queryParams.pagination?.pageSize || 20;
+  const offset = (page - 1) * pageSize;
+
+  const allowedSortFields = ['start_date', 'end_date', 'created_at', 'status', 'type'];
+  const sortBy = queryParams.sort?.by || 'start_date';
+  const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'start_date';
+  const sortDirection = queryParams.sort?.direction || 'desc';
+  const sortDir = sortDirection.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+
+  // Get total count
+  const countQuery = 'SELECT COUNT(*) FROM leave_requests';
+  const countResult = await pool.query(countQuery);
+  const totalItems = parseInt(countResult.rows[0].count, 10);
+
+  // Get paginated data with dynamic sorting, joined with users table
+  const dataQuery = {
+    text: `
+      SELECT 
+        lr.*,
+        u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      ORDER BY lr.${sortField} ${sortDir}
+      LIMIT $1 OFFSET $2
+    `,
+    values: [pageSize, offset],
+  };
+
+  const dataResult = await pool.query(dataQuery);
+  const data = dataResult.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    employeeName: row.employee_name,
+  }));
+
+  return {
+    data,
+    page,
+    pageSize,
+    totalItems,
+    totalPages: Math.ceil(totalItems / pageSize),
+  };
 };
 
 export { create, findById, findByField, findAll, updateById, deleteById };

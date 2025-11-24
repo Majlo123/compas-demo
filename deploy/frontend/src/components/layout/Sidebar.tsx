@@ -6,23 +6,34 @@ import CheckCircleIcon from '@/components/images/CheckCircleIcon';
 import ReportsIcon from '@/components/images/ReportsIcon';
 import SettingsIcon from '@/components/images/SettingsIcon';
 import classNameBuilder from '@/utils/classNameBuilder';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { RoleEnum, Role } from '../../../../shared/auth.types';
 
 type NavItem = {
   label: string;
   path: string;
   Icon: React.ComponentType<{ className?: string }>;
+  allowedRoles?: Role[];
 };
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
-  { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon },
-  { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon },
+  { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Manager] },
+  { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
   { label: 'Settings', path: '/settings', Icon: SettingsIcon },
 ];
 
 const Sidebar: React.FC = () => {
+  const user = useAuthStore((state) => state.user);
+
+  const visibleNavItems = navItems.filter((item) => {
+    if (!item.allowedRoles) return true;
+    if (!user) return false;
+    return item.allowedRoles.includes(user.role);
+  });
+
   return (
     <aside className="w-64 bg-primary flex flex-col h-full rounded-l-2xl overflow-hidden">
       {/* Logo/Brand */}
@@ -36,7 +47,7 @@ const Sidebar: React.FC = () => {
       {/* Navigation */}
       <nav className="flex-1 py-6">
         <ul className="space-y-1 px-3">
-          {navItems.map((item) => (
+          {visibleNavItems.map((item) => (
             <li key={item.path}>
               <NavLink
                 to={item.path}
