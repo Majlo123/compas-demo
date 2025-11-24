@@ -7,6 +7,7 @@ import CustomDialog from '@/components/dialog/dialog-props';
 import FormSelect from '@/components/controls/FormSelect';
 import DateInput from '@/components/controls/DateInput';
 import Button from '@/components/controls/button/Button';
+import { LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 
 const leaveRequestSchema = z.object({
   leaveType: z.object({
@@ -30,7 +31,7 @@ type LeaveRequestForm = z.infer<typeof leaveRequestSchema>;
 type DialogFormProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit?: (data: { type: string; startDate: string; endDate: string }) => Promise<void>;
+  onSubmit?: (data: { type: LeaveRequestType; startDate: string; endDate: string }) => Promise<void>;
 };
 
 const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
@@ -59,6 +60,13 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
     }
   };
 
+  const leaveTypeOptions = [
+    { label: 'Vacation', value: 'vacation' },
+    { label: 'Sick Leave', value: 'sick' },
+    { label: 'Personal Leave', value: 'personal' },
+    { label: 'Other', value: 'other' },
+  ];
+
   return (
     <CustomDialog
       title="New Leave Request"
@@ -66,39 +74,33 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >
-      <form onSubmit={handleSubmit(onSubmitHandler)} className="flex flex-col gap-md">
-        <FormSelect
-          name="leaveType"
-          control={control}
-          errors={errors}
-          label="Leave Type"
-          placeholder="Select Leave Type"
-          options={[
-            { label: 'Vacation', value: 'vacation' },
-            { label: 'Sick Leave', value: 'sick' },
-            { label: 'Personal Leave', value: 'personal' },
-            { label: 'Unpaid Leave', value: 'other' },
-          ]}
-          required
-          disabled={isSubmitting}
-        />
-
-        <DateInput
-          {...register('startDate')}
-          label="Start Date"
-          required
-          error={errors.startDate?.message}
-          disabled={isSubmitting}
-        />
-
-        <DateInput
-          {...register('endDate')}
-          label="End Date"
-          required
-          error={errors.endDate?.message}
-          disabled={isSubmitting}
-        />
-
+      <form onSubmit={handleSubmit(onSubmitHandler)}>
+        <div className="mb-md">
+          <FormSelect
+            name="leaveType"
+            control={control}
+            options={leaveTypeOptions}
+            label="Leave Type"
+            placeholder="Select Leave Type"
+            errors={errors}
+          />
+        </div>
+        <div className="mb-md">
+          <DateInput
+            label="Start Date"
+            required
+            error={errors.startDate?.message}
+            {...register('startDate')}
+          />
+        </div>
+        <div className="mb-xl">
+          <DateInput
+            label="End Date"
+            required
+            error={errors.endDate?.message}
+            {...register('endDate')}
+          />
+        </div>
         <div className="flex justify-end">
           <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
             {isSubmitting ? 'Submitting...' : 'Submit'}

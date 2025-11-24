@@ -3,8 +3,8 @@ import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
-import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
-import { LeaveRequest, LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
+import { getMyLeaveRequests, createLeaveRequest } from '@/api/leave-request/leaveRequest.actions';
+import { LeaveRequest, LeaveRequestStatus, LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 import DialogForm from '@/components/dialog/DialogForm';
 
 interface LeaveRequestRow extends Row {
@@ -64,6 +64,20 @@ const MyLeaveRequestsPage: React.FC = () => {
 
   const handleNewRequest = () => {
     setDialogOpen(true);
+  };
+
+  const handleFormSubmit = async (data: { type: LeaveRequestType; startDate: string; endDate: string }) => {
+    const response = await createLeaveRequest(data);
+
+    if (response.success) {
+      toast.success(response.message || 'Leave request submitted successfully');
+      setDialogOpen(false);
+      // Refresh the leave requests list
+      fetchLeaveRequests();
+    } else {
+      toast.error(response.message || 'Failed to submit leave request. Please try again.');
+      throw new Error(response.message);
+    }
   };
 
   const columns: Column[] = [
@@ -130,7 +144,11 @@ const MyLeaveRequestsPage: React.FC = () => {
           />
         )}
       </div>
-      <DialogForm isOpen={dialogOpen} onOpenChange={setDialogOpen} />
+      <DialogForm 
+        isOpen={dialogOpen} 
+        onOpenChange={setDialogOpen}
+        onSubmit={handleFormSubmit}
+      />
     </>
   );
 };

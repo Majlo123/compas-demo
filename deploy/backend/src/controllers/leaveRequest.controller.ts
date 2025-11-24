@@ -18,3 +18,19 @@ export const getMyLeaveRequests = catchAsync(async (req: Request, res: Response)
     content: leaveRequests,
   });
 });
+
+export const createLeaveRequest = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const leaveRequest = await leaveRequestService.createLeaveRequest(userId, req.body);
+
+  res.status(httpStatus.CREATED).send({
+    success: true,
+    message: 'Leave request created successfully',
+    content: leaveRequest,
+  });
+});

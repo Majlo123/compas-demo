@@ -23,4 +23,17 @@ export const LeaveRequestSuccessSchema = z.object({
   content: LeaveRequestListSchema,
 });
 
+export const CreateLeaveRequestBodySchema = z.object({
+  type: LeaveRequestTypeEnum,
+  startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
+  endDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format. Use YYYY-MM-DD'),
+  reason: z.string().optional(),
+});
+
+export const CreateLeaveRequestSuccessSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  content: LeaveRequestSchema,
+});
+
 export type LeaveRequestType = z.infer<typeof LeaveRequestSchema>;
