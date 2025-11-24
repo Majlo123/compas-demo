@@ -73,7 +73,7 @@ const Select: FC<SelectProps> = ({
     <div
       ref={ref}
       onBlur={onBlur}
-      className={classNameBuilder(className, 'relative min-w-[200px]')}
+      className={classNameBuilder(className, 'relative')}
     >
       {label && (
         <label
@@ -111,7 +111,7 @@ const Select: FC<SelectProps> = ({
         <div
           ref={dropdownRef}
           className={classNameBuilder(
-            'absolute w-full h-fit max-h-[400px] overflow-hidden overflow-y-auto z-50',
+            'absolute w-full h-fit overflow-hidden overflow-y-auto z-50',
             'bg-white border border-someGrey rounded-b-lg shadow-lg text-p2 text-darkGrey',
             openDirection === 'down'
               ? 'top-full mt-1 origin-top animate-scale-in'

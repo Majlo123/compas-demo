@@ -28,7 +28,6 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/my-requests',
       method: 'get',
       authorize: true,
-      allowedRoles: ['employee'],
       responses: [
         {
           code: httpStatus.OK,

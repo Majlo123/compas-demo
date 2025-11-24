@@ -45,7 +45,7 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
     try {
       if (onSubmit && data.leaveType) {
         await onSubmit({
-          type: data.leaveType.value,
+          type: data.leaveType.value as LeaveRequestType,
           startDate: data.startDate,
           endDate: data.endDate,
         });
