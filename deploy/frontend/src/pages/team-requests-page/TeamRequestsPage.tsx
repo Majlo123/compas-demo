@@ -91,8 +91,7 @@ const TeamRequestsPage: React.FC = () => {
       emptyDescription="Your team members have not submitted any leave requests."
         isLoading={false}
         hasError={false}
-        // change to true is empty state
-        isEmpty={false}
+        isEmpty={true}
     >
       <Table
         columns={columns}
