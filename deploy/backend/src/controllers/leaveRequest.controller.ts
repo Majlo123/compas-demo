@@ -18,3 +18,12 @@ export const getMyLeaveRequests = catchAsync(async (req: Request, res: Response)
     content: leaveRequests,
   });
 });
+
+export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Response) => {
+  const result = await leaveRequestService.getTeamLeaveRequests(req.queryParams);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: result,
+  });
+});

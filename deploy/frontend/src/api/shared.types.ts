@@ -41,6 +41,14 @@ export type PaginatedContent<T> = {
 
 export type PaginatedApiResponse<T> = ApiResponse<PaginatedContent<T>>;
 
+export type QueryParams = {
+  page?: number;
+  pageSize?: number;
+  by?: string;
+  direction?: 'asc' | 'desc';
+  filter?: string;
+};
+
 export type BaseModel = {
   _id: string;
   createdAt: Date;

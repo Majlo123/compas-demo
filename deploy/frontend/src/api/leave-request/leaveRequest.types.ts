@@ -13,3 +13,11 @@ export type LeaveRequest = {
 };
 
 export type LeaveRequestListResponse = LeaveRequest[];
+
+export type PaginatedLeaveRequestResponse = {
+  data: LeaveRequest[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
+};
