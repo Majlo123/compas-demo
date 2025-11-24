@@ -1,0 +1,151 @@
+/* Hide internal scrollbars from react-big-calendar so it can be controlled by parent scroll */
+.big-calendar-wrapper {
+  overflow: visible;
+  height: 100%;
+}
+
+/* Hide scrollbars in time views (week/day) */
+.big-calendar-wrapper .rbc-time-content {
+  overflow-y: hidden !important;
+  overflow-x: hidden !important;
+}
+
+.big-calendar-wrapper .rbc-time-slot {
+  overflow: hidden;
+}
+
+/* Hide horizontal scrollbar if any */
+.big-calendar-wrapper .rbc-month-view,
+.big-calendar-wrapper .rbc-agenda-view {
+  overflow: hidden;
+}
+
+/* Ensure calendar expands naturally without internal scroll */
+.big-calendar-wrapper .rbc-calendar {
+  height: 100%;
+  overflow: visible;
+}
+
+/* Hide any webkit scrollbars that might appear */
+.big-calendar-wrapper ::-webkit-scrollbar {
+  width: 0px;
+  height: 0px;
+  display: none;
+}
+
+/* Firefox */
+.big-calendar-wrapper * {
+  scrollbar-width: none;
+}
+
+/* Project styling - match Tailwind config colors */
+.rbc-calendar {
+  font-family: "Nunito", system-ui, sans-serif;
+  background: #F9FAFD;
+  border-radius: 8px;
+  padding: 8px;
+}
+
+.rbc-toolbar {
+  background: #FEFEFE;
+  border: 1px solid #F2F3F7;
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.rbc-toolbar .rbc-btn-group {
+  display: flex;
+  gap: 8px;
+}
+
+.rbc-btn {
+  background: transparent;
+  color: #1E88E5;
+  border: 1px solid transparent;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.rbc-btn:hover {
+  background: #0675DB;
+  color: #fff;
+}
+
+.rbc-btn:active {
+  background: #1E88E5;
+}
+
+.rbc-header {
+  color: #131428;
+  font-weight: 600;
+  padding: 6px 8px;
+}
+
+.rbc-month-view .rbc-date-cell {
+  padding: 8px;
+}
+
+.rbc-event {
+  background-color: #1E88E5;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 4px 6px;
+  box-shadow: none;
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.rbc-event:hover {
+  filter: brightness(0.95);
+  cursor: pointer;
+}
+
+.rbc-selected {
+  box-shadow: 0 0 0 2px rgba(30, 136, 229, 0.3);
+}
+
+.rbc-today {
+  background: #DEE6EA;
+}
+
+.rbc-off-range {
+  opacity: 0.5;
+  color: #B2B8B2;
+}
+
+.rbc-off-range-bg {
+  background: #F4F4F4;
+}
+
+.rbc-time-header,
+.rbc-time-view {
+  font-size: 14px;
+}
+
+.rbc-day-bg {
+  border-left: 1px solid #F2F3F7;
+}
+
+.rbc-month-row + .rbc-month-row {
+  border-top: 1px solid #F2F3F7;
+}
+
+.rbc-event .rbc-event-label {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rbc-event-content {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

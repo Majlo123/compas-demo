@@ -1,7 +1,10 @@
 import React, { FC, useMemo } from 'react';
 import { Calendar as RbcCalendar, dateFnsLocalizer, View } from 'react-big-calendar';
-import { format, parse, startOfWeek, getDay } from 'date-fns';
+import { parse, startOfWeek, getDay } from 'date-fns';
+import { enUS } from 'date-fns/locale/en-US';
+import { formatInTimeZone } from 'date-fns-tz';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
+import './big-calendar.css';
 
 type Event = {
   id: string;
@@ -23,11 +26,13 @@ type Props = {
 };
 
 const locales = {
-  'en-US': "en-US",
+  'en-US': enUS,
 };
 
+const TIMEZONE = 'Europe/Belgrade';
+
 const localizer = dateFnsLocalizer({
-  format,
+  format: (date: Date, formatStr: string) => formatInTimeZone(date, TIMEZONE, formatStr),
   parse,
   startOfWeek: (date) => startOfWeek(date, { weekStartsOn: 1 }),
   getDay,
@@ -47,7 +52,7 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onSelectE
   );
 
   return (
-    <div style={style}>
+    <div className="big-calendar-wrapper" style={style}>
       <RbcCalendar
         localizer={localizer}
         events={mappedEvents}
@@ -57,7 +62,7 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onSelectE
         view={view}
         onSelectEvent={onSelectEvent}
         onNavigate={onNavigate}
-        style={{ height: 600 }}
+        style={{ height: '100%', minHeight: 600 }}
         eventPropGetter={eventPropGetter}
       />
     </div>
