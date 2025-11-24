@@ -1,3 +1,4 @@
+import BigCalendar from '@/components/calendar/BigCalendar';
 import React from 'react';
 
 const TeamCalendarPage: React.FC = () => {
@@ -9,9 +10,7 @@ const TeamCalendarPage: React.FC = () => {
       </div>
       
       {/* Content Area */}
-      <div>
-        Team calendar content will be displayed here
-      </div>
+      <BigCalendar events={[]} />
     </>
   );
 };
