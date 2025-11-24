@@ -1,14 +1,28 @@
-import { LeaveRequestStatus } from '@/api/leave-request/leaveRequest.types';
+import { LeaveRequestStatus, LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import Table, { Column } from '@/components/controls/table/Table';
 import RequestsLayout from '@/components/layout/RequestsLayout';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Select from '@/components/controls/Select';
 import { SelectOption } from '@/components/controls/Select';
 import BadgeIconCheckCircle from '@/components/images/BadgeIconCheckCircle';
 import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
+import usePagination from '@/hooks/usePagination';
+import useSort from '@/hooks/useSort';
+import { getTeamLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
+import { isApiSuccess } from '@/api/shared.types';
+import QueryParams from '@/types/query/QueryParams';
+import { PAGE_SIZES } from '@/types/query/QueryPagination';
 
 const TeamRequestsPage: React.FC = () => {
+  const { page, pageSize } = usePagination();
+  const { sort } = useSort();
+  
+  const [leaveRequests, setLeaveRequests] = useState<LeaveRequestWithEmployee[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const [totalPages, setTotalPages] = useState(0);
+  const [totalItems, setTotalItems] = useState(0);
 
   const filterOptions: SelectOption[] = [
     { label: 'Vacation', value: 'vacation' },
@@ -26,10 +40,45 @@ const TeamRequestsPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
 
+  useEffect(() => {
+    const fetchTeamLeaveRequests = async () => {
+      setIsLoading(true);
+      setHasError(false);
+
+      const queryParams: QueryParams = {
+        pagination: { page, pageSize: pageSize as typeof PAGE_SIZES[number] },
+        sort: sort.by && sort.direction ? { by: sort.by, direction: sort.direction } : undefined,
+      };
+
+      const response = await getTeamLeaveRequests(queryParams);
+
+      if (isApiSuccess(response)) {
+        setLeaveRequests(response.content.data);
+        setTotalPages(response.content.totalPages);
+        setTotalItems(response.content.totalItems);
+      } else {
+        setHasError(true);
+      }
+
+      setIsLoading(false);
+    };
+
+    fetchTeamLeaveRequests();
+  }, [page, pageSize, sort.by, sort.direction]);
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
+  };
+
     const columns: Column[] = [
         {
           accessor: 'employeeName',
-          header: 'Employee name',
+          header: 'Team Member',
         },
         {
           accessor: 'type',
@@ -38,10 +87,12 @@ const TeamRequestsPage: React.FC = () => {
         {
           accessor: 'startDate',
           header: 'Start Date',
+          formatter: (value: string) => formatDate(value),
         },
         {
           accessor: 'endDate',
           header: 'End Date',
+          formatter: (value: string) => formatDate(value),
         },
         {
           accessor: 'status',
@@ -55,16 +106,21 @@ const TeamRequestsPage: React.FC = () => {
         {
           accessor: 'actions',
           header: 'Actions',
-          formatter: () => (
-            <div className="flex gap-2 items-center justify-center">
-              <StatusBadge status="approved" className="cursor-pointer hover:opacity-80 transition-opacity">
-                <BadgeIconCheckCircle className="w-4 h-4 mr-1" />
-              </StatusBadge>
-              <StatusBadge status="declined" className="cursor-pointer hover:opacity-80 transition-opacity">
-                <BadgeIconXCircle className="w-4 h-4 mr-1" />
-              </StatusBadge>
-            </div>
-          ),
+          formatter: (_value: any, row: any) => {
+            if (row.status !== 'pending') {
+              return null;
+            }
+            return (
+              <div className="flex gap-2 items-center justify-center">
+                <StatusBadge status="approved" className="cursor-pointer hover:opacity-80 transition-opacity">
+                  <BadgeIconCheckCircle className="w-4 h-4" />
+                </StatusBadge>
+                <StatusBadge status="declined" className="cursor-pointer hover:opacity-80 transition-opacity">
+                  <BadgeIconXCircle className="w-4 h-4" />
+                </StatusBadge>
+              </div>
+            );
+          },
         },
       ];
 
@@ -89,16 +145,16 @@ const TeamRequestsPage: React.FC = () => {
       actionPosition="below"
       emptyMessage="No team requests yet"
       emptyDescription="Your team members have not submitted any leave requests."
-        isLoading={false}
-        hasError={false}
-        isEmpty={true}
+        isLoading={isLoading}
+        hasError={hasError}
+        isEmpty={leaveRequests.length === 0}
     >
       <Table
         columns={columns}
-        data={[]}
-        tableClassName="text-sm lg:text-md"
-        headerClassName="text-sm lg:text-md font-bold"
-        cellClassName="text-sm lg:text-md"
+        data={leaveRequests.map(lr => ({ ...lr, _id: lr.id }))}
+        tableClassName="text-p2 lg:text-p1"
+        headerClassName="text-p2 lg:text-p1 font-bold"
+        cellClassName="text-p2 lg:text-p1"
       />
     </RequestsLayout>
   );

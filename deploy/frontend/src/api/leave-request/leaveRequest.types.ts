@@ -12,6 +12,10 @@ export type LeaveRequest = {
   createdAt: string;
 };
 
+export type LeaveRequestWithEmployee = LeaveRequest & {
+  employeeName?: string;
+};
+
 export type LeaveRequestListResponse = LeaveRequest[];
 
 export type CreateLeaveRequestData = {

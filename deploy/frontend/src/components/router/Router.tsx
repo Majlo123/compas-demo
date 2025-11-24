@@ -5,6 +5,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
+import ManagerRoutes from '@/components/router/ManagerRoutes.tsx';
+import EmployeeRoutes from '@/components/router/EmployeeRoutes.tsx';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import LoginPage from '@/pages/login-page/LoginPage';
 import RegisterPage from '@/pages/register-page/RegisterPage';
@@ -31,8 +33,15 @@ const Router: FC = () => {
         <Route element={<AuthenticatedRoutes />}>
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
-            <Route path="/team-requests" element={<TeamRequestsPage />} />
-            <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
+            
+            <Route element={<ManagerRoutes />}>
+              <Route path="/team-requests" element={<TeamRequestsPage />} />
+            </Route>
+            
+            <Route element={<EmployeeRoutes />}>
+              <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
+            </Route>
+            
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/settings" element={<SettingsPage />} />

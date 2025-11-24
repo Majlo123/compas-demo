@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import { leaveRequestRepository } from 'repos/index';
-import { LeaveRequest, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
+import { LeaveRequest, LeaveRequestWithEmployee, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
@@ -13,6 +13,7 @@ export type LeaveRequestResponse = {
   status: string;
   reason?: string;
   createdAt: string;
+  employeeName?: string;
 };
 
 export type CreateLeaveRequestInput = {
@@ -103,7 +104,7 @@ export const getTeamLeaveRequests = async (
   const paginatedResult = await leaveRequestRepository.findAllWithQuery(queryParams);
 
   return {
-    data: paginatedResult.data.map((request: LeaveRequest) => ({
+    data: paginatedResult.data.map((request: LeaveRequestWithEmployee) => ({
       id: request.id!,
       type: request.type,
       startDate: request.startDate.toISOString().split('T')[0],
@@ -111,6 +112,7 @@ export const getTeamLeaveRequests = async (
       status: request.status,
       reason: request.reason,
       createdAt: request.createdAt!.toISOString(),
+      employeeName: request.employeeName,
     })),
     page: paginatedResult.page,
     pageSize: paginatedResult.pageSize,

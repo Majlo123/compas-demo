@@ -19,6 +19,10 @@ export type LeaveRequest = {
   updatedAt?: Date;
 };
 
+export type LeaveRequestWithEmployee = LeaveRequest & {
+  employeeName?: string;
+};
+
 export type CreateLeaveRequest = Omit<LeaveRequest, 'id' | 'createdAt' | 'updatedAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
@@ -50,7 +54,7 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
 /**
  * Find all leave requests (for managers)
  */
-export const findAllWithQuery = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequest>> => {
+export const findAllWithQuery = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
   const page = queryParams.pagination?.page || 1;
   const pageSize = queryParams.pagination?.pageSize || 20;
   const offset = (page - 1) * pageSize;
@@ -66,9 +70,17 @@ export const findAllWithQuery = async (queryParams: QueryParams): Promise<Pagina
   const countResult = await pool.query(countQuery);
   const totalItems = parseInt(countResult.rows[0].count, 10);
 
-  // Get paginated data with dynamic sorting
+  // Get paginated data with dynamic sorting, joined with users table
   const dataQuery = {
-    text: `SELECT * FROM leave_requests ORDER BY ${sortField} ${sortDir} LIMIT $1 OFFSET $2`,
+    text: `
+      SELECT 
+        lr.*,
+        u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      ORDER BY lr.${sortField} ${sortDir}
+      LIMIT $1 OFFSET $2
+    `,
     values: [pageSize, offset],
   };
 
@@ -83,6 +95,7 @@ export const findAllWithQuery = async (queryParams: QueryParams): Promise<Pagina
     reason: row.reason,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
+    employeeName: row.employee_name,
   }));
 
   return {

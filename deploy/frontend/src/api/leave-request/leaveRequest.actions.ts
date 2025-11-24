@@ -3,8 +3,9 @@ import {
   LeaveRequestListResponse, LeaveRequest, CreateLeaveRequestData,
   PaginatedLeaveRequestResponse,
 } from '@/api/leave-request/leaveRequest.types';
-import { ApiResponse, QueryParams } from '@/api/shared.types';
+import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
+import QueryParams from '@/types/query/QueryParams';
 
 const endpoint = '/leave-request';
 
@@ -34,14 +35,17 @@ export const getTeamLeaveRequests = async (
   try {
     const queryParams = new URLSearchParams();
 
-    if (params?.page) queryParams.append('page', params.page.toString());
-    if (params?.pageSize) queryParams.append('pageSize', params.pageSize.toString());
-    if (params?.by) queryParams.append('by', params.by);
-    if (params?.direction) queryParams.append('direction', params.direction);
+    if (params?.pagination?.page) queryParams.append('page', params.pagination.page.toString());
+    if (params?.pagination?.pageSize) queryParams.append('pageSize', params.pagination.pageSize.toString());
+    if (params?.sort?.by) queryParams.append('by', params.sort.by);
+    if (params?.sort?.direction) queryParams.append('direction', params.sort.direction);
+    if (params?.filters && params.filters.length > 0) {
+      queryParams.append('filter', JSON.stringify(params.filters));
+    }
 
     const queryString = queryParams.toString();
     const url = queryString ? `${endpoint}/team-requests?${queryString}` : `${endpoint}/team-requests`;
-
+    console.log('Fetching team leave requests with URL:', url);
     const response = await axiosServer.get(url);
     return response.data;
   } catch (error) {
