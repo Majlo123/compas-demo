@@ -2,40 +2,54 @@
 .big-calendar-wrapper {
   overflow: visible;
   height: 100%;
+  box-sizing: border-box;
 }
 
-/* Hide scrollbars in time views (week/day) */
+/* Allow internal scrolling in time views (week/day) so weekdays can scroll */
 .big-calendar-wrapper .rbc-time-content {
-  overflow-y: hidden !important;
+  overflow-y: auto !important;
   overflow-x: hidden !important;
+  -webkit-overflow-scrolling: touch;
 }
 
 .big-calendar-wrapper .rbc-time-slot {
   overflow: hidden;
 }
 
-/* Hide horizontal scrollbar if any */
-.big-calendar-wrapper .rbc-month-view,
+/* Hide horizontal scrollbar in month view; make agenda scrollable */
+.big-calendar-wrapper .rbc-month-view {
+  overflow: visible;
+}
+
 .big-calendar-wrapper .rbc-agenda-view {
-  overflow: hidden;
+  overflow: auto;
+  -webkit-overflow-scrolling: touch;
+  max-height: 100%;
 }
 
 /* Ensure calendar expands naturally without internal scroll */
 .big-calendar-wrapper .rbc-calendar {
   height: 100%;
   overflow: visible;
+  box-sizing: border-box;
 }
 
-/* Hide any webkit scrollbars that might appear */
-.big-calendar-wrapper ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
-  display: none;
+/* Make month view fill available height */
+.big-calendar-wrapper .rbc-month-view {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
-/* Firefox */
-.big-calendar-wrapper * {
-  scrollbar-width: none;
+.big-calendar-wrapper .rbc-month-view .rbc-header {
+  flex-shrink: 0;
+}
+
+.big-calendar-wrapper .rbc-month-view .rbc-month-view {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
 /* Project styling - match Tailwind config colors */
@@ -43,7 +57,6 @@
   font-family: "Nunito", system-ui, sans-serif;
   background: #F9FAFD;
   border-radius: 8px;
-  padding: 8px;
 }
 
 .rbc-toolbar {
@@ -93,19 +106,70 @@
 }
 
 .rbc-event {
-  background-color: #1E88E5;
-  color: #fff;
+  /* background is set per-event via inline styles (eventPropGetter) */
   border: none;
-  border-radius: 8px;
-  padding: 4px 6px;
   box-shadow: none;
-  font-weight: 600;
-  font-size: 14px;
+  cursor: pointer;
 }
 
-.rbc-event:hover {
-  filter: brightness(0.95);
-  cursor: pointer;
+/* Month view: thin horizontal lines with tooltip */
+.rbc-month-view .rbc-event {
+  color: transparent;
+  border-radius: 3px;
+  padding: 0 3px;
+  font-weight: 400;
+  font-size: 0;
+  line-height: 1;
+  min-height: 5px;
+  height: 5px;
+  overflow: visible;
+  position: relative;
+  margin-bottom: 2px;
+}
+
+.rbc-month-view .rbc-event .rbc-event-content {
+  opacity: 0;
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% + 4px);
+  transform: translateX(-50%);
+  background: rgba(19, 20, 40, 0.95);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 100000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  line-height: 1.4;
+  min-width: max-content;
+}
+
+.rbc-month-view .rbc-event:hover {
+  filter: brightness(1.15);
+  z-index: 99999;
+  position: relative;
+}
+
+.rbc-month-view .rbc-event:hover .rbc-event-content {
+  opacity: 1;
+}
+
+/* Week/Day view: normal event blocks */
+.rbc-time-grid .rbc-event {
+  color: #fff;
+  border-radius: 4px;
+  padding: 2px 4px;
+  font-weight: 600;
+  font-size: 0.75rem;
+  overflow: hidden;
+}
+
+.rbc-time-grid .rbc-event:hover {
+  filter: brightness(1.1);
 }
 
 .rbc-selected {
@@ -130,6 +194,16 @@
   font-size: 14px;
 }
 
+/* Ensure time-grid events are absolutely positioned so overlapping is rendered correctly */
+.rbc-time-grid .rbc-events {
+  position: relative;
+}
+
+.rbc-time-grid .rbc-event {
+  position: absolute;
+  left: 0; /* allow inline styles from library to override left/width */
+}
+
 .rbc-day-bg {
   border-left: 1px solid #F2F3F7;
 }
@@ -138,14 +212,69 @@
   border-top: 1px solid #F2F3F7;
 }
 
-.rbc-event .rbc-event-label {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+/* Month view: make rows display like week view with vertical event stacking */
+.rbc-month-view .rbc-month-row {
+  display: flex;
+  flex-direction: column;
+  min-height: 120px;
+  max-height: 180px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(30, 136, 229, 0.5) transparent;
 }
 
-.rbc-event-content {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+.rbc-month-view .rbc-month-row::-webkit-scrollbar {
+  width: 6px;
 }
+
+.rbc-month-view .rbc-month-row::-webkit-scrollbar-thumb {
+  background: rgba(30, 136, 229, 0.5);
+  border-radius: 3px;
+}
+
+.rbc-month-view .rbc-month-row::-webkit-scrollbar-thumb:hover {
+  background: rgba(30, 136, 229, 0.7);
+}
+
+.rbc-month-view .rbc-row {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+}
+
+.rbc-month-view .rbc-date-cell {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  padding: 8px;
+}
+
+.rbc-row-segment {
+  display: block !important;
+  width: 100% !important;
+  position: static !important;
+  margin: 2px 0 !important;
+}
+
+/* Hide +X more link */
+.rbc-show-more {
+  display: none !important;
+}
+
+/* Events display as thin horizontal bars stacked vertically */
+.rbc-month-view .rbc-row-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow: visible;
+}
+
+.rbc-month-view .rbc-event .rbc-event-label {
+  display: none;
+}
+
+.rbc-time-grid .rbc-event .rbc-event-label {
+  font-size: 0.7rem;
+}
+

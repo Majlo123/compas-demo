@@ -19,6 +19,7 @@ type Props = {
   events: Event[];
   defaultView?: View;
   view?: View;
+  onView?: (view: View) => void;
   onSelectEvent?: (evt: any) => void;
   onNavigate?: (date: Date, view?: View) => void;
   eventPropGetter?: (event: any) => any;
@@ -39,7 +40,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onSelectEvent, onNavigate, eventPropGetter, style }) => {
+const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, onSelectEvent, onNavigate, eventPropGetter, style }) => {
   const mappedEvents = useMemo(
     () =>
       events.map((e) => ({
@@ -60,10 +61,15 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onSelectE
         endAccessor="end"
         defaultView={defaultView}
         view={view}
+        onView={onView}
+        showMultiDayTimes={true}
         onSelectEvent={onSelectEvent}
         onNavigate={onNavigate}
-        style={{ height: '100%', minHeight: 600 }}
+        style={{ height: '100%' }}
         eventPropGetter={eventPropGetter}
+        popup={false}
+        doShowMoreDrillDown={false}
+        views={['month', 'week', 'agenda']}
       />
     </div>
   );

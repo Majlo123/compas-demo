@@ -22,8 +22,8 @@ const CustomDialog: React.FC<DialogProps> = ({
 }) => {
   return (
     <Dialog.Root open={isOpen} onOpenChange={onOpenChange}>
-      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50" />
-      <Dialog.Content className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-lg rounded-md shadow-lg w-1/3 ${classContent}`}>
+      <Dialog.Overlay className="fixed inset-0 bg-black bg-opacity-50 z-50" />
+      <Dialog.Content className={`fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 bg-white p-lg rounded-md shadow-lg w-1/3 z-50 ${classContent}`}>
         <Dialog.Title className={`text-h2 font-bold mb-sm ${classTitle}`}>{title}</Dialog.Title>
         {description && <Dialog.Description className="text-p2 text-gray-500 mb-lg">{description}</Dialog.Description>}
         {children}
