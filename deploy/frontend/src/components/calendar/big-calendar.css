@@ -16,11 +16,6 @@
   overflow: hidden;
 }
 
-/* Hide horizontal scrollbar in month view; make agenda scrollable */
-.big-calendar-wrapper .rbc-month-view {
-  overflow: visible;
-}
-
 .big-calendar-wrapper .rbc-agenda-view {
   overflow: auto;
   -webkit-overflow-scrolling: touch;
@@ -59,50 +54,62 @@
   border-radius: 8px;
 }
 
+/* Hide default toolbar since we use custom */
 .rbc-toolbar {
+  display: none;
+}
+
+/* Custom toolbar styling */
+.custom-calendar-toolbar {
   background: #FEFEFE;
   border: 1px solid #F2F3F7;
   border-radius: 8px;
-  padding: 8px 12px;
+  padding: 12px 16px;
   margin-bottom: 12px;
   display: flex;
   align-items: center;
   justify-content: space-between;
+  height: 48px;
 }
 
-.rbc-toolbar .rbc-btn-group {
+.toolbar-nav,
+.toolbar-views {
   display: flex;
   gap: 8px;
 }
 
-.rbc-btn {
+.toolbar-label {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #131428;
+}
+
+.toolbar-btn {
   background: transparent;
   color: #1E88E5;
   border: 1px solid transparent;
-  padding: 6px 10px;
+  padding: 6px 12px;
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
+  font-size: 0.875rem;
 }
 
-.rbc-btn:hover {
+.toolbar-btn:hover {
   background: #0675DB;
   color: #fff;
 }
 
-.rbc-btn:active {
+.toolbar-btn.active {
   background: #1E88E5;
+  color: #fff;
 }
 
 .rbc-header {
   color: #131428;
   font-weight: 600;
   padding: 6px 8px;
-}
-
-.rbc-month-view .rbc-date-cell {
-  padding: 8px;
 }
 
 .rbc-event {
@@ -194,6 +201,14 @@
   font-size: 14px;
 }
 
+/* Ensure time view elements expand to full height so grid sizing works correctly */
+.rbc-time-content,
+.rbc-time-header,
+.rbc-overflowing {
+  height: 100% !important;
+  min-height: 0 !important;
+}
+
 /* Ensure time-grid events are absolutely positioned so overlapping is rendered correctly */
 .rbc-time-grid .rbc-events {
   position: relative;
@@ -216,11 +231,8 @@
 .rbc-month-view .rbc-month-row {
   display: flex;
   flex-direction: column;
-  min-height: 120px;
-  max-height: 180px;
-  overflow-y: auto;
-  scrollbar-width: thin;
-  scrollbar-color: rgba(30, 136, 229, 0.5) transparent;
+  min-height: 200px !important;
+  overflow: visible !important;
 }
 
 .rbc-month-view .rbc-month-row::-webkit-scrollbar {
@@ -257,9 +269,11 @@
   margin: 2px 0 !important;
 }
 
-/* Hide +X more link */
+/* Hide +X more link visually but keep in DOM for auto-click */
 .rbc-show-more {
-  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+  position: absolute !important;
 }
 
 /* Events display as thin horizontal bars stacked vertically */

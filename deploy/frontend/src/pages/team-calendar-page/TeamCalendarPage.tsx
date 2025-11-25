@@ -15,7 +15,8 @@ const TeamCalendarPage: React.FC = () => {
     },
   });
 
-  const [view, setView] = useState<'month' | 'week' | 'day'>('week');
+  const [view, setView] = useState<'month' | 'week' | 'day'>('month');
+  const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedEvent, setSelectedEvent] = useState<any>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -33,8 +34,10 @@ const TeamCalendarPage: React.FC = () => {
           <BigCalendar 
             events={eventsToShow} 
             eventPropGetter={eventPropGetter} 
-            view={view} 
-            onView={(v) => setView(v as any)} 
+            view={view}
+            currentDate={currentDate}
+            onView={(v) => setView(v as any)}
+            onNavigate={(newDate) => setCurrentDate(newDate)}
             onSelectEvent={handleEventClick}
           />
         </div>

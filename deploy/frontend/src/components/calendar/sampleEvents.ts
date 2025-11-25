@@ -95,7 +95,7 @@ export const sampleEvents: SampleEvent[] = [
     status: 'approved',
   },
   {
-    id: '77',
+    id: '7',
     title: 'Workshop — es',
     start: new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 2, 9, 0, 0),
     end: new Date(startOfToday.getFullYear(), startOfToday.getMonth(), startOfToday.getDate() + 3, 17, 0, 0),
