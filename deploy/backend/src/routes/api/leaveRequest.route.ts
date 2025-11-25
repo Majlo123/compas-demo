@@ -10,6 +10,8 @@ import {
   CreateLeaveRequestBodySchema,
   CreateLeaveRequestSuccessSchema,
   PaginatedLeaveRequestSuccessSchema,
+  UpdateLeaveRequestStatusBodySchema,
+  UpdateLeaveRequestStatusSuccessSchema,
 } from 'types/zod/leaveRequest.schema';
 import {
   UnauthorizedResponseSchema,
@@ -22,6 +24,7 @@ enum LeaveRequestFunctions {
   getMyLeaveRequests = 'getMyLeaveRequests',
   createLeaveRequest = 'createLeaveRequest',
   getTeamLeaveRequests = 'getTeamLeaveRequests',
+  updateLeaveRequestStatus = 'updateLeaveRequestStatus',
 }
 
 const createLeaveRequestRoute = (basePath: string): Router => {
@@ -114,12 +117,51 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       functionName: LeaveRequestFunctions.getTeamLeaveRequests,
       basePath,
     },
+    {
+      name: 'Update Leave Request Status',
+      desc: 'Approve or decline a leave request (managers only)',
+      path: '/:id/status',
+      method: 'patch',
+      authorize: true,
+      allowedRoles: [RoleEnum.Manager],
+      requestBodySchema: UpdateLeaveRequestStatusBodySchema,
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Leave request status updated successfully',
+          schema: UpdateLeaveRequestStatusSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid request data or status',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.NOT_FOUND,
+          desc: 'Leave request not found',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User not authorized (requires manager role)',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.updateLeaveRequestStatus,
+      basePath,
+    },
   ];
 
   const leaveRequestControllerFunctions: Record<LeaveRequestFunctions, RequestHandler> = {
     getMyLeaveRequests: leaveRequestController.getMyLeaveRequests,
     createLeaveRequest: leaveRequestController.createLeaveRequest,
     getTeamLeaveRequests: leaveRequestController.getTeamLeaveRequests,
+    updateLeaveRequestStatus: leaveRequestController.updateLeaveRequestStatus,
   };
 
   const router = Router();

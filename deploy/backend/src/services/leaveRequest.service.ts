@@ -120,3 +120,37 @@ export const getTeamLeaveRequests = async (
     totalPages: paginatedResult.totalPages,
   };
 };
+
+/**
+ * Update leave request status (for managers)
+ */
+export const updateLeaveRequestStatus = async (
+  id: string,
+  status: 'approved' | 'declined'
+): Promise<LeaveRequestResponse> => {
+  const existingRequest = await leaveRequestRepository.findById({ id });
+
+  if (!existingRequest) {
+    throw new ApiError('Leave request not found', httpStatus.NOT_FOUND);
+  }
+
+  if (existingRequest.status !== 'pending') {
+    throw new ApiError('Only pending requests can be updated', httpStatus.BAD_REQUEST);
+  }
+
+  const updatedRequest = await leaveRequestRepository.updateStatus(id, status);
+
+  if (!updatedRequest) {
+    throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return {
+    id: updatedRequest.id!,
+    type: updatedRequest.type,
+    startDate: updatedRequest.startDate.toISOString().split('T')[0],
+    endDate: updatedRequest.endDate.toISOString().split('T')[0],
+    status: updatedRequest.status,
+    reason: updatedRequest.reason,
+    createdAt: updatedRequest.createdAt!.toISOString(),
+  };
+};

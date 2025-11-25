@@ -9,10 +9,11 @@ import BadgeIconCheckCircle from '@/components/images/BadgeIconCheckCircle';
 import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
 import usePagination from '@/hooks/usePagination';
 import useSort from '@/hooks/useSort';
-import { getTeamLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
+import { getTeamLeaveRequests, updateLeaveRequestStatus } from '@/api/leave-request/leaveRequest.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import QueryParams from '@/types/query/QueryParams';
 import { PAGE_SIZES } from '@/types/query/QueryPagination';
+import { toast } from 'react-toastify';
 
 const TeamRequestsPage: React.FC = () => {
   const { page, pageSize } = usePagination();
@@ -40,31 +41,42 @@ const TeamRequestsPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
 
-  useEffect(() => {
-    const fetchTeamLeaveRequests = async () => {
-      setIsLoading(true);
-      setHasError(false);
+  const fetchTeamLeaveRequests = async () => {
+    setIsLoading(true);
+    setHasError(false);
 
-      const queryParams: QueryParams = {
-        pagination: { page, pageSize: pageSize as typeof PAGE_SIZES[number] },
-        sort: sort.by && sort.direction ? { by: sort.by, direction: sort.direction } : undefined,
-      };
-
-      const response = await getTeamLeaveRequests(queryParams);
-
-      if (isApiSuccess(response)) {
-        setLeaveRequests(response.content.data);
-        setTotalPages(response.content.totalPages);
-        setTotalItems(response.content.totalItems);
-      } else {
-        setHasError(true);
-      }
-
-      setIsLoading(false);
+    const queryParams: QueryParams = {
+      pagination: { page, pageSize: pageSize as typeof PAGE_SIZES[number] },
+      sort: sort.by && sort.direction ? { by: sort.by, direction: sort.direction } : undefined,
     };
 
+    const response = await getTeamLeaveRequests(queryParams);
+
+    if (isApiSuccess(response)) {
+      setLeaveRequests(response.content.data);
+      setTotalPages(response.content.totalPages);
+      setTotalItems(response.content.totalItems);
+    } else {
+      setHasError(true);
+    }
+
+    setIsLoading(false);
+  };
+
+  useEffect(() => {
     fetchTeamLeaveRequests();
   }, [page, pageSize, sort.by, sort.direction]);
+
+  const handleStatusUpdate = async (id: string, status: 'approved' | 'declined') => {
+    const response = await updateLeaveRequestStatus(id, status);
+
+    if (isApiSuccess(response)) {
+      toast.success(response.message || `Leave request ${status} successfully`);
+      fetchTeamLeaveRequests();
+    } else {
+      toast.error(response.error?.message || `Failed to ${status} leave request`);
+    }
+  };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
@@ -112,12 +124,22 @@ const TeamRequestsPage: React.FC = () => {
             }
             return (
               <div className="flex gap-2 items-center justify-center">
-                <StatusBadge status="approved" className="cursor-pointer hover:opacity-80 transition-opacity">
-                  <BadgeIconCheckCircle className="w-4 h-4" />
-                </StatusBadge>
-                <StatusBadge status="declined" className="cursor-pointer hover:opacity-80 transition-opacity">
-                  <BadgeIconXCircle className="w-4 h-4" />
-                </StatusBadge>
+                <div
+                  onClick={() => handleStatusUpdate(row.id, 'approved')}
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <StatusBadge status="approved">
+                    <BadgeIconCheckCircle className="w-4 h-4" />
+                  </StatusBadge>
+                </div>
+                <div
+                  onClick={() => handleStatusUpdate(row.id, 'declined')}
+                  className="cursor-pointer hover:opacity-80 transition-opacity"
+                >
+                  <StatusBadge status="declined">
+                    <BadgeIconXCircle className="w-4 h-4" />
+                  </StatusBadge>
+                </div>
               </div>
             );
           },

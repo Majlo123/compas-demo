@@ -52,3 +52,15 @@ export const getTeamLeaveRequests = async (
     return formatError(error);
   }
 };
+
+export const updateLeaveRequestStatus = async (
+  id: string,
+  status: 'approved' | 'declined'
+): Promise<ApiResponse<LeaveRequest>> => {
+  try {
+    const response = await axiosServer.patch(`${endpoint}/${id}/status`, { status });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};

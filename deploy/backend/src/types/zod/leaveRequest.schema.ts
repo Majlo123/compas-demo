@@ -39,4 +39,14 @@ export const CreateLeaveRequestSuccessSchema = z.object({
 
 export const PaginatedLeaveRequestSuccessSchema = PaginatedResponseSchema(LeaveRequestSchema);
 
+export const UpdateLeaveRequestStatusBodySchema = z.object({
+  status: z.enum(['approved', 'declined']),
+});
+
+export const UpdateLeaveRequestStatusSuccessSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  content: LeaveRequestSchema,
+});
+
 export type LeaveRequestType = z.infer<typeof LeaveRequestSchema>;
