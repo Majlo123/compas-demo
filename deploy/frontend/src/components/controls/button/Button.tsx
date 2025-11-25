@@ -30,7 +30,7 @@ const buttonVariants = tv({
       true: 'opacity-100 bg-darkGrey/20 cursor-not-allowed',
     },
     large: {
-      true: 'w-button-large',
+      true: 'w-button-xl',
     },
   },
   compoundVariants: [
