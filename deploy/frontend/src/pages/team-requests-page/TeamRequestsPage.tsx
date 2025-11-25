@@ -14,9 +14,13 @@ import { isApiSuccess } from '@/api/shared.types';
 import QueryParams from '@/types/query/QueryParams';
 import { PAGE_SIZES } from '@/types/query/QueryPagination';
 import { toast } from 'react-toastify';
+import { useDebounce } from 'use-debounce';
+import Button from '@/components/controls/button/Button';
+import Pagination from '@/components/controls/Pagination';
+import PageSizeSelector from '@/components/controls/PageSizeSelector';
 
 const TeamRequestsPage: React.FC = () => {
-  const { page, pageSize } = usePagination();
+  const { page, pageSize, setPageSize, setPage } = usePagination();
   const { sort } = useSort();
   
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestWithEmployee[]>([]);
@@ -29,7 +33,7 @@ const TeamRequestsPage: React.FC = () => {
     { label: 'Vacation', value: 'vacation' },
     { label: 'Sick Leave', value: 'sick' },
     { label: 'Personal Leave', value: 'personal' },
-    { label: 'Unpaid', value: 'other' },
+    { label: 'Other', value: 'other' },
   ];
 
   const statusOptions: SelectOption[] = [
@@ -39,15 +43,35 @@ const TeamRequestsPage: React.FC = () => {
   ];
 
   const [search, setSearch] = useState<string>('');
-  const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
+  const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
+
+  const [debouncedSearch] = useDebounce(search, 1000);
+
+  // Reset page to 1 when filters change
+  useEffect(() => {
+    setPage(1);
+  }, [debouncedSearch, selectedFilter, selectedStatus]);
 
   const fetchTeamLeaveRequests = async () => {
     setIsLoading(true);
     setHasError(false);
 
+    const filters = [];
+    if (debouncedSearch) {
+      filters.push({ filterKey: 'employeeName', operator: 'contains', value: debouncedSearch });
+    }
+    if (selectedFilter) {
+      filters.push({ filterKey: 'type', operator: 'equals', value: selectedFilter.value });
+    }
+    if (selectedStatus) {
+      filters.push({ filterKey: 'status', operator: 'equals', value: selectedStatus.value });
+    }
+
     const queryParams: QueryParams = {
       pagination: { page, pageSize: pageSize as typeof PAGE_SIZES[number] },
       sort: sort.by && sort.direction ? { by: sort.by, direction: sort.direction } : undefined,
+      filters: filters.length > 0 ? filters : undefined,
     };
 
     const response = await getTeamLeaveRequests(queryParams);
@@ -65,7 +89,13 @@ const TeamRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchTeamLeaveRequests();
-  }, [page, pageSize, sort.by, sort.direction]);
+  }, [page, pageSize, sort.by, sort.direction, debouncedSearch, selectedFilter, selectedStatus]);
+
+  const handleClearFilters = () => {
+    setSearch('');
+    setSelectedFilter(null);
+    setSelectedStatus(null);
+  };
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'declined') => {
     const response = await updateLeaveRequestStatus(id, status);
@@ -95,6 +125,7 @@ const TeamRequestsPage: React.FC = () => {
         {
           accessor: 'type',
           header: 'Type',
+          formatter: (value: string) => value.charAt(0).toUpperCase() + value.slice(1),
         },
         {
           accessor: 'startDate',
@@ -128,7 +159,7 @@ const TeamRequestsPage: React.FC = () => {
                   onClick={() => handleStatusUpdate(row.id, 'approved')}
                   className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <StatusBadge status="approved">
+                  <StatusBadge status="approved" className="rounded-md">
                     <BadgeIconCheckCircle className="w-4 h-4" />
                   </StatusBadge>
                 </div>
@@ -136,7 +167,7 @@ const TeamRequestsPage: React.FC = () => {
                   onClick={() => handleStatusUpdate(row.id, 'declined')}
                   className="cursor-pointer hover:opacity-80 transition-opacity"
                 >
-                  <StatusBadge status="declined">
+                  <StatusBadge status="declined" className="rounded-md">
                     <BadgeIconXCircle className="w-4 h-4" />
                   </StatusBadge>
                 </div>
@@ -162,6 +193,12 @@ const TeamRequestsPage: React.FC = () => {
             </div>
             <Select className="text-p1 flex-1" placeholder="Filter by" options={filterOptions} value={selectedFilter} onChange={setSelectedFilter} />
             <Select className="text-p1 flex-1" placeholder="Status" options={statusOptions} value={selectedStatus} onChange={setSelectedStatus} />
+            <Button
+              onClick={handleClearFilters}
+              className="px-4 py-6 text-p2"
+            >
+              Clear filters
+            </Button>
         </div>
       }
       actionPosition="below"
@@ -178,6 +215,10 @@ const TeamRequestsPage: React.FC = () => {
         headerClassName="text-p2 lg:text-p1 font-bold"
         cellClassName="text-p2 lg:text-p1"
       />
+      <div className="flex justify-between items-center mt-4">
+        <PageSizeSelector pageSize={pageSize} onChange={setPageSize} />
+        <Pagination totalPages={totalPages} />
+      </div>
     </RequestsLayout>
   );
 };

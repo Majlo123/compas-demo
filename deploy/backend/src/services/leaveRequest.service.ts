@@ -101,7 +101,7 @@ export const createLeaveRequest = async (
 export const getTeamLeaveRequests = async (
   queryParams: QueryParams
 ): Promise<PaginatedResult<LeaveRequestResponse>> => {
-  const paginatedResult = await leaveRequestRepository.findAllWithQuery(queryParams);
+  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams);
 
   return {
     data: paginatedResult.data.map((request: LeaveRequestWithEmployee) => ({

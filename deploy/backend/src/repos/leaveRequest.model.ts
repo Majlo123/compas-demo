@@ -54,7 +54,7 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
 /**
  * Find all leave requests (for managers)
  */
-export const findAllWithQuery = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
+export const findAllWithFilters = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
   const page = queryParams.pagination?.page || 1;
   const pageSize = queryParams.pagination?.pageSize || 20;
   const offset = (page - 1) * pageSize;
@@ -65,12 +65,36 @@ export const findAllWithQuery = async (queryParams: QueryParams): Promise<Pagina
   const sortDirection = queryParams.sort?.direction || 'desc';
   const sortDir = sortDirection.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
 
-  // Get total count
-  const countQuery = 'SELECT COUNT(*) FROM leave_requests';
+  // Build WHERE clause from filters
+  const whereClauses: string[] = [];
+  const whereValues: any[] = [];
+  let paramIndex = 1;
+
+  queryParams.filters?.forEach((filter) => {
+    if (filter.filterKey === 'employeeName') {
+      whereClauses.push(`u.full_name ILIKE $${paramIndex}`);
+      whereValues.push(`%${filter.value}%`);
+      paramIndex++;
+    } else if (filter.filterKey === 'type') {
+      whereClauses.push(`lr.type = $${paramIndex}`);
+      whereValues.push(filter.value);
+      paramIndex++;
+    } else if (filter.filterKey === 'status') {
+      whereClauses.push(`lr.status = $${paramIndex}`);
+      whereValues.push(filter.value);
+      paramIndex++;
+    }
+  });
+
+  // Get total count with filters
+  const countQuery = {
+    text: `SELECT COUNT(*) FROM leave_requests lr LEFT JOIN users u ON lr.user_id = u.id ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}`,
+    values: whereValues,
+  };
   const countResult = await pool.query(countQuery);
   const totalItems = parseInt(countResult.rows[0].count, 10);
 
-  // Get paginated data with dynamic sorting, joined with users table
+  // Get paginated data with dynamic sorting and filters
   const dataQuery = {
     text: `
       SELECT 
@@ -78,10 +102,11 @@ export const findAllWithQuery = async (queryParams: QueryParams): Promise<Pagina
         u.full_name as employee_name
       FROM leave_requests lr
       LEFT JOIN users u ON lr.user_id = u.id
+      ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
       ORDER BY lr.${sortField} ${sortDir}
-      LIMIT $1 OFFSET $2
+      LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `,
-    values: [pageSize, offset],
+    values: [...whereValues, pageSize, offset],
   };
 
   const dataResult = await pool.query(dataQuery);

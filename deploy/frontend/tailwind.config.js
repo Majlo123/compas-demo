@@ -95,7 +95,10 @@ const config = {
         'button-lg': '48px',
       },
       width: {
-        'button-large': '450px',
+        'button-xl': '450px',
+        'button-lg': '300px',
+        'button-md': '150px',
+        'button-sm': '90px',
       },
     },
   },

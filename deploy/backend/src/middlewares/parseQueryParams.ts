@@ -9,12 +9,10 @@ const parseQueryParams = (req: Request, _res: Response, next: NextFunction): voi
   const { query } = req;
   const queryParams: QueryParams = {};
 
-  const page = Number(query.page);
-  const hasPage = Boolean(page);
+  const page = query.page ? Number(query.page) : 1;
+  const pageSize = query.pageSize ? Number(query.pageSize) : 20;
 
-  const pageSize = Number(query.pageSize);
-  const hasPageSize = Boolean(pageSize);
-  if (hasPage && hasPageSize) {
+  if (query.page || query.pageSize) {
     if (Number.isNaN(page) || page < 1) {
       throw new ApiError(`Invalid "page" parameter: ${query.page}`, httpStatus.BAD_REQUEST);
     }
