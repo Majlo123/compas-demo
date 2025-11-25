@@ -43,3 +43,16 @@ export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Respons
     content: result,
   });
 });
+
+export const updateLeaveRequestStatus = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  const updatedRequest = await leaveRequestService.updateLeaveRequestStatus(id, status);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: `Leave request ${status} successfully`,
+    content: updatedRequest,
+  });
+});

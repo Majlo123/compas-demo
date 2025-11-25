@@ -107,4 +107,33 @@ export const findAllWithQuery = async (queryParams: QueryParams): Promise<Pagina
   };
 };
 
+/**
+ * Update leave request status
+ */
+export const updateStatus = async (id: string, status: LeaveRequestStatus): Promise<LeaveRequest | null> => {
+  const query = {
+    text: 'UPDATE leave_requests SET status = $1, updated_at = NOW() WHERE id = $2 RETURNING *',
+    values: [status, id],
+  };
+
+  const result = await pool.query(query);
+  
+  if (result.rows.length === 0) {
+    return null;
+  }
+
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+};
+
 export { create, findById, findByField, findAll, updateById, deleteById };
