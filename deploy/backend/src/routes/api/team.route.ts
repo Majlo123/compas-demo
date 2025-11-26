@@ -36,6 +36,8 @@ const createTeamRoute = (basePath: string): Router => {
       path: '/',
       method: 'post',
       requestBodySchema: CreateTeamBodySchema,
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         {
           code: httpStatus.CREATED,
@@ -53,6 +55,8 @@ const createTeamRoute = (basePath: string): Router => {
       path: '/:id',
       params: [{ name: 'id' }],
       method: 'get',
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         { code: httpStatus.OK, desc: 'Team found', schema: TeamSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
@@ -66,6 +70,8 @@ const createTeamRoute = (basePath: string): Router => {
       path: '/',
       method: 'get',
       querySchema: QuerySchema,
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         { code: httpStatus.OK, desc: 'Teams list', schema: TeamListSchema },
         { code: httpStatus.UNAUTHORIZED, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
@@ -80,6 +86,8 @@ const createTeamRoute = (basePath: string): Router => {
       params: [{ name: 'teamId' }],
       method: 'post',
       requestBodySchema: CreateTeamMemberBodySchema,
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         { code: httpStatus.CREATED, desc: 'Member added', schema: CreateTeamMemberSuccessSchema },
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid object format', schema: BadRequestResponseSchema },
@@ -93,6 +101,8 @@ const createTeamRoute = (basePath: string): Router => {
       path: '/:teamId/members/:userId',
       params: [{ name: 'teamId' }, { name: 'userId' }],
       method: 'delete',
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         { code: httpStatus.OK, desc: 'Member removed', schema: CreateTeamMemberSuccessSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
@@ -106,6 +116,8 @@ const createTeamRoute = (basePath: string): Router => {
       path: '/:teamId/members',
       params: [{ name: 'teamId' }],
       method: 'get',
+      authorize: true,
+      allowedRoles: ['admin'],
       responses: [
         { code: httpStatus.OK, desc: 'Members list', schema: CreateTeamMemberSuccessSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
