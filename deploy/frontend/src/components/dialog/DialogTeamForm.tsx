@@ -9,6 +9,7 @@ import FormTextInput from '@/components/controls/FormTextInput';
 
 const teamFormSchema = z.object({
   name: z.string().min(1, 'Team name is required'),
+  description: z.string().optional(),
 });
 
 type TeamForm = z.infer<typeof teamFormSchema>;
@@ -16,20 +17,20 @@ type TeamForm = z.infer<typeof teamFormSchema>;
 type DialogTeamFormProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
-  onSubmit?: (data: { name: string }) => Promise<void>;
+  onSubmit?: (data: { name: string; description?: string }) => Promise<void>;
 };
 
 const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
   const { control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<TeamForm>({
     resolver: zodResolver(teamFormSchema),
-    defaultValues: { name: '' },
+    defaultValues: { name: '', description: '' },
     mode: 'onChange',
   });
 
   const onSubmitHandler = async (data: TeamForm) => {
     try {
       if (onSubmit) {
-        await onSubmit({ name: data.name });
+        await onSubmit({ name: data.name, description: data.description });
       } else {
         toast.success('Team created successfully!');
       }
@@ -48,7 +49,7 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
       onOpenChange={onOpenChange}
     >
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <div className="mb-xl">
+        <div>
           <FormTextInput
             name="name"
             control={control}
@@ -58,6 +59,17 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
             placeholder="Enter team name"
             label="Team Name"
             required
+          />
+        </div>
+        <div>
+          <FormTextInput
+            name="description"
+            control={control}
+            errors={errors}
+            type="text"
+            inputClassName="w-full"
+            placeholder="Enter team description"
+            label="Team Description"
           />
         </div>
         <div className="flex justify-end">
