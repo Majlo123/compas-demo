@@ -16,8 +16,9 @@ const TeamCalendarPage: React.FC = () => {
   // Only show approved and pending
   const eventsToShow = sampleEvents.filter((e) => e.status === 'approved' || e.status === 'pending');
 
-  const eventPropGetter = (event: LeaveRequest) => ({
+  const eventPropGetter = (event: any) => ({
     style: {
+      "--tooltip-text": `"${event.type} - ${event.user}"`,
       backgroundColor: STATUS_COLORS[event.type] || '#1E88E5',
       opacity: event.status === 'pending' ? 0.65 : 1,
       backgroundImage: event.status === 'pending'
