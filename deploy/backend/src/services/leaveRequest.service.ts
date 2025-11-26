@@ -1,6 +1,8 @@
 import httpStatus from 'http-status';
 import { leaveRequestRepository } from 'repos/index';
-import { LeaveRequest, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
+import { LeaveRequest, LeaveRequestWithEmployee, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
+import QueryParams from 'repos/utils/query/QueryParams';
+import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
 
 export type LeaveRequestResponse = {
@@ -11,6 +13,7 @@ export type LeaveRequestResponse = {
   status: string;
   reason?: string;
   createdAt: string;
+  employeeName?: string;
 };
 
 export type CreateLeaveRequestInput = {
@@ -89,5 +92,65 @@ export const createLeaveRequest = async (
     status: createdRequest.status,
     reason: createdRequest.reason,
     createdAt: createdRequest.createdAt!.toISOString(),
+  };
+};
+
+/**
+ * Get all team leave requests with pagination and sorting (for managers)
+ */
+export const getTeamLeaveRequests = async (
+  queryParams: QueryParams
+): Promise<PaginatedResult<LeaveRequestResponse>> => {
+  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams);
+
+  return {
+    data: paginatedResult.data.map((request: LeaveRequestWithEmployee) => ({
+      id: request.id!,
+      type: request.type,
+      startDate: request.startDate.toISOString().split('T')[0],
+      endDate: request.endDate.toISOString().split('T')[0],
+      status: request.status,
+      reason: request.reason,
+      createdAt: request.createdAt!.toISOString(),
+      employeeName: request.employeeName,
+    })),
+    page: paginatedResult.page,
+    pageSize: paginatedResult.pageSize,
+    totalItems: paginatedResult.totalItems,
+    totalPages: paginatedResult.totalPages,
+  };
+};
+
+/**
+ * Update leave request status (for managers)
+ */
+export const updateLeaveRequestStatus = async (
+  id: string,
+  status: 'approved' | 'declined'
+): Promise<LeaveRequestResponse> => {
+  const existingRequest = await leaveRequestRepository.findById({ id });
+
+  if (!existingRequest) {
+    throw new ApiError('Leave request not found', httpStatus.NOT_FOUND);
+  }
+
+  if (existingRequest.status !== 'pending') {
+    throw new ApiError('Only pending requests can be updated', httpStatus.BAD_REQUEST);
+  }
+
+  const updatedRequest = await leaveRequestRepository.updateStatus(id, status);
+
+  if (!updatedRequest) {
+    throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return {
+    id: updatedRequest.id!,
+    type: updatedRequest.type,
+    startDate: updatedRequest.startDate.toISOString().split('T')[0],
+    endDate: updatedRequest.endDate.toISOString().split('T')[0],
+    status: updatedRequest.status,
+    reason: updatedRequest.reason,
+    createdAt: updatedRequest.createdAt!.toISOString(),
   };
 };

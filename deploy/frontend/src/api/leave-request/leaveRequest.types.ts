@@ -12,6 +12,10 @@ export type LeaveRequest = {
   createdAt: string;
 };
 
+export type LeaveRequestWithEmployee = LeaveRequest & {
+  employeeName?: string;
+};
+
 export type LeaveRequestListResponse = LeaveRequest[];
 
 export type CreateLeaveRequestData = {
@@ -19,4 +23,12 @@ export type CreateLeaveRequestData = {
   startDate: string;
   endDate: string;
   reason?: string;
+};
+
+export type PaginatedLeaveRequestResponse = {
+  data: LeaveRequest[];
+  page: number;
+  pageSize: number;
+  totalItems: number;
+  totalPages: number;
 };

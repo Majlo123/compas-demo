@@ -1,5 +1,6 @@
 import { extendZodWithOpenApi } from '@anatine/zod-openapi';
 import { z } from 'zod';
+import { PaginatedResponseSchema } from './shared.schema';
 
 extendZodWithOpenApi(z);
 
@@ -31,6 +32,18 @@ export const CreateLeaveRequestBodySchema = z.object({
 });
 
 export const CreateLeaveRequestSuccessSchema = z.object({
+  success: z.literal(true),
+  message: z.string(),
+  content: LeaveRequestSchema,
+});
+
+export const PaginatedLeaveRequestSuccessSchema = PaginatedResponseSchema(LeaveRequestSchema);
+
+export const UpdateLeaveRequestStatusBodySchema = z.object({
+  status: z.enum(['approved', 'declined']),
+});
+
+export const UpdateLeaveRequestStatusSuccessSchema = z.object({
   success: z.literal(true),
   message: z.string(),
   content: LeaveRequestSchema,
