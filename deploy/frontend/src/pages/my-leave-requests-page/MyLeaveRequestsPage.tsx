@@ -121,7 +121,7 @@ const MyLeaveRequestsPage: React.FC = () => {
       {/* Page Header */}
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-h1 font-extrabold text-gray-800">My Leave Requests</h1>
-        <Button onClick={handleNewRequest} className="text-lg font-medium">
+        <Button onClick={handleNewRequest} className="text-l font-medium">
           + New Leave Request
         </Button>
       </div>

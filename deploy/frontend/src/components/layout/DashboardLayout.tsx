@@ -12,10 +12,10 @@ const DashboardLayout: React.FC = () => {
       <Sidebar />
       <main
         id="dashboard-main"
-        className="flex flex-col flex-auto overflow-scroll pl-10"
+        className="flex flex-col flex-auto pl-6"
       >
         <HeaderNav />
-        <div className="flex-1 overflow-auto pt-sm h-full">
+        <div className="flex-1 overflow-y-auto overflow-x-hidden h-full">
           <div className="bg-layoutBg rounded-2xl p-md h-full min-h-0">
             <Outlet />
           </div>

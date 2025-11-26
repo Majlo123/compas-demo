@@ -62,24 +62,6 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
     }
   }, [currentDate]);
 
-  useEffect(() => {
-    if (!wrapperRef.current || view !== 'month') return;
-
-    const applyMonthStyles = () => {
-      const showMoreButtons = wrapperRef.current?.querySelectorAll('.rbc-show-more') as NodeListOf<HTMLElement>;
-      
-      showMoreButtons?.forEach((btn) => {
-        if (!btn.dataset.autoClicked) {
-          btn.dataset.autoClicked = 'true';
-          btn.click();
-        }
-      });
-    };
-
-    applyMonthStyles();
-    setTimeout(applyMonthStyles, 100);
-  }, [view, mappedEvents, internalDate]);
-
   const handleNavigate = (action: 'PREV' | 'NEXT' | 'TODAY') => {
     let newDate: Date;
     
@@ -135,9 +117,10 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
           setInternalDate(date);
           onNavigate?.(date, view);
         }}
-        showMultiDayTimes={true}
+        showMultiDayTimes
+        showAllEvents
         onSelectEvent={onSelectEvent}
-        style={{ height: 'calc(100% - 60px)' }}
+        style={{ height: 'fit-content' }}
         eventPropGetter={eventPropGetter}
         popup={false}
         doShowMoreDrillDown={false}

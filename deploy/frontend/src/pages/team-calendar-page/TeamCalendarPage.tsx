@@ -3,15 +3,26 @@ import CustomDialog from '@/components/dialog/dialog-props';
 import React, { useState } from 'react';
 import sampleEvents from '@/components/calendar/sampleEvents';
 import { format } from 'date-fns';
+import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
+
+const STATUS_COLORS: Record<string, string> = {
+  vacation: '#4CAF50',
+  sick: '#1E88E5',
+  personal: '#E53935',
+  other: '#E53935'
+}; 
 
 const TeamCalendarPage: React.FC = () => {
   // Only show approved and pending
   const eventsToShow = sampleEvents.filter((e) => e.status === 'approved' || e.status === 'pending');
 
-  const eventPropGetter = (event: any) => ({
+  const eventPropGetter = (event: LeaveRequest) => ({
     style: {
-      backgroundColor: event.color || '#1E88E5',
+      backgroundColor: STATUS_COLORS[event.type] || '#1E88E5',
       opacity: event.status === 'pending' ? 0.65 : 1,
+      backgroundImage: event.status === 'pending'
+        ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 4px)'
+        : undefined,
     },
   });
 
