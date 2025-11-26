@@ -28,11 +28,14 @@ const TeamCalendarPage: React.FC = () => {
           const mapped = filtered.map((r) => {
             const start = new Date(r.startDate);
             const end = new Date(r.endDate);
-            end.setDate(end.getDate() + 1); // inclusive end for all-day
+            end.setDate(end.getDate());
 
             return {
               id: r.id,
               title: r.employeeName ? `${r.employeeName} - ${r.type}` : r.type,
+              // include employee name so tooltip and dialog can read it
+              employeeName: r.employeeName,
+              user: r.employeeName,
               start,
               end,
               allDay: true,
@@ -57,7 +60,7 @@ const TeamCalendarPage: React.FC = () => {
 
   const eventPropGetter = (event: any) => ({
     style: {
-      "--tooltip-text": `"${event.type} - ${event.user}"`,
+      "--tooltip-text": `"${event.type} - ${event.employeeName || event.user || event.title}"`,
       backgroundColor: STATUS_COLORS[event.type] || '#1E88E5',
       opacity: event.status === 'pending' ? 0.65 : 1,
       backgroundImage: event.status === 'pending'
@@ -107,7 +110,7 @@ const TeamCalendarPage: React.FC = () => {
             
             <div>
               <span className="font-semibold text-gray-700">Korisnik:</span>
-              <p className="text-gray-900">{selectedEvent.user}</p>
+              <p className="text-gray-900">{selectedEvent.employeeName || selectedEvent.user || selectedEvent.title}</p>
             </div>
             
             <div>
