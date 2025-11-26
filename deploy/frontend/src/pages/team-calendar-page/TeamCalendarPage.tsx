@@ -26,11 +26,10 @@ const TeamCalendarPage: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col h-full min-h-0">
+    <div className="flex flex-col h-full">
 
       {/* Content Area */}
-      <div className="flex-1 min-h-0 h-full">
-        <div className="h-full">
+      <div className="flex-1 h-full">
           <BigCalendar 
             events={eventsToShow} 
             eventPropGetter={eventPropGetter} 
@@ -40,7 +39,6 @@ const TeamCalendarPage: React.FC = () => {
             onNavigate={(newDate) => setCurrentDate(newDate)}
             onSelectEvent={handleEventClick}
           />
-        </div>
       </div>
 
       {/* Event Details Dialog */}

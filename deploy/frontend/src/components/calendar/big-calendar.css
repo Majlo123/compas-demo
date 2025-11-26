@@ -267,20 +267,18 @@
   width: 100% !important;
   position: static !important;
   margin: 2px 0 !important;
+  height: 3px !important;
 }
 
-/* Hide +X more link visually but keep in DOM for auto-click */
 .rbc-show-more {
   opacity: 0 !important;
   pointer-events: none !important;
   position: absolute !important;
 }
 
-/* Events display as thin horizontal bars stacked vertically */
 .rbc-month-view .rbc-row-content {
   display: flex;
   flex-direction: column;
-  gap: 2px;
   overflow: visible;
 }
 
