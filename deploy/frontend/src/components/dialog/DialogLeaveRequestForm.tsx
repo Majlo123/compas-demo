@@ -28,13 +28,13 @@ const leaveRequestSchema = z.object({
 
 type LeaveRequestForm = z.infer<typeof leaveRequestSchema>;
 
-type DialogFormProps = {
+type DialogLeaveRequestFormProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onSubmit?: (data: { type: LeaveRequestType; startDate: string; endDate: string }) => Promise<void>;
 };
 
-const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
+const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
   const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<LeaveRequestForm>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: { leaveType: null, startDate: '', endDate: '' },
@@ -111,4 +111,4 @@ const DialogForm: FC<DialogFormProps> = ({ isOpen, onOpenChange, onSubmit }) => 
   );
 };
 
-export default DialogForm;
+export default DialogLeaveRequestForm;

@@ -20,6 +20,7 @@ const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
   { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Manager] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
+  { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
   { label: 'Settings', path: '/settings', Icon: SettingsIcon },
