@@ -82,6 +82,23 @@ export const listTeamMembers = async (teamId: string): Promise<TeamMember[]> => 
   return teamMemberRepository.findByTeamId(teamId);
 };
 
+/**
+ * Delete a team by id (cascades team_members via FK)
+ */
+export const deleteTeamById = async (id: string): Promise<Team> => {
+  const team = await teamRepository.findById({ id });
+  if (!team) {
+    throw new ApiError('Team not found', httpStatus.NOT_FOUND);
+  }
+
+  const deleted = await teamRepository.deleteById(id);
+  if (!deleted) {
+    throw new ApiError('Failed to delete team', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return deleted as Team;
+};
+
 // Backwards-compatible aliases (optional)
 export const create = createTeam;
 export const findById = getTeamById;
@@ -89,3 +106,4 @@ export const findAll = listTeams;
 export const addMember = addMemberToTeam;
 export const removeMember = removeMemberFromTeam;
 export const listMembers = listTeamMembers;
+export const deleteTeam = deleteTeamById;

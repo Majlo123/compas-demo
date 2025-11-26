@@ -67,3 +67,13 @@ export const listMembers = catchAsync(async (req: Request, res: Response) => {
     content: members,
   });
 });
+
+export const deleteTeam = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const deleted = await teamService.deleteTeam(id);
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Team deleted successfully',
+    content: deleted,
+  });
+});
