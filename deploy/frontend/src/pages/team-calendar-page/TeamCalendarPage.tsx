@@ -55,8 +55,9 @@ const TeamCalendarPage: React.FC = () => {
     fetchEvents();
   }, []);
 
-  const eventPropGetter = (event: LeaveRequest) => ({
+  const eventPropGetter = (event: any) => ({
     style: {
+      "--tooltip-text": `"${event.type} - ${event.user}"`,
       backgroundColor: STATUS_COLORS[event.type] || '#1E88E5',
       opacity: event.status === 'pending' ? 0.65 : 1,
       backgroundImage: event.status === 'pending'
