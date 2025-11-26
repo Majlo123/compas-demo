@@ -7,12 +7,6 @@ import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import DialogTeamForm from '@/components/dialog/DialogTeamForm';
 
-interface Team {
-  id: string;
-  name: string;
-  memberCount: number;
-}
-
 interface TeamRow extends Row {
   name: string;
   memberCount: number;
@@ -75,7 +69,6 @@ const TeamsListPage: React.FC = () => {
         setDialogOpen(false);
         fetchTeams();
       } else {
-        toast.error(response.error?.message || 'Failed to create team');
         throw new Error(response.error?.message || 'Failed to create team');
       }
     } catch (error: any) {
