@@ -24,6 +24,7 @@ enum LeaveRequestFunctions {
   getMyLeaveRequests = 'getMyLeaveRequests',
   createLeaveRequest = 'createLeaveRequest',
   getTeamLeaveRequests = 'getTeamLeaveRequests',
+  getCalendarLeaveRequests = 'getCalendarLeaveRequests',
   updateLeaveRequestStatus = 'updateLeaveRequestStatus',
 }
 
@@ -118,6 +119,33 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       basePath,
     },
     {
+      name: 'Get Calendar Leave Requests',
+      desc: 'Get all leave requests for calendar (managers and admins)',
+      path: '/calendar',
+      method: 'get',
+      authorize: true,
+      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Calendar leave requests retrieved successfully',
+          schema: LeaveRequestSuccessSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User not authorized',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.getCalendarLeaveRequests,
+      basePath,
+    },
+    {
       name: 'Update Leave Request Status',
       desc: 'Approve or decline a leave request (managers only)',
       path: '/:id/status',
@@ -161,6 +189,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
     getMyLeaveRequests: leaveRequestController.getMyLeaveRequests,
     createLeaveRequest: leaveRequestController.createLeaveRequest,
     getTeamLeaveRequests: leaveRequestController.getTeamLeaveRequests,
+    getCalendarLeaveRequests: leaveRequestController.getCalendarLeaveRequests,
     updateLeaveRequestStatus: leaveRequestController.updateLeaveRequestStatus,
   };
 

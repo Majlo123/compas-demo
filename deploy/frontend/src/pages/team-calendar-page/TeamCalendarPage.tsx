@@ -1,7 +1,9 @@
 import BigCalendar from '@/components/calendar/BigCalendar';
 import CustomDialog from '@/components/dialog/dialog-props';
 import React, { useState } from 'react';
-import sampleEvents from '@/components/calendar/sampleEvents';
+import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
+import { isApiSuccess } from '@/api/shared.types';
+import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import { format } from 'date-fns';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 
@@ -13,8 +15,45 @@ const STATUS_COLORS: Record<string, string> = {
 }; 
 
 const TeamCalendarPage: React.FC = () => {
-  // Only show approved and pending
-  const eventsToShow = sampleEvents.filter((e) => e.status === 'approved' || e.status === 'pending');
+  const [eventsToShow, setEventsToShow] = React.useState<any[]>([]);
+
+  React.useEffect(() => {
+    const fetchEvents = async () => {
+      try {
+        const response = await getCalendarLeaveRequests();
+        if (isApiSuccess(response)) {
+          const data = response.content as LeaveRequestWithEmployee[];
+          const filtered = data.filter((r) => r.status === 'approved' || r.status === 'pending');
+
+          const mapped = filtered.map((r) => {
+            const start = new Date(r.startDate);
+            const end = new Date(r.endDate);
+            end.setDate(end.getDate() + 1); // inclusive end for all-day
+
+            return {
+              id: r.id,
+              title: r.employeeName ? `${r.employeeName} - ${r.type}` : r.type,
+              start,
+              end,
+              allDay: true,
+              type: r.type,
+              status: r.status,
+              reason: r.reason,
+            };
+          });
+
+          console.debug('TeamCalendar: fetched', mapped.length, 'events');
+          setEventsToShow(mapped);
+        } else {
+          console.error('Failed to load calendar leave requests', response);
+        }
+      } catch (err) {
+        console.error('Error fetching calendar leave requests', err);
+      }
+    };
+
+    fetchEvents();
+  }, []);
 
   const eventPropGetter = (event: LeaveRequest) => ({
     style: {

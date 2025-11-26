@@ -53,6 +53,15 @@ export const getTeamLeaveRequests = async (
   }
 };
 
+export const getCalendarLeaveRequests = async (): Promise<ApiResponse<LeaveRequestListResponse>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/calendar`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
 export const updateLeaveRequestStatus = async (
   id: string,
   status: 'approved' | 'declined'
