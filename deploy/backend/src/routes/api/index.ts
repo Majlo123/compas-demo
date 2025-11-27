@@ -6,6 +6,7 @@ import { Router } from 'express-serve-static-core';
 import createOrganizationRoute from 'routes/api/organization.route';
 import createAuthRoute from 'routes/api/auth.route';
 import createLeaveRequestRoute from 'routes/api/leaveRequest.route';
+import createTeamRoute from 'routes/api/team.route';
 
 const apiRouter = express.Router();
 
@@ -21,6 +22,10 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/leave-request',
     route: createLeaveRequestRoute('/leave-request'),
+  },
+  {
+    path: '/team',
+    route: createTeamRoute('/team'),
   },
 ];
 

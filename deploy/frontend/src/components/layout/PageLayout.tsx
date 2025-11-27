@@ -1,7 +1,7 @@
 import React from 'react';
 import Button from '@/components/controls/button/Button';
 
-type RequestsLayoutProps = {
+type PageLayoutProps = {
   title: string;
   action?: React.ReactNode;
   actionPosition?: 'inline' | 'below';
@@ -14,7 +14,7 @@ type RequestsLayoutProps = {
   children: React.ReactNode;
 };
 
-const RequestsLayout: React.FC<RequestsLayoutProps> = ({
+const PageLayout: React.FC<PageLayoutProps> = ({
   title,
   action,
   actionPosition = 'inline',
@@ -69,4 +69,4 @@ const RequestsLayout: React.FC<RequestsLayoutProps> = ({
   );
 };
 
-export default RequestsLayout;
+export default PageLayout;
