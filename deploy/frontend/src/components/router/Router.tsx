@@ -5,8 +5,9 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
-import ManagerRoutes from '@/components/router/ManagerRoutes.tsx';
-import EmployeeRoutes from '@/components/router/EmployeeRoutes.tsx';
+import ManagerRoutes from '@/components/router/role-routes/ManagerRoutes';
+import EmployeeRoutes from '@/components/router/role-routes/EmployeeRoutes';
+import AdminRoutes from '@/components/router/role-routes/AdminRoutes';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import LoginPage from '@/pages/login-page/LoginPage';
 import RegisterPage from '@/pages/register-page/RegisterPage';
@@ -16,6 +17,7 @@ import TeamCalendarPage from '@/pages/team-calendar-page/TeamCalendarPage';
 import ReportsPage from '@/pages/reports-page/ReportsPage';
 import SettingsPage from '@/pages/settings-page/SettingsPage';
 import TeamRequestsPage from '@/pages/team-requests-page/TeamRequestsPage';
+import TeamsListPage from '@/pages/teams-list-page/TeamsListPage';
 
 const Router: FC = () => {
   return (
@@ -40,6 +42,10 @@ const Router: FC = () => {
             
             <Route element={<EmployeeRoutes />}>
               <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
+            </Route>
+            
+            <Route element={<AdminRoutes />}>
+              <Route path="/teams-list" element={<TeamsListPage />} />
             </Route>
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
