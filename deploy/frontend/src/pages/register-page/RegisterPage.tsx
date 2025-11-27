@@ -19,6 +19,10 @@ const registerSchema = z.object({
     .regex(/^[A-Za-z]+(?:[ '\-][A-Za-z]+)*$/, 'Name should contain only letters, spaces, hyphens or apostrophes'),
   email: z.string().email('Invalid email address'),
   password: z.string().min(8, 'Password must be at least 8 characters'),
+  confirmPassword: z.string().min(1, 'Please confirm your password'),
+}).refine((data) => data.password === data.confirmPassword, {
+  message: 'Passwords do not match',
+  path: ['confirmPassword'],
 });
 
 type RegisterForm = z.infer<typeof registerSchema>;
@@ -34,7 +38,7 @@ const RegisterPage: React.FC = () => {
     reset,
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { fullName: '', email: '', password: '' },
+    defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
     mode: 'onChange',
   });
 
@@ -106,6 +110,17 @@ const RegisterPage: React.FC = () => {
             passwordToggle
             inputClassName="w-full"
             placeholder='Password'
+            disabled={isSubmitting}
+          />
+
+          <FormTextInput
+            name="confirmPassword"
+            control={control}
+            errors={errors}
+            required
+            passwordToggle
+            inputClassName="w-full"
+            placeholder='Confirm Password'
             disabled={isSubmitting}
           />
 

@@ -49,14 +49,18 @@ const ConfirmDialog: FC<ConfirmDialogProps> = ({
           <Button
             onClick={handleCancel}
             variant="secondary"
-            className="px-4 py-2"
+            className="px-4 py-2 bg-white hover:bg-gray-100"
           >
             {cancelText}
           </Button>
           <Button
             onClick={handleConfirm}
-            variant={variant === 'danger' ? 'primary' : 'primary'}
-            className={`px-4 py-2 ${variant === 'danger' ? 'bg-red hover:bg-red-600' : ''}`}
+            variant="primary"
+            className={`px-4 py-2 ${
+              variant === 'danger' 
+                ? 'bg-rose-500 hover:bg-rose-600' 
+                : 'hover:bg-primary-hover'
+            }`}
           >
             {confirmText}
           </Button>
