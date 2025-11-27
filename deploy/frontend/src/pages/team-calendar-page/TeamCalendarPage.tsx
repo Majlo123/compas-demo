@@ -75,7 +75,7 @@ const TeamCalendarPage: React.FC = () => {
     style: {
       "--tooltip-text": `"${event.type} - ${event.employeeName || event.user || event.title}"`,
       backgroundColor: getLeaveTypeColor(event.type),
-      opacity: event.status === 'pending' ? 0.65 : 1,
+      opacity: 1,
       backgroundImage: event.status === 'pending'
         ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 4px)'
         : undefined,
