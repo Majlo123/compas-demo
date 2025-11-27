@@ -1,7 +1,7 @@
 import { LeaveRequestStatus, LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import Table, { Column } from '@/components/controls/table/Table';
-import RequestsLayout from '@/components/layout/RequestsLayout';
+import PageLayout from '@/components/layout/PageLayout';
 import React, { useState, useEffect } from 'react';
 import Select from '@/components/controls/Select';
 import { SelectOption } from '@/components/controls/Select';
@@ -178,7 +178,7 @@ const TeamRequestsPage: React.FC = () => {
       ];
 
   return (
-    <RequestsLayout
+    <PageLayout
       title="Team Requests"
       action={
         <div className="flex gap-3 items-center xl:w-1/2">
@@ -219,7 +219,7 @@ const TeamRequestsPage: React.FC = () => {
         <PageSizeSelector pageSize={pageSize} onChange={setPageSize} />
         <Pagination totalPages={totalPages} />
       </div>
-    </RequestsLayout>
+    </PageLayout>
   );
 };
 
