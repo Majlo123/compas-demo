@@ -40,6 +40,11 @@ const config = {
         sidebarBorder: 'rgba(255, 255, 255, 0.1)',
         sidebarText: 'rgba(255, 255, 255, 0.8)',
         sidebarFooterBg: 'rgba(255, 255, 255, 0.2)',
+        // Leave request type colors
+        vacation: '#4CAF50',
+        sick: '#1E88E5',
+        personal: '#E53935',
+        other: '#E53935',
       },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
