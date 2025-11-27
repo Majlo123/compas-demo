@@ -300,3 +300,6 @@
 .rbc-row-content-scrollable .rbc-row-content-scroll-container {
   overflow: visible !important;
 }
+.rbc-agenda-event-cell:hover {
+  cursor: pointer;
+}

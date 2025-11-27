@@ -120,7 +120,7 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
         showMultiDayTimes
         showAllEvents
         onSelectEvent={onSelectEvent}
-        style={{ height: 'fit-content' }}
+        style={view === 'agenda' ? { height: 'calc(100% - 2.7rem)' } : { height: 'fit-content' }}
         eventPropGetter={eventPropGetter}
         popup={false}
         doShowMoreDrillDown={false}

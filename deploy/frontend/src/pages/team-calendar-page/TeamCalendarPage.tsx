@@ -121,7 +121,7 @@ const TeamCalendarPage: React.FC = () => {
             <div>
               <span className="font-semibold text-gray-700">Status:</span>
               <p className={`capitalize ${selectedEvent.status === 'approved' ? 'text-green-600' : 'text-yellow-600'}`}>
-                {selectedEvent.status === 'approved' ? 'Odobreno' : 'Na čekanju'}
+                {selectedEvent.status === 'approved' ? 'Approved' : 'Pending'}
               </p>
             </div>
             
