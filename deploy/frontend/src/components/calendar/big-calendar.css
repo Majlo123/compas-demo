@@ -235,6 +235,10 @@
   border-top: 1px solid #F2F3F7;
 }
 
+.rbc-event, .rbc-day-slot .rbc-background-event {
+  padding: 0 5px;
+}
+
 /* Month view: make rows display like week view with vertical event stacking */
 .rbc-month-view .rbc-month-row {
   display: flex;
@@ -277,6 +281,14 @@
   margin: 2px 0 !important;
   height: 14px !important;
 }
+
+.rbc-time-view .rbc-row .rbc-row-segment {
+  margin: 5px 0 !important;
+}
+
+/* .rbc-agenda-date-cell{
+  background: #1E88E5;
+} */
 
 .rbc-show-more {
   opacity: 0 !important;

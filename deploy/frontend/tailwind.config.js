@@ -41,10 +41,10 @@ const config = {
         sidebarText: 'rgba(255, 255, 255, 0.8)',
         sidebarFooterBg: 'rgba(255, 255, 255, 0.2)',
         // Leave request type colors
-        vacation: '#4CAF50',
-        sick: '#1E88E5',
-        personal: '#E53935',
-        other: '#E53935',
+        'vacation-leave': '#3B82F6',
+        'sick-leave': '#EF4444',
+        'personal-leave': '#10B981',
+        'other-leave': '#6B7280',
       },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
