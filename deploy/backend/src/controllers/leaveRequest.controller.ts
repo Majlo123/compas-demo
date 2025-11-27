@@ -44,6 +44,14 @@ export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Respons
   });
 });
 
+export const getCalendarLeaveRequests = catchAsync(async (_req: Request, res: Response) => {
+  const result = await leaveRequestService.getCalendarLeaveRequests();
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: result,
+  });
+});
+
 export const updateLeaveRequestStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;

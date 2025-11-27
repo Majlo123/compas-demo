@@ -31,7 +31,7 @@ const HeaderNav: React.FC = () => {
   };
 
   return (
-    <header className="bg-headerBg border-b border-2 border-headerBorder h-20 flex items-center justify-between px-6">
+    <header className="bg-headerBg border-b border-2 border-headerBorder flex items-center justify-between px-4 py-2">
       {/* Organization Name */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">

@@ -154,3 +154,21 @@ export const updateLeaveRequestStatus = async (
     createdAt: updatedRequest.createdAt!.toISOString(),
   };
 };
+
+/**
+ * Get all leave requests for calendar (no pagination) — for managers and admins
+ */
+export const getCalendarLeaveRequests = async (): Promise<LeaveRequestResponse[]> => {
+  const result = await leaveRequestRepository.findAllForCalendar();
+
+  return result.map((request: LeaveRequestWithEmployee) => ({
+    id: request.id!,
+    type: request.type,
+    startDate: request.startDate.toISOString().split('T')[0],
+    endDate: request.endDate.toISOString().split('T')[0],
+    status: request.status,
+    reason: request.reason,
+    createdAt: request.createdAt!.toISOString(),
+    employeeName: request.employeeName,
+  }));
+};

@@ -133,6 +133,35 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
 };
 
 /**
+ * Find all leave requests for calendar views (no pagination)
+ */
+export const findAllForCalendar = async (): Promise<LeaveRequestWithEmployee[]> => {
+  const query = {
+    text: `
+      SELECT lr.*, u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      ORDER BY lr.start_date DESC
+    `,
+    values: [],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    employeeName: row.employee_name,
+  }));
+};
+
+/**
  * Update leave request status
  */
 export const updateStatus = async (id: string, status: LeaveRequestStatus): Promise<LeaveRequest | null> => {
