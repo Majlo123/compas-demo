@@ -6,8 +6,8 @@ import PageLayout from '@/components/layout/PageLayout';
 import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import DialogTeamForm from '@/components/dialog/DialogTeamForm';
-
-import { createTeam } from '@/api/team/team.actions';
+import ConfirmDialog from '@/components/dialog/ConfirmDialog';
+import { createTeam, getTeams, deleteTeam } from '@/api/team/team.actions';
 import { isApiSuccess } from '@/api/shared.types';
 interface TeamRow extends Row {
   name: string;
@@ -16,6 +16,8 @@ interface TeamRow extends Row {
 
 const TeamsListPage: React.FC = () => {
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
+  const [teamToDelete, setTeamToDelete] = useState<{ id: string; name: string } | null>(null);
   const [teams, setTeams] = useState<TeamRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
@@ -29,9 +31,6 @@ const TeamsListPage: React.FC = () => {
     setHasError(false);
 
     try {
-      const { getTeams } = await import('@/api/team/team.actions');
-      const { isApiSuccess } = await import('@/api/shared.types');
-
       const response = await getTeams();
 
       if (isApiSuccess(response)) {
@@ -77,18 +76,18 @@ const TeamsListPage: React.FC = () => {
   };
 
   const handleDeleteTeam = async (teamId: string, teamName: string) => {
-    if (!window.confirm(`Are you sure you want to delete team "${teamName}"?`)) {
-      return;
-    }
+    setTeamToDelete({ id: teamId, name: teamName });
+    setConfirmDialogOpen(true);
+  };
+
+  const confirmDeleteTeam = async () => {
+    if (!teamToDelete) return;
 
     try {
-      const { deleteTeam } = await import('@/api/team/team.actions');
-      const { isApiSuccess } = await import('@/api/shared.types');
-
-      const response = await deleteTeam(teamId);
+      const response = await deleteTeam(teamToDelete.id);
 
       if (isApiSuccess(response)) {
-        toast.success(response.message || `Team "${teamName}" deleted successfully`);
+        toast.success(response.message || `Team "${teamToDelete.name}" deleted successfully`);
         fetchTeams();
       } else {
         toast.error(response.error?.message || 'Failed to delete team.');
@@ -96,6 +95,8 @@ const TeamsListPage: React.FC = () => {
     } catch (error) {
       console.error('Error deleting team:', error);
       toast.error('Failed to delete team. Please try again.');
+    } finally {
+      setTeamToDelete(null);
     }
   };
 
@@ -158,6 +159,16 @@ const TeamsListPage: React.FC = () => {
           isOpen={dialogOpen}
           onOpenChange={setDialogOpen}
           onSubmit={handleFormSubmit}
+        />
+        <ConfirmDialog
+          isOpen={confirmDialogOpen}
+          onOpenChange={setConfirmDialogOpen}
+          title="Delete Team"
+          message={`Are you sure you want to delete team "${teamToDelete?.name}"? This action cannot be undone.`}
+          confirmText="Delete"
+          cancelText="Cancel"
+          variant="danger"
+          onConfirm={confirmDeleteTeam}
         />
       </>
   );
