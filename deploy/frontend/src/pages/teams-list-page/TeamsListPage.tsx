@@ -7,6 +7,8 @@ import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import DialogTeamForm from '@/components/dialog/DialogTeamForm';
 
+import { createTeam } from '@/api/team/team.actions';
+import { isApiSuccess } from '@/api/shared.types';
 interface TeamRow extends Row {
   name: string;
   memberCount: number;
@@ -59,9 +61,6 @@ const TeamsListPage: React.FC = () => {
 
   const handleFormSubmit = async (data: { name: string }) => {
     try {
-      const { createTeam } = await import('@/api/team/team.actions');
-      const { isApiSuccess } = await import('@/api/shared.types');
-
       const response = await createTeam({ name: data.name, description: (data as any).description });
 
       if (isApiSuccess(response)) {
@@ -131,34 +130,36 @@ const TeamsListPage: React.FC = () => {
   ];
 
   return (
-    <PageLayout
-      title="Teams"
-      action={
-        <Button onClick={handleNewTeam} className="text-lg font-medium">
-          + New Team
-        </Button>
-      }
-      actionPosition="inline"
-      emptyMessage="No teams yet"
-      emptyDescription="Click 'New Team' to create your first team"
-      isLoading={isLoading}
-      hasError={hasError}
-      isEmpty={teams.length === 0}
-      onRetry={fetchTeams}
-    >
-      <Table
-        columns={columns}
-        data={teams}
-        tableClassName="text-p2 lg:text-p1"
-        headerClassName="text-p2 lg:text-p1 font-bold"
-        cellClassName="text-p2 lg:text-p1"
-      />
-      <DialogTeamForm
-        isOpen={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSubmit={handleFormSubmit}
-      />
-    </PageLayout>
+    <>
+      <PageLayout
+        title="Teams"
+        action={
+          <Button onClick={handleNewTeam} className="text-lg font-medium">
+            + New Team
+          </Button>
+        }
+        actionPosition="inline"
+        emptyMessage="No teams yet"
+        emptyDescription="Click 'New Team' to create your first team"
+        isLoading={isLoading}
+        hasError={hasError}
+        isEmpty={teams.length === 0}
+        onRetry={fetchTeams}
+      >
+        <Table
+          columns={columns}
+          data={teams}
+          tableClassName="text-p2 lg:text-p1"
+          headerClassName="text-p2 lg:text-p1 font-bold"
+          cellClassName="text-p2 lg:text-p1"
+        />
+        </PageLayout>
+        <DialogTeamForm
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSubmit={handleFormSubmit}
+        />
+      </>
   );
 };
 

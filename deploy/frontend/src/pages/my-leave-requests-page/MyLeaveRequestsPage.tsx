@@ -118,34 +118,36 @@ const MyLeaveRequestsPage: React.FC = () => {
   ];
 
   return (
-    <PageLayout
-      title="My Leave Requests"
-      action={
-        <Button onClick={handleNewRequest} className="text-lg font-medium">
-          + New Leave Request
-        </Button>
-      }
-      actionPosition="inline"
-      emptyMessage="No leave requests yet"
-      emptyDescription="Click 'New Leave Request' to submit your first request"
-      isLoading={isLoading}
-      hasError={hasError}
-      isEmpty={leaveRequests.length === 0}
-      onRetry={fetchLeaveRequests}
-    >
-      <Table
-        columns={columns}
-        data={leaveRequests}
-        tableClassName="text-p2 lg:text-p1"
-        headerClassName="text-p2 lg:text-p1 font-bold"
-        cellClassName="text-p2 lg:text-p1"
-      />
+    <>
+      <PageLayout
+        title="My Leave Requests"
+        action={
+          <Button onClick={handleNewRequest} className="text-lg font-medium">
+            + New Leave Request
+          </Button>
+        }
+        actionPosition="inline"
+        emptyMessage="No leave requests yet"
+        emptyDescription="Click 'New Leave Request' to submit your first request"
+        isLoading={isLoading}
+        hasError={hasError}
+        isEmpty={leaveRequests.length === 0}
+        onRetry={fetchLeaveRequests}
+      >
+        <Table
+          columns={columns}
+          data={leaveRequests}
+          tableClassName="text-p2 lg:text-p1"
+          headerClassName="text-p2 lg:text-p1 font-bold"
+          cellClassName="text-p2 lg:text-p1"
+        />
+      </PageLayout>
       <DialogLeaveRequestForm 
-        isOpen={dialogOpen} 
-        onOpenChange={setDialogOpen}
-        onSubmit={handleFormSubmit}
-      />
-    </PageLayout>
+          isOpen={dialogOpen} 
+          onOpenChange={setDialogOpen}
+          onSubmit={handleFormSubmit}
+        />
+    </>
   );
 };
 
