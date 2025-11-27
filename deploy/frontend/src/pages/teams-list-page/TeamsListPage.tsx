@@ -7,12 +7,8 @@ import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import DialogTeamForm from '@/components/dialog/DialogTeamForm';
 
-interface Team {
-  id: string;
-  name: string;
-  memberCount: number;
-}
-
+import { createTeam } from '@/api/team/team.actions';
+import { isApiSuccess } from '@/api/shared.types';
 interface TeamRow extends Row {
   name: string;
   memberCount: number;
@@ -33,26 +29,24 @@ const TeamsListPage: React.FC = () => {
     setHasError(false);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await getTeams();
-      
-      // Mock data for now
-      setTimeout(() => {
-        const mockTeams: Team[] = [
-          { id: '1', name: 'Engineering', memberCount: 12 },
-          { id: '2', name: 'Marketing', memberCount: 8 },
-          { id: '3', name: 'Sales', memberCount: 15 },
-        ];
+      const { getTeams } = await import('@/api/team/team.actions');
+      const { isApiSuccess } = await import('@/api/shared.types');
 
-        const formattedData: TeamRow[] = mockTeams.map((team) => ({
+      const response = await getTeams();
+
+      if (isApiSuccess(response)) {
+        const formattedData: TeamRow[] = response.content.data.map((team) => ({
           _id: team.id,
           name: team.name,
-          memberCount: team.memberCount,
+          memberCount: team.memberCount || 0,
         }));
-        
         setTeams(formattedData);
-        setIsLoading(false);
-      }, 500);
+      } else {
+        setHasError(true);
+        toast.error(response.error?.message || 'Failed to load teams.');
+      }
+
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching teams:', error);
       setHasError(true);
@@ -67,13 +61,15 @@ const TeamsListPage: React.FC = () => {
 
   const handleFormSubmit = async (data: { name: string }) => {
     try {
-      // TODO: Replace with actual API call
-      // const response = await createTeam(data);
-      
-      console.log('Creating team:', data.name);
-      toast.success(`Team "${data.name}" created successfully`);
-      setDialogOpen(false);
-      fetchTeams();
+      const response = await createTeam({ name: data.name, description: (data as any).description });
+
+      if (isApiSuccess(response)) {
+        toast.success(response.message || `Team "${data.name}" created successfully`);
+        setDialogOpen(false);
+        fetchTeams();
+      } else {
+        throw new Error(response.error?.message || 'Failed to create team');
+      }
     } catch (error: any) {
       toast.error(error?.message || 'Failed to create team');
       throw error;
@@ -86,12 +82,17 @@ const TeamsListPage: React.FC = () => {
     }
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await deleteTeam(teamId);
-      
-      console.log('Deleting team:', teamId);
-      toast.success(`Team "${teamName}" deleted successfully`);
-      fetchTeams();
+      const { deleteTeam } = await import('@/api/team/team.actions');
+      const { isApiSuccess } = await import('@/api/shared.types');
+
+      const response = await deleteTeam(teamId);
+
+      if (isApiSuccess(response)) {
+        toast.success(response.message || `Team "${teamName}" deleted successfully`);
+        fetchTeams();
+      } else {
+        toast.error(response.error?.message || 'Failed to delete team.');
+      }
     } catch (error) {
       console.error('Error deleting team:', error);
       toast.error('Failed to delete team. Please try again.');
@@ -129,34 +130,36 @@ const TeamsListPage: React.FC = () => {
   ];
 
   return (
-    <PageLayout
-      title="Teams"
-      action={
-        <Button onClick={handleNewTeam} className="text-lg font-medium">
-          + New Team
-        </Button>
-      }
-      actionPosition="inline"
-      emptyMessage="No teams yet"
-      emptyDescription="Click 'New Team' to create your first team"
-      isLoading={isLoading}
-      hasError={hasError}
-      isEmpty={teams.length === 0}
-      onRetry={fetchTeams}
-    >
-      <Table
-        columns={columns}
-        data={teams}
-        tableClassName="text-p2 lg:text-p1"
-        headerClassName="text-p2 lg:text-p1 font-bold"
-        cellClassName="text-p2 lg:text-p1"
-      />
-      <DialogTeamForm
-        isOpen={dialogOpen}
-        onOpenChange={setDialogOpen}
-        onSubmit={handleFormSubmit}
-      />
-    </PageLayout>
+    <>
+      <PageLayout
+        title="Teams"
+        action={
+          <Button onClick={handleNewTeam} className="text-lg font-medium">
+            + New Team
+          </Button>
+        }
+        actionPosition="inline"
+        emptyMessage="No teams yet"
+        emptyDescription="Click 'New Team' to create your first team"
+        isLoading={isLoading}
+        hasError={hasError}
+        isEmpty={teams.length === 0}
+        onRetry={fetchTeams}
+      >
+        <Table
+          columns={columns}
+          data={teams}
+          tableClassName="text-p2 lg:text-p1"
+          headerClassName="text-p2 lg:text-p1 font-bold"
+          cellClassName="text-p2 lg:text-p1"
+        />
+        </PageLayout>
+        <DialogTeamForm
+          isOpen={dialogOpen}
+          onOpenChange={setDialogOpen}
+          onSubmit={handleFormSubmit}
+        />
+      </>
   );
 };
 

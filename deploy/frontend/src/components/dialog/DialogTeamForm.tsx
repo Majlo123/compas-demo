@@ -28,16 +28,23 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
   });
 
   const onSubmitHandler = async (data: TeamForm) => {
-    try {
-      if (onSubmit) {
+    if (onSubmit) {
+      // If a parent onSubmit is provided, delegate error handling to it
+      try {
         await onSubmit({ name: data.name, description: data.description });
-      } else {
-        toast.success('Team created successfully!');
+        reset();
+        onOpenChange(false);
+      } catch (err) {
+        // Error handling is done in the parent component
       }
-      reset();
-      onOpenChange(false);
-    } catch (error: any) {
-      toast.error(error?.message || 'Failed to create team');
+    } else {
+      try {
+        toast.success('Team created successfully!');
+        reset();
+        onOpenChange(false);
+      } catch (error: any) {
+        toast.error(error?.message || 'Failed to create team');
+      }
     }
   };
 
