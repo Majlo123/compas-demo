@@ -81,6 +81,31 @@ const TeamCalendarPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
+      {/* Legend */}
+      <div className="flex items-center gap-6 mb-4 px-2">
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-vacation"></div>
+          <span className="text-sm font-medium text-gray-700">Vacation</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-sick"></div>
+          <span className="text-sm font-medium text-gray-700">Sick Leave</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-personal"></div>
+          <span className="text-sm font-medium text-gray-700">Personal</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <div className="w-4 h-4 rounded bg-other"></div>
+          <span className="text-sm font-medium text-gray-700">Other</span>
+        </div>
+        <div className="flex items-center gap-2 ml-4">
+          <div className="w-4 h-4 rounded border-2 border-gray-400" style={{ 
+            background: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px)'
+          }}></div>
+          <span className="text-sm font-medium text-gray-700">Pending</span>
+        </div>
+      </div>
 
       {/* Content Area */}
       <div className="flex-1 h-full">
@@ -98,23 +123,23 @@ const TeamCalendarPage: React.FC = () => {
       {/* Event Details Dialog */}
       {selectedEvent && (
         <CustomDialog
-          title="Detalji zahteva"
+          title="Leave Request Details"
           isOpen={dialogOpen}
           onOpenChange={setDialogOpen}
         >
           <div className="space-y-3">
             <div>
-              <span className="font-semibold text-gray-700">Naslov:</span>
+              <span className="font-semibold text-gray-700">Title:</span>
               <p className="text-gray-900">{selectedEvent.title}</p>
             </div>
             
             <div>
-              <span className="font-semibold text-gray-700">Korisnik:</span>
+              <span className="font-semibold text-gray-700">User:</span>
               <p className="text-gray-900">{selectedEvent.employeeName || selectedEvent.user || selectedEvent.title}</p>
             </div>
             
             <div>
-              <span className="font-semibold text-gray-700">Tip:</span>
+              <span className="font-semibold text-gray-700">Type:</span>
               <p className="text-gray-900 capitalize">{selectedEvent.type}</p>
             </div>
             
