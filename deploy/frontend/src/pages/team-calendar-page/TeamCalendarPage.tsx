@@ -6,13 +6,26 @@ import { isApiSuccess } from '@/api/shared.types';
 import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import { format } from 'date-fns';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
+import resolveConfig from 'tailwindcss/resolveConfig';
+import tailwindConfig from '../../../tailwind.config';
 
-const STATUS_COLORS: Record<string, string> = {
-  vacation: '#4CAF50',
-  sick: '#1E88E5',
-  personal: '#E53935',
-  other: '#E53935'
-}; 
+const fullConfig = resolveConfig(tailwindConfig);
+
+const getLeaveTypeColor = (type: string): string => {
+  const colors = fullConfig.theme.colors as any;
+  switch (type) {
+    case 'vacation':
+      return colors['vacation-leave'];
+    case 'sick':
+      return colors['sick-leave'];
+    case 'personal':
+      return colors['personal-leave'];
+    case 'other':
+      return colors['other-leave'];
+    default:
+      return colors.primary;
+  }
+};
 
 const TeamCalendarPage: React.FC = () => {
   const [eventsToShow, setEventsToShow] = React.useState<any[]>([]);
@@ -32,7 +45,7 @@ const TeamCalendarPage: React.FC = () => {
 
             return {
               id: r.id,
-              title: r.employeeName ? `${r.employeeName} - ${r.type}` : r.type,
+              title: r.employeeName || r.type,
               // include employee name so tooltip and dialog can read it
               employeeName: r.employeeName,
               user: r.employeeName,
@@ -61,8 +74,8 @@ const TeamCalendarPage: React.FC = () => {
   const eventPropGetter = (event: any) => ({
     style: {
       "--tooltip-text": `"${event.type} - ${event.employeeName || event.user || event.title}"`,
-      backgroundColor: STATUS_COLORS[event.type] || '#1E88E5',
-      opacity: event.status === 'pending' ? 0.65 : 1,
+      backgroundColor: getLeaveTypeColor(event.type),
+      opacity: 1,
       backgroundImage: event.status === 'pending'
         ? 'repeating-linear-gradient(45deg, rgba(255,255,255,0.3) 0, rgba(255,255,255,0.3) 2px, transparent 2px, transparent 4px)'
         : undefined,
@@ -84,19 +97,19 @@ const TeamCalendarPage: React.FC = () => {
       {/* Legend */}
       <div className="flex items-center gap-6 mb-4 px-2">
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-vacation"></div>
+          <div className="w-4 h-4 rounded bg-vacation-leave"></div>
           <span className="text-sm font-medium text-gray-700">Vacation</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-sick"></div>
+          <div className="w-4 h-4 rounded bg-sick-leave"></div>
           <span className="text-sm font-medium text-gray-700">Sick Leave</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-personal"></div>
+          <div className="w-4 h-4 rounded bg-personal-leave"></div>
           <span className="text-sm font-medium text-gray-700">Personal</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-other"></div>
+          <div className="w-4 h-4 rounded bg-other-leave"></div>
           <span className="text-sm font-medium text-gray-700">Other</span>
         </div>
         <div className="flex items-center gap-2 ml-4">
@@ -128,11 +141,6 @@ const TeamCalendarPage: React.FC = () => {
           onOpenChange={setDialogOpen}
         >
           <div className="space-y-3">
-            <div>
-              <span className="font-semibold text-gray-700">Title:</span>
-              <p className="text-gray-900">{selectedEvent.title}</p>
-            </div>
-            
             <div>
               <span className="font-semibold text-gray-700">User:</span>
               <p className="text-gray-900">{selectedEvent.employeeName || selectedEvent.user || selectedEvent.title}</p>
