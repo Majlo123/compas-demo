@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
+import Checkbox from '@/components/controls/Checkbox';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
 import ConfirmDialog from '@/components/dialog/ConfirmDialog';
-import CustomDialog from '@/components/dialog/dialog-props';
+import DialogTeamDetailsForm from '@/components/dialog/DialogTeamDetailsForm';
 
 interface TeamMember extends Row {
   id: string;
@@ -42,24 +43,17 @@ const TeamDetailsPage: React.FC = () => {
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [isTeamManager, setIsTeamManager] = useState(false);
+  const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
+  const [deleteSelectedDialogOpen, setDeleteSelectedDialogOpen] = useState(false);
+  const [setManagerDialogOpen, setSetManagerDialogOpen] = useState(false);
+  const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
 
   const handleAddUser = () => {
     setAddUserDialogOpen(true);
   };
 
-  const handleAddUserSubmit = () => {
-    if (!searchQuery.trim()) {
-      toast.error('Please enter a user name or email');
-      return;
-    }
-
-    // TODO: Implement actual user search and add logic
-    toast.success(`User "${searchQuery}" added as ${isTeamManager ? 'team manager' : 'team member'}`);
-    setAddUserDialogOpen(false);
-    setSearchQuery('');
-    setIsTeamManager(false);
+  const handleAddUserSubmit = async (data: { userId: string; isManager: boolean }) => {
+    toast.success(`User added as ${data.isManager ? 'team manager' : 'team member'}`);
   };
 
   const handleRemoveMember = (memberId: string, memberName: string) => {
@@ -75,10 +69,73 @@ const TeamDetailsPage: React.FC = () => {
     setMemberToRemove(null);
   };
 
+  const handleCheckboxChange = (memberId: string) => {
+    setSelectedMembers(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(memberId)) {
+        newSet.delete(memberId);
+      } else {
+        newSet.add(memberId);
+      }
+      return newSet;
+    });
+  };
+
+  const handleDeleteSelected = () => {
+    if (selectedMembers.size === 0) {
+      toast.warning('Please select members to delete');
+      return;
+    }
+    setDeleteSelectedDialogOpen(true);
+  };
+
+  const confirmDeleteSelected = async () => {
+    setMembers(members.filter(m => !selectedMembers.has(m.id)));
+    toast.success(`${selectedMembers.size} member(s) deleted`);
+    setSelectedMembers(new Set());
+  };
+
+  const handleSetManager = () => {
+    if (selectedMembers.size === 0) {
+      toast.warning('Please select a member to set as manager');
+      return;
+    }
+    if (selectedMembers.size > 1) {
+      toast.warning('Please select only one member to set as manager');
+      return;
+    }
+    setSetManagerDialogOpen(true);
+  };
+
+  const confirmSetManager = async () => {
+    const selectedMemberId = Array.from(selectedMembers)[0];
+    const selectedMember = members.find(m => m.id === selectedMemberId);
+    toast.success(`${selectedMember?.fullName} set as team manager successfully`);
+    setSelectedMembers(new Set());
+  };
+
+  const handleDeleteTeam = () => {
+    setDeleteTeamDialogOpen(true);
+  };
+
+  const confirmDeleteTeam = async () => {
+    // TODO: Implement delete team
+    toast.success('Team deleted successfully');
+  };
+
   const columns: Column[] = [
     {
       accessor: 'fullName',
       header: 'User Name',
+      formatter: (_value: any, row: any) => (
+        <div className="flex items-center gap-3">
+          <Checkbox
+            checked={selectedMembers.has(row.id)}
+            onChange={() => handleCheckboxChange(row.id)}
+          />
+          <span>{row.fullName}</span>
+        </div>
+      ),
     },
     {
       accessor: 'email',
@@ -106,9 +163,14 @@ const TeamDetailsPage: React.FC = () => {
       <PageLayout
         title={teamName}
         action={
-          <Button onClick={handleAddUser} className="text-lg font-medium">
-            + Add User
-          </Button>
+          <div className="flex gap-4">
+            <Button variant='delete' className="text-lg font-medium" onClick={handleDeleteTeam}>
+              Delete Team
+            </Button>
+            <Button onClick={handleAddUser} className="text-lg font-medium">
+              + Add User
+            </Button>
+          </div>
         }
         actionPosition="inline"
         emptyMessage="No team members yet"
@@ -122,7 +184,27 @@ const TeamDetailsPage: React.FC = () => {
             <p className="text-gray-700">{teamDescription}</p>
           </div>
         )}
-        
+
+        <div className="flex gap-2">
+          <Button
+            variant="delete"
+            size="sm"
+            onClick={handleDeleteSelected}
+            disabled={selectedMembers.size === 0}
+          >
+            Delete Selected
+          </Button>
+          <Button
+            className='text-primary'
+            variant="secondary"
+            size="sm"
+            onClick={handleSetManager}
+            disabled={selectedMembers.size === 0}
+          >
+            Set Manager
+          </Button>
+        </div>
+
         <Table
           columns={columns}
           data={members}
@@ -143,56 +225,44 @@ const TeamDetailsPage: React.FC = () => {
         onConfirm={confirmRemoveMember}
       />
 
-      <CustomDialog
-        title="Add User to Team"
+      <ConfirmDialog
+        isOpen={deleteSelectedDialogOpen}
+        onOpenChange={setDeleteSelectedDialogOpen}
+        title="Delete Selected Members"
+        message={`Are you sure you want to delete ${selectedMembers.size} selected member(s)? This action cannot be undone.`}
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteSelected}
+      />
+
+      <ConfirmDialog
+        isOpen={setManagerDialogOpen}
+        onOpenChange={setSetManagerDialogOpen}
+        title="Set Team Manager"
+        message={`Are you sure you want to set the selected member as team manager?`}
+        confirmText="Confirm"
+        cancelText="Cancel"
+        variant="primary"
+        onConfirm={confirmSetManager}
+      />
+
+      <ConfirmDialog
+        isOpen={deleteTeamDialogOpen}
+        onOpenChange={setDeleteTeamDialogOpen}
+        title="Delete Team"
+        message={`Are you sure you want to delete "${teamName}"? This will remove all team members and cannot be undone.`}
+        confirmText="Delete Team"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={confirmDeleteTeam}
+      />
+
+      <DialogTeamDetailsForm
         isOpen={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
-      >
-        <div className="space-y-4">
-          <div>
-            <label htmlFor="userSearch" className="block text-sm font-semibold text-gray-700 mb-2">
-              Find User
-            </label>
-            <input
-              id="userSearch"
-              type="text"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search by name or email..."
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-            />
-          </div>
-
-          <div className="flex items-center gap-2">
-            <input
-              id="isManager"
-              type="checkbox"
-              checked={isTeamManager}
-              onChange={(e) => setIsTeamManager(e.target.checked)}
-              className="w-4 h-4 cursor-pointer"
-            />
-            <label htmlFor="isManager" className="text-sm font-medium text-gray-700 cursor-pointer">
-              Is Team Manager
-            </label>
-          </div>
-
-          <div className="flex gap-3 justify-end pt-4">
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setAddUserDialogOpen(false);
-                setSearchQuery('');
-                setIsTeamManager(false);
-              }}
-            >
-              Cancel
-            </Button>
-            <Button variant="primary" onClick={handleAddUserSubmit}>
-              Add User
-            </Button>
-          </div>
-        </div>
-      </CustomDialog>
+        onSubmit={handleAddUserSubmit}
+      />
     </>
   );
 };
