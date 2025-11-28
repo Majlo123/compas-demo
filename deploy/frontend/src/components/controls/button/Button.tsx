@@ -20,7 +20,7 @@ const buttonVariants = tv({
       primary: 'bg-primary !text-white hover:opacity-90 hover:bg-primary-hover',
       secondary: 'bg-white text-primary border border-primary hover:opacity-90',
       ghost: 'bg-transparent text-primary hover:opacity-90',
-      delete: 'bg-red !text-white hover:opacity-90',
+      delete: 'bg-transparent !text-red hover:opacity-90 border border-red hover:bg-white',
       edit: 'bg-primary !text-white hover:bg-primary-hover',
     },
     size: {
@@ -29,7 +29,7 @@ const buttonVariants = tv({
       lg: 'h-button-lg px-lg text-h3',
     },
     disabled: {
-      true: 'opacity-100 bg-darkGrey/20 cursor-not-allowed',
+      true: 'cursor-not-allowed',
     },
     large: {
       true: 'w-button-xl',
