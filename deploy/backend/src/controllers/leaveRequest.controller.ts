@@ -44,8 +44,15 @@ export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Respons
   });
 });
 
-export const getCalendarLeaveRequests = catchAsync(async (_req: Request, res: Response) => {
-  const result = await leaveRequestService.getCalendarLeaveRequests();
+export const getCalendarLeaveRequests = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+
+  if (!userId || !userRole) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const result = await leaveRequestService.getCalendarLeaveRequests(userId, userRole);
   res.status(httpStatus.OK).send({
     success: true,
     content: result,

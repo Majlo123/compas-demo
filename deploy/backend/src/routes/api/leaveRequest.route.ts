@@ -120,11 +120,11 @@ const createLeaveRequestRoute = (basePath: string): Router => {
     },
     {
       name: 'Get Calendar Leave Requests',
-      desc: 'Get all leave requests for calendar (managers and admins)',
+      desc: 'Get leave requests for calendar - admins see all, managers/users see their teams only',
       path: '/calendar',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Manager, RoleEnum.Admin],
       responses: [
         {
           code: httpStatus.OK,
