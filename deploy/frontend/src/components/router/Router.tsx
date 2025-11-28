@@ -18,6 +18,7 @@ import ReportsPage from '@/pages/reports-page/ReportsPage';
 import SettingsPage from '@/pages/settings-page/SettingsPage';
 import TeamRequestsPage from '@/pages/team-requests-page/TeamRequestsPage';
 import TeamsListPage from '@/pages/teams-list-page/TeamsListPage';
+import TeamDetailsPage from '@/pages/team-details-page/TeamDetailsPage';
 
 const Router: FC = () => {
   return (
@@ -46,6 +47,7 @@ const Router: FC = () => {
             
             <Route element={<AdminRoutes />}>
               <Route path="/teams-list" element={<TeamsListPage />} />
+              <Route path="/team-details" element={<TeamDetailsPage />} />
             </Route>
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />

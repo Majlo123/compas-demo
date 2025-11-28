@@ -181,7 +181,7 @@ const TeamRequestsPage: React.FC = () => {
     <PageLayout
       title="Team Requests"
       action={
-        <div className="flex gap-3 items-center xl:w-1/2">
+        <div className="flex gap-3 items-center xl:w-2/3">
             <div className="relative flex-1">
               <input
                 id="team-requests-search"
