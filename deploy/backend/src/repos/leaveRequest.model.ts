@@ -135,15 +135,52 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
 /**
  * Find all leave requests for calendar views (no pagination)
  */
-export const findAllForCalendar = async (): Promise<LeaveRequestWithEmployee[]> => {
+export const findAllForCalendar = async (filters?: {
+  teamIds?: string[];
+  userId?: string;
+  startDate?: Date | null;
+  endDate?: Date | null;
+}): Promise<LeaveRequestWithEmployee[]> => {
+  const whereClauses: string[] = [];
+  const values: any[] = [];
+  let idx = 1;
+
+  if (filters?.userId) {
+    whereClauses.push(`lr.user_id = $${idx}`);
+    values.push(filters.userId);
+    idx++;
+  }
+
+  if (filters?.teamIds && filters.teamIds.length > 0) {
+    // limit to users who are members of the provided teams
+    whereClauses.push(`lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = ANY($${idx}))`);
+    values.push(filters.teamIds);
+    idx++;
+  }
+
+  if (filters?.startDate) {
+    whereClauses.push(`lr.start_date >= $${idx}`);
+    values.push(filters.startDate);
+    idx++;
+  }
+
+  if (filters?.endDate) {
+    whereClauses.push(`lr.end_date <= $${idx}`);
+    values.push(filters.endDate);
+    idx++;
+  }
+
+  const whereSql = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : '';
+
   const query = {
     text: `
       SELECT lr.*, u.full_name as employee_name
       FROM leave_requests lr
       LEFT JOIN users u ON lr.user_id = u.id
+      ${whereSql}
       ORDER BY lr.start_date DESC
     `,
-    values: [],
+    values,
   };
 
   const result = await pool.query(query);

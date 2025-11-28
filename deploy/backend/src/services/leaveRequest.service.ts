@@ -1,9 +1,10 @@
 import httpStatus from 'http-status';
-import { leaveRequestRepository } from 'repos/index';
+import { leaveRequestRepository, teamMemberRepository } from 'repos/index';
 import { LeaveRequest, LeaveRequestWithEmployee, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
+import { RoleEnum } from '../../../shared/auth.types';
 
 export type LeaveRequestResponse = {
   id: string;
@@ -155,11 +156,29 @@ export const updateLeaveRequestStatus = async (
   };
 };
 
-/**
- * Get all leave requests for calendar (no pagination) — for managers and admins
- */
-export const getCalendarLeaveRequests = async (): Promise<LeaveRequestResponse[]> => {
-  const result = await leaveRequestRepository.findAllForCalendar();
+ // Get all leave requests for calendar (no pagination)
+
+export const getCalendarLeaveRequests = async (userId: string, userRole: string): Promise<LeaveRequestResponse[]> => {
+  let result: LeaveRequestWithEmployee[];
+
+  if (userRole === RoleEnum.Admin) {
+    result = await leaveRequestRepository.findAllForCalendar();
+  } else {
+    const userTeams = await teamMemberRepository.findByUserId(userId);
+    const teamIds = userTeams.map(team => team.teamId);
+
+    if (teamIds.length === 0) {
+      result = await leaveRequestRepository.findAllForCalendar({ userId });
+    } else {
+      const teamResults = await leaveRequestRepository.findAllForCalendar({ teamIds });      const ownResults = await leaveRequestRepository.findAllForCalendar({ userId });
+
+      const merged = new Map<string, LeaveRequestWithEmployee>();
+      [...teamResults, ...ownResults].forEach((r) => {
+        if (r.id) merged.set(r.id, r);
+      });
+      result = Array.from(merged.values());
+    }
+  }
 
   return result.map((request: LeaveRequestWithEmployee) => ({
     id: request.id!,
