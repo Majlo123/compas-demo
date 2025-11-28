@@ -7,6 +7,7 @@ import createOrganizationRoute from 'routes/api/organization.route';
 import createAuthRoute from 'routes/api/auth.route';
 import createLeaveRequestRoute from 'routes/api/leaveRequest.route';
 import createTeamRoute from 'routes/api/team.route';
+import createUserRoute from 'routes/api/user.route';
 
 const apiRouter = express.Router();
 
@@ -26,6 +27,10 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/team',
     route: createTeamRoute('/team'),
+  },
+  {
+    path: '/user',
+    route: createUserRoute('/user'),
   },
 ];
 

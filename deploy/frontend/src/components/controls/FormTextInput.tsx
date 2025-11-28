@@ -46,7 +46,12 @@ const FormTextInput = <T extends FieldValues>({
           label={label}
           required={required}
           value={value}
-          onChange={onChange}
+          onChange={(e) => {
+            onChange(e);
+            if (rest.onChange) {
+              rest.onChange(e);
+            }
+          }}
           disabled={disabled}
           onBlur={onBlur}
           ref={ref}

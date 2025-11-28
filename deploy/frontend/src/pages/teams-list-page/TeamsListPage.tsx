@@ -76,11 +76,6 @@ const TeamsListPage: React.FC = () => {
     }
   };
 
-  const handleDeleteTeam = async (teamId: string, teamName: string) => {
-    setTeamToDelete({ id: teamId, name: teamName });
-    setConfirmDialogOpen(true);
-  };
-
   const confirmDeleteTeam = async () => {
     if (!teamToDelete) return;
 
@@ -114,12 +109,12 @@ const TeamsListPage: React.FC = () => {
     {
       accessor: 'actions',
       header: 'Actions',
-      formatter: (_value: any, row: any) => (
+      formatter: (_value: any, row: TeamRow) => (
         <div className="flex gap-2 items-center justify-center">
           <Button
             variant="edit"
             size="sm"
-            onClick={() => navigate('/team-details')}
+            onClick={() => navigate(`/team-details/${row._id}`)}
             Icon={TableIconEdit}
           >
             <span className='self-center'>Edit</span>
