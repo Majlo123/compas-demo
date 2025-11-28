@@ -5,6 +5,7 @@ export type TeamMember = {
   id?: string;
   teamId: string;
   userId: string;
+  isManager?: boolean;
   joinedAt?: Date;
 };
 
@@ -39,8 +40,24 @@ export const findByUserId = async (userId: string): Promise<TeamMember[]> => {
     id: row.id,
     teamId: row.team_id,
     userId: row.user_id,
+    isManager: row.is_manager,
     joinedAt: row.joined_at,
   }));
+};
+
+export const updateTeamMemberManager = async (
+  teamId: string,
+  userId: string,
+  isManager: boolean
+): Promise<TeamMember | null> => {
+  const members = await findByTeamId(teamId);
+  const member = members.find((m) => m.userId === userId);
+  
+  if (!member || !member.id) {
+    return null;
+  }
+
+  return updateById(member.id, { isManager });
 };
 
 export { create, findById, findByField, findAll, updateById, deleteById };

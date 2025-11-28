@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
-import BadgeIconXCircle from '@/components/images/BadgeIconXCircle';
-import StatusBadge from '@/components/controls/badge/StatusBadge';
+import TableIconEdit from '@/components/images/TableIconEdit';
 import DialogTeamForm from '@/components/dialog/DialogTeamForm';
 import ConfirmDialog from '@/components/dialog/ConfirmDialog';
 import { createTeam, getTeams, deleteTeam } from '@/api/team/team.actions';
@@ -15,6 +15,7 @@ interface TeamRow extends Row {
 }
 
 const TeamsListPage: React.FC = () => {
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [teamToDelete, setTeamToDelete] = useState<{ id: string; name: string } | null>(null);
@@ -115,16 +116,14 @@ const TeamsListPage: React.FC = () => {
       header: 'Actions',
       formatter: (_value: any, row: any) => (
         <div className="flex gap-2 items-center justify-center">
-          <div
-            onClick={() => handleDeleteTeam(row._id, row.name)}
-            className="cursor-pointer hover:opacity-80 transition-opacity"
-            title="Delete team"
+          <Button
+            variant="edit"
+            size="sm"
+            onClick={() => navigate('/team-details')}
+            Icon={TableIconEdit}
           >
-            <StatusBadge status="declined" className="rounded-md">
-              <BadgeIconXCircle className="w-4 h-4" />
-              <span className="text-sm font-medium ml-1">Delete</span>
-            </StatusBadge>
-          </div>
+            <span className='self-center'>Edit</span>
+          </Button>
         </div>
       ),
     },

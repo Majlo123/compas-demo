@@ -14,6 +14,31 @@ export type CreateTeamData = {
   description?: string;
 };
 
+export type TeamMember = {
+  id: string;
+  teamId: string;
+  userId: string;
+  isManager?: boolean;
+  joinedAt?: string;
+};
+
+export type CreateTeamMemberData = {
+  userId: string;
+  isManager?: boolean;
+};
+
+export type BulkAddMembersData = {
+  members: Array<{ userId: string; isManager?: boolean }>;
+};
+
+export type BulkRemoveMembersData = {
+  userIds: string[];
+};
+
+export type BulkUpdateMembersManagerData = {
+  members: Array<{ userId: string; isManager: boolean }>;
+};
+
 export type TeamListResponse = Team[];
 
 export type PaginatedTeamResponse = PaginatedApiResponse<Team>;

@@ -57,3 +57,50 @@ export const listTeamMembers = async (teamId: string): Promise<ApiResponse<any[]
     return formatError(error);
   }
 };
+
+export const getTeam = async (id: string): Promise<ApiResponse<Team>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/${id}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const bulkAddTeamMembers = async (
+  teamId: string,
+  members: Array<{ userId: string; isManager?: boolean }>
+): Promise<ApiResponse<any[]>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/${teamId}/members/bulk`, { members });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const bulkRemoveTeamMembers = async (
+  teamId: string,
+  userIds: string[]
+): Promise<ApiResponse<null>> => {
+  try {
+    const response = await axiosServer.delete(`${endpoint}/${teamId}/members/bulk`, {
+      data: { userIds },
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const bulkUpdateTeamMembersManager = async (
+  teamId: string,
+  members: Array<{ userId: string; isManager: boolean }>
+): Promise<ApiResponse<any[]>> => {
+  try {
+    const response = await axiosServer.patch(`${endpoint}/${teamId}/members/bulk`, { members });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};

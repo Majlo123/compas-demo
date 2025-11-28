@@ -34,44 +34,6 @@ export const listTeams = async (query: QueryParams): Promise<PaginatedResult<Tea
   return teamRepository.findAll({ queryParams: query });
 };
 
-/**
- * Add a member to a team
- */
-export const addMemberToTeam = async (teamId: string, userId: string): Promise<TeamMember> => {
-  const team = await teamRepository.findById({ id: teamId });
-  if (!team) {
-    throw new ApiError('Team not found', httpStatus.NOT_FOUND);
-  }
-
-  const user = await authRepository.findById({ id: userId });
-  if (!user) {
-    throw new ApiError('User not found', httpStatus.NOT_FOUND);
-  }
-
-  const existingMembers = await teamMemberRepository.findByTeamId(teamId);
-  if (existingMembers.some((m) => m.userId === userId)) {
-    throw new ApiError('User is already a member of this team', httpStatus.CONFLICT);
-  }
-
-  const created = await teamMemberRepository.create({ teamId, userId } as CreateTeamMember);
-  return created as TeamMember;
-};
-
-export const removeMemberFromTeam = async (teamId: string, userId: string): Promise<TeamMember> => {
-  const members = await teamMemberRepository.findByTeamId(teamId);
-  const member = members.find((m) => m.userId === userId);
-  if (!member) {
-    throw new ApiError('Member not found on team', httpStatus.NOT_FOUND);
-  }
-
-  const deleted = await teamMemberRepository.deleteById(member.id!);
-  if (!deleted) {
-    throw new ApiError('Failed to remove member', httpStatus.INTERNAL_SERVER_ERROR);
-  }
-
-  return deleted as TeamMember;
-};
-
 export const listTeamMembers = async (teamId: string): Promise<TeamMember[]> => {
   // validate team exists
   const team = await teamRepository.findById({ id: teamId });
@@ -80,6 +42,95 @@ export const listTeamMembers = async (teamId: string): Promise<TeamMember[]> => 
   }
 
   return teamMemberRepository.findByTeamId(teamId);
+};
+
+/**
+ * Bulk add members to team
+ */
+export const bulkAddMembersToTeam = async (
+  teamId: string,
+  members: Array<{ userId: string; isManager?: boolean }>
+): Promise<TeamMember[]> => {
+  const team = await teamRepository.findById({ id: teamId });
+  if (!team) {
+    throw new ApiError('Team not found', httpStatus.NOT_FOUND);
+  }
+
+  const existingMembers = await teamMemberRepository.findByTeamId(teamId);
+  const results: TeamMember[] = [];
+
+  for (const member of members) {
+    const user = await authRepository.findById({ id: member.userId });
+    if (!user) {
+      continue; // Skip invalid users
+    }
+
+    if (existingMembers.some((m) => m.userId === member.userId)) {
+      continue; // Skip already existing members
+    }
+
+    const created = await teamMemberRepository.create({
+      teamId,
+      userId: member.userId,
+      isManager: member.isManager || false,
+    } as CreateTeamMember);
+    results.push(created as TeamMember);
+  }
+
+  return results;
+};
+
+/**
+ * Bulk remove members from team
+ */
+export const bulkRemoveMembersFromTeam = async (
+  teamId: string,
+  userIds: string[]
+): Promise<TeamMember[]> => {
+  const members = await teamMemberRepository.findByTeamId(teamId);
+  const results: TeamMember[] = [];
+
+  for (const userId of userIds) {
+    const member = members.find((m) => m.userId === userId);
+    if (!member || !member.id) {
+      continue; // Skip non-existent members
+    }
+
+    const deleted = await teamMemberRepository.deleteById(member.id);
+    if (deleted) {
+      results.push(deleted as TeamMember);
+    }
+  }
+
+  return results;
+};
+
+/**
+ * Bulk update members manager status
+ */
+export const bulkUpdateMembersManager = async (
+  teamId: string,
+  members: Array<{ userId: string; isManager: boolean }>
+): Promise<TeamMember[]> => {
+  const team = await teamRepository.findById({ id: teamId });
+  if (!team) {
+    throw new ApiError('Team not found', httpStatus.NOT_FOUND);
+  }
+
+  const results: TeamMember[] = [];
+
+  for (const member of members) {
+    const updated = await teamMemberRepository.updateTeamMemberManager(
+      teamId,
+      member.userId,
+      member.isManager
+    );
+    if (updated) {
+      results.push(updated);
+    }
+  }
+
+  return results;
 };
 
 /**
@@ -103,7 +154,5 @@ export const deleteTeamById = async (id: string): Promise<Team> => {
 export const create = createTeam;
 export const findById = getTeamById;
 export const findAll = listTeams;
-export const addMember = addMemberToTeam;
-export const removeMember = removeMemberFromTeam;
 export const listMembers = listTeamMembers;
 export const deleteTeam = deleteTeamById;
