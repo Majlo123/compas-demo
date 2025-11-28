@@ -4,7 +4,7 @@ import {
 } from '@/components/controls/button/button-props';
 import { tv } from 'tailwind-variants';
 
-type ButtonVariant = 'primary' | 'secondary' | 'ghost';
+type ButtonVariant = 'primary' | 'secondary' | 'ghost' | 'delete';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 type ButtonProps = (ButtonWithIcon | ButtonWithoutIcon) & {
@@ -20,6 +20,7 @@ const buttonVariants = tv({
       primary: 'bg-primary !text-white hover:opacity-90 hover:bg-primary-hover',
       secondary: 'bg-white text-primary border border-primary hover:opacity-90',
       ghost: 'bg-transparent text-primary hover:opacity-90',
+      delete: 'bg-red !text-white hover:opacity-90',
     },
     size: {
       sm: 'h-button-sm px-sm text-h5',
@@ -59,6 +60,7 @@ const iconVariants = tv({
       primary: 'stroke-white',
       secondary: 'stroke-primary',
       ghost: 'stroke-primary',
+      delete: 'stroke-white',
     },
     disabled: {
       true: 'opacity-100',
