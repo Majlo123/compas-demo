@@ -6,7 +6,7 @@ import { RoleEnum } from '../../../../shared/auth.types';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import { 
-  LeaveRequestSuccessSchema, 
+  LeaveRequestSuccessSchema,
   CreateLeaveRequestBodySchema,
   CreateLeaveRequestSuccessSchema,
   PaginatedLeaveRequestSuccessSchema,
@@ -36,7 +36,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/my-requests',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Employee],
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Manager],
       responses: [
         {
           code: httpStatus.OK,
@@ -96,7 +96,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/team-requests',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Manager],
+      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
       querySchema: QuerySchema,
       responses: [
         {
@@ -151,7 +151,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/:id/status',
       method: 'patch',
       authorize: true,
-      allowedRoles: [RoleEnum.Manager],
+      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
       requestBodySchema: UpdateLeaveRequestStatusBodySchema,
       responses: [
         {

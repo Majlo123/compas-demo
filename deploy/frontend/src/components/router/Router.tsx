@@ -5,9 +5,10 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
-import ManagerRoutes from '@/components/router/role-routes/ManagerRoutes';
 import EmployeeRoutes from '@/components/router/role-routes/EmployeeRoutes';
 import AdminRoutes from '@/components/router/role-routes/AdminRoutes';
+import RoleGuard from '@/components/router/role-routes/RoleGuard';
+import { RoleEnum } from '../../../../shared/auth.types';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import LoginPage from '@/pages/login-page/LoginPage';
 import RegisterPage from '@/pages/register-page/RegisterPage';
@@ -37,17 +38,17 @@ const Router: FC = () => {
           <Route element={<DashboardLayout />}>
             <Route path="/dashboard" element={<DashboardPage />} />
             
-            <Route element={<ManagerRoutes />}>
+            <Route element={<RoleGuard allowedRoles={[RoleEnum.Admin]} />}>
+              <Route path="/teams-list" element={<TeamsListPage />} />
+              <Route path="/team-details" element={<TeamDetailsPage />} />
+            </Route>
+            
+            <Route element={<RoleGuard allowedRoles={[RoleEnum.Manager, RoleEnum.Admin]} />}>
               <Route path="/team-requests" element={<TeamRequestsPage />} />
             </Route>
             
-            <Route element={<EmployeeRoutes />}>
+            <Route element={<RoleGuard allowedRoles={[RoleEnum.Employee]} />}>
               <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
-            </Route>
-            
-            <Route element={<AdminRoutes />}>
-              <Route path="/teams-list" element={<TeamsListPage />} />
-              <Route path="/team-details" element={<TeamDetailsPage />} />
             </Route>
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
