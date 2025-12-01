@@ -47,7 +47,7 @@ const Router: FC = () => {
             
             <Route element={<AdminRoutes />}>
               <Route path="/teams-list" element={<TeamsListPage />} />
-              <Route path="/team-details" element={<TeamDetailsPage />} />
+              <Route path="/team-details/:teamId" element={<TeamDetailsPage />} />
             </Route>
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />

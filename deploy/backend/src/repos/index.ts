@@ -1,6 +1,7 @@
 export * as organizationRepository from 'repos/organization.model';
 export * as errorRepository from 'repos/error.model';
 export * as authRepository from 'repos/user.model';
+export * as userRepository from 'repos/user.model';
 export * as leaveRequestRepository from 'repos/leaveRequest.model';
 export * as teamRepository from 'repos/team.model'
 export * as teamMemberRepository from 'repos/teamMember.model';

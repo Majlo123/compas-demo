@@ -3,6 +3,7 @@ import Button from '@/components/controls/button/Button';
 
 type PageLayoutProps = {
   title: string;
+  description?: string;
   action?: React.ReactNode;
   actionPosition?: 'inline' | 'below';
   isLoading: boolean;
@@ -16,6 +17,7 @@ type PageLayoutProps = {
 
 const PageLayout: React.FC<PageLayoutProps> = ({
   title,
+  description,
   action,
   actionPosition = 'inline',
   isLoading,
@@ -34,6 +36,11 @@ const PageLayout: React.FC<PageLayoutProps> = ({
           <h1 className="text-h1 font-extrabold text-gray-800">{title}</h1>
           {action && actionPosition === 'inline' && <div>{action}</div>}
         </div>
+        {description && (
+          <div className="mt-2 text-gray-600">
+            <p>{description}</p>
+          </div>
+        )}
         {action && actionPosition === 'below' && (
           <div className="mt-4">{action}</div>
         )}
