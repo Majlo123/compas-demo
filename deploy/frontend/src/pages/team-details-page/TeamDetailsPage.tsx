@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Checkbox from '@/components/controls/Checkbox';
@@ -6,6 +7,9 @@ import Table, { Column, Row } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
 import ConfirmDialog from '@/components/dialog/ConfirmDialog';
 import DialogTeamDetailsForm from '@/components/dialog/DialogTeamDetailsForm';
+import ManagerBadgeIcon from '@/components/images/ManagerBadgeIcon';
+import { getTeam, listTeamMembers, bulkRemoveTeamMembers, bulkUpdateTeamMembersManager, deleteTeam } from '@/api/team/team.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
 interface TeamMember extends Row {
   id: string;
@@ -15,31 +19,14 @@ interface TeamMember extends Row {
 }
 
 const TeamDetailsPage: React.FC = () => {
-  const [teamName] = useState<string>('Development Team');
-  const [teamDescription] = useState<string>('Core development team responsible for building new features');
-  const [members, setMembers] = useState<TeamMember[]>([
-    {
-      _id: '1',
-      id: '1',
-      fullName: 'John Doe',
-      email: 'john.doe@example.com',
-      isManager: true,
-    },
-    {
-      _id: '2',
-      id: '2',
-      fullName: 'Jane Smith',
-      email: 'jane.smith@example.com',
-      isManager: false,
-    },
-    {
-      _id: '3',
-      id: '3',
-      fullName: 'Mike Johnson',
-      email: 'mike.johnson@example.com',
-      isManager: false,
-    },
-  ]);
+  const { teamId } = useParams<{ teamId: string }>();
+  const navigate = useNavigate();
+  
+  const [teamName, setTeamName] = useState<string>('');
+  const [teamDescription, setTeamDescription] = useState<string>('');
+  const [members, setMembers] = useState<TeamMember[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [hasError, setHasError] = useState(false);
   const [confirmDialogOpen, setConfirmDialogOpen] = useState(false);
   const [memberToRemove, setMemberToRemove] = useState<{ id: string; name: string } | null>(null);
   const [addUserDialogOpen, setAddUserDialogOpen] = useState(false);
@@ -48,12 +35,65 @@ const TeamDetailsPage: React.FC = () => {
   const [setManagerDialogOpen, setSetManagerDialogOpen] = useState(false);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
 
+  useEffect(() => {
+    if (!teamId) {
+      navigate('/teams-list');
+      return;
+    }
+    fetchTeamData();
+  }, [teamId]);
+
+  const fetchTeamData = async () => {
+    if (!teamId) return;
+
+    setIsLoading(true);
+    setHasError(false);
+
+    try {
+      const [teamResponse, membersResponse] = await Promise.all([
+        getTeam(teamId),
+        listTeamMembers(teamId)
+      ]);
+
+      if (teamResponse.success && teamResponse.content) {
+        setTeamName(teamResponse.content.name);
+        setTeamDescription(teamResponse.content.description);
+      } else {
+        toast.error('Failed to load team details');
+        setHasError(true);
+      }
+
+      if (isApiSuccess(membersResponse)) {
+        const formattedMembers = membersResponse.content.map((member: any) => ({
+          _id: member.userId,
+          id: member.userId,
+          fullName: member.fullName || 'Unknown User',
+          email: member.email || '',
+          isManager: member.isManager || false,
+        }));
+        setMembers(formattedMembers);
+      } else {
+        toast.error('Failed to load team members');
+      }
+    } catch (error) {
+      toast.error('An error occurred while loading team data');
+      setHasError(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   const handleAddUser = () => {
+    console.log('selectedMembers: ', selectedMembers);
     setAddUserDialogOpen(true);
   };
 
   const handleAddUserSubmit = async (data: { userId: string; isManager: boolean }) => {
     toast.success(`User added as ${data.isManager ? 'team manager' : 'team member'}`);
+  };
+
+  const handleAddUserSuccess = () => {
+    fetchTeamData();
   };
 
   const handleRemoveMember = (memberId: string, memberName: string) => {
@@ -62,10 +102,19 @@ const TeamDetailsPage: React.FC = () => {
   };
 
   const confirmRemoveMember = async () => {
-    if (!memberToRemove) return;
+    if (!memberToRemove || !teamId) return;
 
-    setMembers(members.filter(m => m.id !== memberToRemove.id));
-    toast.success(`Member "${memberToRemove.name}" removed successfully`);
+    try {
+      const response = await bulkRemoveTeamMembers(teamId, [memberToRemove.id]);
+      if (isApiSuccess(response)) {
+        setMembers(members.filter(m => m.id !== memberToRemove.id));
+        toast.success(`Member "${memberToRemove.name}" removed successfully`);
+      } else {
+        toast.error('Failed to remove member');
+      }
+    } catch (error) {
+      toast.error('An error occurred while removing member');
+    }
     setMemberToRemove(null);
   };
 
@@ -90,9 +139,21 @@ const TeamDetailsPage: React.FC = () => {
   };
 
   const confirmDeleteSelected = async () => {
-    setMembers(members.filter(m => !selectedMembers.has(m.id)));
-    toast.success(`${selectedMembers.size} member(s) deleted`);
-    setSelectedMembers(new Set());
+    if (!teamId) return;
+
+    try {
+      const userIds = Array.from(selectedMembers);
+      const response = await bulkRemoveTeamMembers(teamId, userIds);
+      if (isApiSuccess(response)) {
+        setMembers(members.filter(m => !selectedMembers.has(m.id)));
+        toast.success(`${selectedMembers.size} member(s) deleted`);
+        setSelectedMembers(new Set());
+      } else {
+        toast.error('Failed to delete members');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting members');
+    }
   };
 
   const handleSetManager = () => {
@@ -100,18 +161,30 @@ const TeamDetailsPage: React.FC = () => {
       toast.warning('Please select a member to set as manager');
       return;
     }
-    if (selectedMembers.size > 1) {
-      toast.warning('Please select only one member to set as manager');
-      return;
-    }
     setSetManagerDialogOpen(true);
   };
 
   const confirmSetManager = async () => {
-    const selectedMemberId = Array.from(selectedMembers)[0];
-    const selectedMember = members.find(m => m.id === selectedMemberId);
-    toast.success(`${selectedMember?.fullName} set as team manager successfully`);
-    setSelectedMembers(new Set());
+    if (!teamId) return;
+
+    try {
+      const selectedMemberIds = Array.from(selectedMembers);
+      const updates = selectedMemberIds.map(userId => ({ userId, isManager: true }));
+      
+      const response = await bulkUpdateTeamMembersManager(teamId, updates);
+      
+      if (isApiSuccess(response)) {
+        setMembers(members.map(m => 
+          selectedMembers.has(m.id) ? { ...m, isManager: true } : m
+        ));
+        toast.success(`${selectedMembers.size} member(s) set as team manager successfully`);
+        setSelectedMembers(new Set());
+      } else {
+        toast.error('Failed to set team manager');
+      }
+    } catch (error) {
+      toast.error('An error occurred while setting team manager');
+    }
   };
 
   const handleDeleteTeam = () => {
@@ -119,8 +192,19 @@ const TeamDetailsPage: React.FC = () => {
   };
 
   const confirmDeleteTeam = async () => {
-    // TODO: Implement delete team
-    toast.success('Team deleted successfully');
+    if (!teamId) return;
+
+    try {
+      const response = await deleteTeam(teamId);
+      if (isApiSuccess(response)) {
+        toast.success('Team deleted successfully');
+        navigate('/teams-list');
+      } else {
+        toast.error('Failed to delete team');
+      }
+    } catch (error) {
+      toast.error('An error occurred while deleting team');
+    }
   };
 
   const columns: Column[] = [
@@ -133,7 +217,14 @@ const TeamDetailsPage: React.FC = () => {
             checked={selectedMembers.has(row.id)}
             onChange={() => handleCheckboxChange(row.id)}
           />
-          <span>{row.fullName}</span>
+          <div className="flex items-center gap-2">
+            <span>{row.fullName}</span>
+            {row.isManager && (
+              <span title="Manager">
+                <ManagerBadgeIcon className="text-yellow-500" />
+              </span>
+            )}
+          </div>
         </div>
       ),
     },
@@ -162,6 +253,7 @@ const TeamDetailsPage: React.FC = () => {
     <>
       <PageLayout
         title={teamName}
+        description={teamDescription}
         action={
           <div className="flex gap-4">
             <Button variant='delete' className="text-lg font-medium" onClick={handleDeleteTeam}>
@@ -175,22 +267,16 @@ const TeamDetailsPage: React.FC = () => {
         actionPosition="inline"
         emptyMessage="No team members yet"
         emptyDescription="Add members to this team to get started"
-        isLoading={false}
-        hasError={false}
+        isLoading={isLoading}
+        hasError={hasError}
         isEmpty={members.length === 0}
       >
-        {teamDescription && (
-          <div className="mb-6 bg-gray-50 rounded-lg">
-            <p className="text-gray-700">{teamDescription}</p>
-          </div>
-        )}
 
-        <div className="flex gap-2">
+        <div className={`flex gap-2 mt-[-15px] ${selectedMembers.size === 0 ? 'invisible' : 'visible'}`}>
           <Button
             variant="delete"
             size="sm"
             onClick={handleDeleteSelected}
-            disabled={selectedMembers.size === 0}
           >
             Delete Selected
           </Button>
@@ -199,7 +285,6 @@ const TeamDetailsPage: React.FC = () => {
             variant="secondary"
             size="sm"
             onClick={handleSetManager}
-            disabled={selectedMembers.size === 0}
           >
             Set Manager
           </Button>
@@ -240,7 +325,7 @@ const TeamDetailsPage: React.FC = () => {
         isOpen={setManagerDialogOpen}
         onOpenChange={setSetManagerDialogOpen}
         title="Set Team Manager"
-        message={`Are you sure you want to set the selected member as team manager?`}
+        message={`Are you sure you want to set the selected ${selectedMembers.size} member as team manager?`}
         confirmText="Confirm"
         cancelText="Cancel"
         variant="primary"
@@ -262,6 +347,7 @@ const TeamDetailsPage: React.FC = () => {
         isOpen={addUserDialogOpen}
         onOpenChange={setAddUserDialogOpen}
         onSubmit={handleAddUserSubmit}
+        onSuccess={handleAddUserSuccess}
       />
     </>
   );

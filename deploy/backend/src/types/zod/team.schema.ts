@@ -28,12 +28,35 @@ export const TeamMemberSchema = z.object({
   id: z.string().uuid(),
   teamId: z.string().uuid(),
   userId: z.string().uuid(),
+  isManager: z.boolean().optional(),
   joinedAt: z.string().datetime(),
 });
 
 export const CreateTeamMemberBodySchema = z.object({
-  teamId: z.string().uuid(),
   userId: z.string().uuid(),
+  isManager: z.boolean().optional(),
+});
+
+export const UpdateTeamMemberManagerSchema = z.object({
+  isManager: z.boolean(),
+});
+
+export const BulkAddTeamMembersSchema = z.object({
+  members: z.array(z.object({
+    userId: z.string().uuid(),
+    isManager: z.boolean().optional(),
+  })),
+});
+
+export const BulkRemoveTeamMembersSchema = z.object({
+  userIds: z.array(z.string().uuid()),
+});
+
+export const BulkUpdateTeamMembersManagerSchema = z.object({
+  members: z.array(z.object({
+    userId: z.string().uuid(),
+    isManager: z.boolean(),
+  })),
 });
 
 export const CreateTeamMemberSuccessSchema = z.object({

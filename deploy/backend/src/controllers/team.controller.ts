@@ -33,38 +33,60 @@ export const listTeams = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-export const addMember = catchAsync(async (req: Request, res: Response) => {
-  const { teamId } = req.params;
-  const { userId } = req.body;
-
-  if (!userId) {
-    throw new ApiError('userId is required', httpStatus.BAD_REQUEST);
-  }
-
-  const created = await teamService.addMemberToTeam(teamId, userId);
-  res.status(httpStatus.CREATED).send({
-    success: true,
-    message: 'Member added to team',
-    content: created,
-  });
-});
-
-export const removeMember = catchAsync(async (req: Request, res: Response) => {
-  const { teamId, userId } = req.params;
-  const removed = await teamService.removeMemberFromTeam(teamId, userId);
-  res.status(httpStatus.OK).send({
-    success: true,
-    message: 'Member removed from team',
-    content: removed,
-  });
-});
-
 export const listMembers = catchAsync(async (req: Request, res: Response) => {
   const { teamId } = req.params;
   const members = await teamService.listTeamMembers(teamId);
   res.status(httpStatus.OK).send({
     success: true,
     content: members,
+  });
+});
+
+export const bulkAddMembers = catchAsync(async (req: Request, res: Response) => {
+  const { teamId } = req.params;
+  const { members } = req.body;
+
+  if (!members || !Array.isArray(members) || members.length === 0) {
+    throw new ApiError('members array is required', httpStatus.BAD_REQUEST);
+  }
+
+  const results = await teamService.bulkAddMembersToTeam(teamId, members);
+  res.status(httpStatus.CREATED).send({
+    success: true,
+    message: `${results.length} members added to team`,
+    content: results,
+  });
+});
+
+export const bulkRemoveMembers = catchAsync(async (req: Request, res: Response) => {
+  const { teamId } = req.params;
+  const { userIds } = req.body;
+
+  if (!userIds || !Array.isArray(userIds) || userIds.length === 0) {
+    throw new ApiError('userIds array is required', httpStatus.BAD_REQUEST);
+  }
+
+  const results = await teamService.bulkRemoveMembersFromTeam(teamId, userIds);
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: `${results.length} members removed from team`,
+    content: results,
+  });
+});
+
+export const bulkUpdateMembersManager = catchAsync(async (req: Request, res: Response) => {
+  const { teamId } = req.params;
+  const { members } = req.body;
+
+  if (!members || !Array.isArray(members) || members.length === 0) {
+    throw new ApiError('members array is required', httpStatus.BAD_REQUEST);
+  }
+
+  const results = await teamService.bulkUpdateMembersManager(teamId, members);
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: `${results.length} members updated`,
+    content: results,
   });
 });
 

@@ -2,6 +2,7 @@ import { teamController } from 'controllers';
 import { EndpointMeta } from 'docs/swagger';
 import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
+import { RoleEnum } from '../../../../shared/auth.types';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import {
@@ -9,8 +10,10 @@ import {
   CreateTeamSuccessSchema,
   TeamListSchema,
   TeamSchema,
-  CreateTeamMemberBodySchema,
   CreateTeamMemberSuccessSchema,
+  BulkAddTeamMembersSchema,
+  BulkRemoveTeamMembersSchema,
+  BulkUpdateTeamMembersManagerSchema,
 } from 'types/zod/team.schema';
 import {
   NotFoundResponseSchema,
@@ -24,9 +27,10 @@ enum TeamFunctions {
   findById = 'getTeam',
   findAll = 'listTeams',
   delete = 'deleteTeam',
-  addMember = 'addMember',
-  removeMember = 'removeMember',
   listMembers = 'listMembers',
+  bulkAddMembers = 'bulkAddMembers',
+  bulkRemoveMembers = 'bulkRemoveMembers',
+  bulkUpdateMembersManager = 'bulkUpdateMembersManager',
 }
 
 const createTeamRoute = (basePath: string): Router => {
@@ -38,7 +42,7 @@ const createTeamRoute = (basePath: string): Router => {
       method: 'post',
       requestBodySchema: CreateTeamBodySchema,
       authorize: true,
-      allowedRoles: ['admin'],
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         {
           code: httpStatus.CREATED,
@@ -57,7 +61,7 @@ const createTeamRoute = (basePath: string): Router => {
       params: [{ name: 'id' }],
       method: 'get',
       authorize: true,
-      allowedRoles: ['admin'],
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         { code: httpStatus.OK, desc: 'Team found', schema: TeamSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
@@ -72,7 +76,7 @@ const createTeamRoute = (basePath: string): Router => {
       params: [{ name: 'id' }],
       method: 'delete',
       authorize: true,
-      allowedRoles: ['admin'],
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         { code: httpStatus.OK, desc: 'Team deleted', schema: CreateTeamSuccessSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
@@ -87,43 +91,12 @@ const createTeamRoute = (basePath: string): Router => {
       method: 'get',
       querySchema: QuerySchema,
       authorize: true,
-      allowedRoles: ['admin'],
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         { code: httpStatus.OK, desc: 'Teams list', schema: TeamListSchema },
         { code: httpStatus.UNAUTHORIZED, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
       ],
       functionName: TeamFunctions.findAll,
-      basePath,
-    },
-    {
-      name: 'Add Team Member',
-      desc: 'Add member to team',
-      path: '/:teamId/members',
-      params: [{ name: 'teamId' }],
-      method: 'post',
-      requestBodySchema: CreateTeamMemberBodySchema,
-      authorize: true,
-      allowedRoles: ['admin'],
-      responses: [
-        { code: httpStatus.CREATED, desc: 'Member added', schema: CreateTeamMemberSuccessSchema },
-        { code: httpStatus.BAD_REQUEST, desc: 'Invalid object format', schema: BadRequestResponseSchema },
-      ],
-      functionName: TeamFunctions.addMember,
-      basePath,
-    },
-    {
-      name: 'Remove Team Member',
-      desc: 'Remove member from team',
-      path: '/:teamId/members/:userId',
-      params: [{ name: 'teamId' }, { name: 'userId' }],
-      method: 'delete',
-      authorize: true,
-      allowedRoles: ['admin'],
-      responses: [
-        { code: httpStatus.OK, desc: 'Member removed', schema: CreateTeamMemberSuccessSchema },
-        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
-      ],
-      functionName: TeamFunctions.removeMember,
       basePath,
     },
     {
@@ -133,12 +106,60 @@ const createTeamRoute = (basePath: string): Router => {
       params: [{ name: 'teamId' }],
       method: 'get',
       authorize: true,
-      allowedRoles: ['admin'],
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         { code: httpStatus.OK, desc: 'Members list', schema: CreateTeamMemberSuccessSchema },
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
       ],
       functionName: TeamFunctions.listMembers,
+      basePath,
+    },
+    {
+      name: 'Bulk Add Team Members',
+      desc: 'Add multiple members to team',
+      path: '/:teamId/members/bulk',
+      params: [{ name: 'teamId' }],
+      method: 'post',
+      requestBodySchema: BulkAddTeamMembersSchema,
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.CREATED, desc: 'Members added', schema: CreateTeamMemberSuccessSchema },
+        { code: httpStatus.BAD_REQUEST, desc: 'Invalid object format', schema: BadRequestResponseSchema },
+      ],
+      functionName: TeamFunctions.bulkAddMembers,
+      basePath,
+    },
+    {
+      name: 'Bulk Remove Team Members',
+      desc: 'Remove multiple members from team',
+      path: '/:teamId/members/bulk',
+      params: [{ name: 'teamId' }],
+      method: 'delete',
+      requestBodySchema: BulkRemoveTeamMembersSchema,
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Members removed', schema: CreateTeamMemberSuccessSchema },
+        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
+      ],
+      functionName: TeamFunctions.bulkRemoveMembers,
+      basePath,
+    },
+    {
+      name: 'Bulk Update Team Members Manager Status',
+      desc: 'Update manager status for multiple members',
+      path: '/:teamId/members/bulk',
+      params: [{ name: 'teamId' }],
+      method: 'patch',
+      requestBodySchema: BulkUpdateTeamMembersManagerSchema,
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Members updated', schema: CreateTeamMemberSuccessSchema },
+        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
+      ],
+      functionName: TeamFunctions.bulkUpdateMembersManager,
       basePath,
     },
   ];
@@ -148,9 +169,10 @@ const createTeamRoute = (basePath: string): Router => {
     getTeam: teamController.getTeam as RequestHandler,
     listTeams: teamController.listTeams as RequestHandler,
     deleteTeam: teamController.deleteTeam as RequestHandler,
-    addMember: teamController.addMember as RequestHandler,
-    removeMember: teamController.removeMember as RequestHandler,
     listMembers: teamController.listMembers as RequestHandler,
+    bulkAddMembers: teamController.bulkAddMembers as RequestHandler,
+    bulkRemoveMembers: teamController.bulkRemoveMembers as RequestHandler,
+    bulkUpdateMembersManager: teamController.bulkUpdateMembersManager as RequestHandler,
   };
 
   const router = Router();

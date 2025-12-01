@@ -40,7 +40,7 @@ const Router: FC = () => {
             
             <Route element={<RoleGuard allowedRoles={[RoleEnum.Admin]} />}>
               <Route path="/teams-list" element={<TeamsListPage />} />
-              <Route path="/team-details" element={<TeamDetailsPage />} />
+              <Route path="/team-details/:teamId" element={<TeamDetailsPage />} />
             </Route>
             
             <Route element={<RoleGuard allowedRoles={[RoleEnum.Manager, RoleEnum.Admin]} />}>
