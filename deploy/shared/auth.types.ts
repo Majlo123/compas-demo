@@ -1,20 +1,10 @@
-export type Role = 'employee' | 'manager' | 'admin';
+export type Role = 'employee' | 'admin';
 
 export const RoleEnum = {
   Employee: 'employee',
-  Manager: 'manager',
   Admin: 'admin',
 } as const;
 
-// export type RoleEnumType = (typeof RoleEnum)[keyof typeof RoleEnum];
-
-// export const Role = {
-//   Employee: 'employee',
-//   Manager: 'manager',
-//   Admin: 'admin',
-// } as const;
-
-// export type Role = (typeof Role)[keyof typeof Role];
 export type RegisterRequest = {
   email: string;
   password: string;
@@ -43,5 +33,6 @@ export type LoginResponse = {
     email: string;
     fullName: string;
     role: Role;
+    isTeamManager: boolean;
   };
 };

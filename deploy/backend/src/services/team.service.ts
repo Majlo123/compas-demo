@@ -34,6 +34,25 @@ export const listTeams = async (query: QueryParams): Promise<PaginatedResult<Tea
   return teamRepository.findAll({ queryParams: query });
 };
 
+export const listTeamsByUserId = async (userId: string): Promise<Team[]> => {
+  const teamMembers = await teamMemberRepository.findByUserId(userId);
+  const teamIds = teamMembers.filter(tm => tm.isManager).map(tm => tm.teamId);
+  
+  if (teamIds.length === 0) {
+    return [];
+  }
+  
+  const teams: Team[] = [];
+  for (const teamId of teamIds) {
+    const team = await teamRepository.findById({ id: teamId });
+    if (team) {
+      teams.push(team);
+    }
+  }
+  
+  return teams;
+};
+
 export const listTeamMembers = async (teamId: string): Promise<TeamMember[]> => {
   // validate team exists
   const team = await teamRepository.findById({ id: teamId });
@@ -154,5 +173,6 @@ export const deleteTeamById = async (id: string): Promise<Team> => {
 export const create = createTeam;
 export const findById = getTeamById;
 export const findAll = listTeams;
+export const findByUserId = listTeamsByUserId;
 export const listMembers = listTeamMembers;
 export const deleteTeam = deleteTeamById;
