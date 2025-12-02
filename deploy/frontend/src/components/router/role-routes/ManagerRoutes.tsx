@@ -1,17 +1,17 @@
-import { FC } from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+// import { FC } from 'react';
+// import { Outlet, Navigate } from 'react-router-dom';
 
-import { useAuthStore } from '@/stores/useAuthStore';
-import { RoleEnum } from '../../../../../shared/auth.types';
+// import { useAuthStore } from '@/stores/useAuthStore';
+// import { RoleEnum } from '../../../../../shared/auth.types';
 
-const ManagerRoutes: FC = () => {
-  const user = useAuthStore((state) => state.user);
+// const ManagerRoutes: FC = () => {
+//   const user = useAuthStore((state) => state.user);
 
-  if (!user || user.role !== RoleEnum.Manager) {
-    return <Navigate to="/dashboard" replace />;
-  }
+//   if (!user || user.role !== RoleEnum.Manager) {
+//     return <Navigate to="/dashboard" replace />;
+//   }
 
-  return <Outlet />;
-};
+//   return <Outlet />;
+// };
 
-export default ManagerRoutes;
+// export default ManagerRoutes;

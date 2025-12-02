@@ -36,7 +36,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/my-requests',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Employee, RoleEnum.Manager],
+      allowedRoles: [RoleEnum.Employee],
       responses: [
         {
           code: httpStatus.OK,
@@ -92,11 +92,11 @@ const createLeaveRequestRoute = (basePath: string): Router => {
     },
     {
       name: 'Get Team Leave Requests',
-      desc: 'Get all leave requests for the team with pagination (managers only)',
+      desc: 'Get all leave requests for the team with pagination',
       path: '/team-requests',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Admin],
       querySchema: QuerySchema,
       responses: [
         {
@@ -124,7 +124,7 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       path: '/calendar',
       method: 'get',
       authorize: true,
-      allowedRoles: [RoleEnum.Employee, RoleEnum.Manager, RoleEnum.Admin],
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Admin],
       responses: [
         {
           code: httpStatus.OK,
@@ -147,11 +147,11 @@ const createLeaveRequestRoute = (basePath: string): Router => {
     },
     {
       name: 'Update Leave Request Status',
-      desc: 'Approve or decline a leave request (managers only)',
+      desc: 'Approve or decline a leave request (team managers and admins only)',
       path: '/:id/status',
       method: 'patch',
       authorize: true,
-      allowedRoles: [RoleEnum.Manager, RoleEnum.Admin],
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Admin],
       requestBodySchema: UpdateLeaveRequestStatusBodySchema,
       responses: [
         {

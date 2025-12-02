@@ -3,6 +3,9 @@ import StatusBadge from '@/components/controls/badge/StatusBadge';
 import Table, { Column } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
 import React, { useState, useEffect } from 'react';
+import { getTeams } from '@/api/team/team.actions';
+import { getTeamsByUserId } from '@/api/team/team.actions';
+import { Team } from '@/api/team/team.types';
 import Select from '@/components/controls/Select';
 import { SelectOption } from '@/components/controls/Select';
 import BadgeIconCheckCircle from '@/components/images/BadgeIconCheckCircle';
@@ -18,10 +21,13 @@ import { useDebounce } from 'use-debounce';
 import Button from '@/components/controls/button/Button';
 import Pagination from '@/components/controls/Pagination';
 import PageSizeSelector from '@/components/controls/PageSizeSelector';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { RoleEnum } from '../../../../shared/auth.types';
 
 const TeamRequestsPage: React.FC = () => {
   const { page, pageSize, setPageSize, setPage } = usePagination();
   const { sort } = useSort();
+  const user = useAuthStore((state) => state.user);
   
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestWithEmployee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -45,13 +51,37 @@ const TeamRequestsPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);
   const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
+  const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
+  const [teams, setTeams] = useState<Team[]>([]);
 
   const [debouncedSearch] = useDebounce(search, 1000);
+
+  // Load teams on mount - for admins load all teams, for team managers load only managed teams
+  useEffect(() => {
+    const loadTeams = async () => {
+      if (!user) return;
+      
+      if (user.role === RoleEnum.Admin) {
+        // Admin sees all teams
+        const response = await getTeams();
+        if (isApiSuccess(response)) {
+          setTeams(response.content.data);
+        }
+      } else {
+        // Team manager sees only their managed teams
+        const response = await getTeamsByUserId(user.id);
+        if (isApiSuccess(response)) {
+          setTeams(response.content.data);
+        }
+      }
+    };
+    loadTeams();
+  }, [user]);
 
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
-  }, [debouncedSearch, selectedFilter, selectedStatus]);
+  }, [debouncedSearch, selectedFilter, selectedStatus, selectedTeam]);
 
   const fetchTeamLeaveRequests = async () => {
     setIsLoading(true);
@@ -66,6 +96,9 @@ const TeamRequestsPage: React.FC = () => {
     }
     if (selectedStatus) {
       filters.push({ filterKey: 'status', operator: 'equals', value: selectedStatus.value });
+    }
+    if (selectedTeam) {
+      filters.push({ filterKey: 'teamId', operator: 'equals', value: selectedTeam.value });
     }
 
     const queryParams: QueryParams = {
@@ -89,12 +122,13 @@ const TeamRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchTeamLeaveRequests();
-  }, [page, pageSize, sort.by, sort.direction, debouncedSearch, selectedFilter, selectedStatus]);
+  }, [page, pageSize, sort.by, sort.direction, debouncedSearch, selectedFilter, selectedStatus, selectedTeam]);
 
   const handleClearFilters = () => {
     setSearch('');
     setSelectedFilter(null);
     setSelectedStatus(null);
+    setSelectedTeam(null);
   };
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'declined') => {
@@ -191,7 +225,14 @@ const TeamRequestsPage: React.FC = () => {
                 className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
               />
             </div>
-            <Select className="text-p1 flex-1" placeholder="Filter by" options={filterOptions} value={selectedFilter} onChange={setSelectedFilter} />
+            <Select 
+              className="text-p1 flex-1" 
+              placeholder="Team" 
+              options={teams.map(team => ({ label: team.name, value: team.id }))} 
+              value={selectedTeam} 
+              onChange={setSelectedTeam} 
+            />
+            <Select className="text-p1 flex-1" placeholder="Type" options={filterOptions} value={selectedFilter} onChange={setSelectedFilter} />
             <Select className="text-p1 flex-1" placeholder="Status" options={statusOptions} value={selectedStatus} onChange={setSelectedStatus} />
             <Button
               onClick={handleClearFilters}

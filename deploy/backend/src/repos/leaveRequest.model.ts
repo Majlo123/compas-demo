@@ -52,9 +52,14 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
 };
 
 /**
- * Find all leave requests (for managers)
+ * Find all leave requests with pagination and filtering
+ * For admins: returns all leave requests
+ * For team managers: returns only requests from users in specified teams
  */
-export const findAllWithFilters = async (queryParams: QueryParams): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
+export const findAllWithFilters = async (
+  queryParams: QueryParams,
+  teamIds?: string[]
+): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
   const page = queryParams.pagination?.page || 1;
   const pageSize = queryParams.pagination?.pageSize || 20;
   const offset = (page - 1) * pageSize;
@@ -64,11 +69,21 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
   const sortField = allowedSortFields.includes(sortBy) ? sortBy : 'start_date';
   const sortDirection = queryParams.sort?.direction || 'desc';
   const sortDir = sortDirection.toLowerCase() === 'asc' ? 'ASC' : 'DESC';
+  
+  // Use custom ordering: status (pending, approved, declined), then start_date DESC, then end_date DESC
+  const useCustomSort = !queryParams.sort?.by; // Only use custom sort if user hasn't specified sorting
 
   // Build WHERE clause from filters
   const whereClauses: string[] = [];
   const whereValues: any[] = [];
   let paramIndex = 1;
+
+  // Filter by team membership if teamIds provided (for team managers)
+  if (teamIds && teamIds.length > 0) {
+    whereClauses.push(`lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = ANY($${paramIndex}))`);
+    whereValues.push(teamIds);
+    paramIndex++;
+  }
 
   queryParams.filters?.forEach((filter) => {
     if (filter.filterKey === 'employeeName') {
@@ -83,6 +98,10 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
       whereClauses.push(`lr.status = $${paramIndex}`);
       whereValues.push(filter.value);
       paramIndex++;
+    } else if (filter.filterKey === 'teamId') {
+      whereClauses.push(`lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = $${paramIndex})`);
+      whereValues.push(filter.value);
+      paramIndex++;
     }
   });
 
@@ -95,6 +114,18 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
   const totalItems = parseInt(countResult.rows[0].count, 10);
 
   // Get paginated data with dynamic sorting and filters
+  const orderByClause = useCustomSort
+    ? `ORDER BY 
+        CASE lr.status 
+          WHEN 'pending' THEN 1 
+          WHEN 'approved' THEN 2 
+          WHEN 'declined' THEN 3 
+          ELSE 4 
+        END ASC,
+        lr.start_date DESC,
+        lr.end_date DESC`
+    : `ORDER BY lr.${sortField} ${sortDir}`;
+
   const dataQuery = {
     text: `
       SELECT 
@@ -103,7 +134,7 @@ export const findAllWithFilters = async (queryParams: QueryParams): Promise<Pagi
       FROM leave_requests lr
       LEFT JOIN users u ON lr.user_id = u.id
       ${whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''}
-      ORDER BY lr.${sortField} ${sortDir}
+      ${orderByClause}
       LIMIT $${paramIndex} OFFSET $${paramIndex + 1}
     `,
     values: [...whereValues, pageSize, offset],

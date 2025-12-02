@@ -33,6 +33,15 @@ export const listTeams = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+export const listTeamsByUserId = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const teams = await teamService.listTeamsByUserId(userId);
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: { data: teams },
+  });
+});
+
 export const listMembers = catchAsync(async (req: Request, res: Response) => {
   const { teamId } = req.params;
   const members = await teamService.listTeamMembers(teamId);

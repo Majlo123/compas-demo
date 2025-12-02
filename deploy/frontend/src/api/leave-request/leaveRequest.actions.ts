@@ -45,7 +45,6 @@ export const getTeamLeaveRequests = async (
 
     const queryString = queryParams.toString();
     const url = queryString ? `${endpoint}/team-requests?${queryString}` : `${endpoint}/team-requests`;
-    console.log('Fetching team leave requests with URL:', url);
     const response = await axiosServer.get(url);
     return response.data;
   } catch (error) {

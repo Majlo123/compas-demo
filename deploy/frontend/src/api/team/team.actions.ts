@@ -29,6 +29,17 @@ export const getTeams = async (
   }
 };
 
+export const getTeamsByUserId = async (
+  userId: string
+): Promise<ApiResponse<{ data: Team[] }>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/user/${userId}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
 export const createTeam = async (
   data: CreateTeamData
 ): Promise<ApiResponse<Team>> => {

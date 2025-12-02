@@ -5,9 +5,8 @@ import DashboardLayout from '@/components/layout/DashboardLayout';
 import AuthenticatedRoutes from '@/components/router/AuthenticatedRoutes.tsx';
 import AuthRedirect from '@/components/router/AuthRedirect.tsx';
 import UnauthenticatedRoutes from '@/components/router/UnauthenticatedRoutes.tsx';
-import EmployeeRoutes from '@/components/router/role-routes/EmployeeRoutes';
-import AdminRoutes from '@/components/router/role-routes/AdminRoutes';
 import RoleGuard from '@/components/router/role-routes/RoleGuard';
+import TeamManagerGuard from '@/components/router/role-routes/TeamManagerGuard';
 import { RoleEnum } from '../../../../shared/auth.types';
 import NotFoundPage from '@/pages/not-found-page/NotFoundPage';
 import LoginPage from '@/pages/login-page/LoginPage';
@@ -43,13 +42,11 @@ const Router: FC = () => {
               <Route path="/team-details/:teamId" element={<TeamDetailsPage />} />
             </Route>
             
-            <Route element={<RoleGuard allowedRoles={[RoleEnum.Manager, RoleEnum.Admin]} />}>
+            <Route element={<TeamManagerGuard />}>
               <Route path="/team-requests" element={<TeamRequestsPage />} />
             </Route>
             
-            <Route element={<RoleGuard allowedRoles={[RoleEnum.Employee]} />}>
-              <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
-            </Route>
+            <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
             <Route path="/reports" element={<ReportsPage />} />

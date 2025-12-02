@@ -31,7 +31,7 @@ const HeaderNav: React.FC = () => {
   };
 
   return (
-    <header className="bg-headerBg border-b border-2 border-headerBorder flex items-center justify-between px-4 py-2">
+    <header className="bg-headerBg border-b border-2 border-headerBorder flex items-center justify-between px-4 py-2 sticky top-0 z-50">
       {/* Organization Name */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
@@ -63,7 +63,7 @@ const HeaderNav: React.FC = () => {
           </button>
           
           {/* Dropdown menu */}
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all">
+          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[9999]">
             <div className="py-1">
               <button
                 onClick={handleLogout}
