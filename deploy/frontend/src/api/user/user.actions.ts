@@ -15,3 +15,14 @@ export const searchUsers = async (query: string): Promise<ApiResponse<User[]>> =
     return formatError(error);
   }
 };
+
+export const getUsers = async (page = 1, pageSize = 10): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}`, {
+      params: { page, pageSize }
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
