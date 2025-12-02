@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
-import Button from '@/components/controls/button/Button';
-import Checkbox from '@/components/controls/Checkbox';
 import Table, { Column, Row } from '@/components/controls/table/Table';
+import Button from '@/components/controls/button/Button';
 import PageLayout from '@/components/layout/PageLayout';
 import { getUsers, searchUsers } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
@@ -25,11 +24,8 @@ const UsersPage: React.FC = () => {
   const [totalPages, setTotalPages] = useState(0);
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
-  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    setPage(1);
-  }, [debouncedSearch]);
+  useEffect(() => setPage(1), [debouncedSearch]);
 
   useEffect(() => {
     fetchUsers();
@@ -67,39 +63,29 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  const handleCheckboxChange = (id: string) => {
-    setSelectedUsers(prev => {
-      const newSet = new Set(prev);
-      if (newSet.has(id)) {
-        newSet.delete(id);
-      } else {
-        newSet.add(id);
-      }
-      return newSet;
-    });
-  };
-
   const columns: Column[] = [
     {
       accessor: 'fullName',
       header: 'User Name',
-      formatter: (_v: any, row: any) => (
-        <div className="flex items-center gap-3">
-          <Checkbox checked={selectedUsers.has(row.id)} onChange={() => handleCheckboxChange(row.id)} />
-          <span>{row.fullName}</span>
-        </div>
-      ),
     },
     { accessor: 'email', header: 'Email' },
     {
+      accessor: 'teams',
+      header: 'Teams',
+      formatter: (_v: any, _row: any) => (
+        // For now, we don't fetch or show real teams — placeholder column
+        <span>-</span>
+      ),
+    },
+    {
       accessor: 'actions',
       header: 'Actions',
-      formatter: (_v: any, row: any) => (
+      formatter: (_v: any, _row: any) => (
         <div className="flex gap-2 items-center justify-center">
-          <Button variant="delete" size="sm" onClick={() => {
-            setUsers(prev => prev.filter(u => u.id !== row.id));
-            toast.success('User deleted from list');
-          }}>Delete</Button>
+          {/* Keep the button look from TeamDetails (variant delete, size sm), but do nothing */}
+          <Button variant="delete" size="sm" disabled>
+            Delete
+          </Button>
         </div>
       ),
     },
@@ -119,7 +105,6 @@ const UsersPage: React.FC = () => {
               className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
             />
           </div>
-          <Button className="text-lg font-medium">+ Add User</Button>
         </div>
       }
       actionPosition="inline"
@@ -130,10 +115,6 @@ const UsersPage: React.FC = () => {
       isEmpty={users.length === 0}
       onRetry={fetchUsers}
     >
-      <div className="flex gap-2 mt-[-15px] invisible">
-        <Button variant="delete" size="sm">Delete Selected</Button>
-      </div>
-
       <Table columns={columns} data={users} tableClassName="text-p2 lg:text-p1" headerClassName="text-p2 lg:text-p1 font-bold" cellClassName="text-p2 lg:text-p1" />
 
       <div className="flex justify-between items-center mt-4">
