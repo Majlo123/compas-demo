@@ -60,6 +60,11 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
     throw new ApiError('Invalid email or password', httpStatus.BAD_REQUEST);
   }
 
+  // Check if user account is activated
+  if (user.isActivated === false) {
+    throw new ApiError('Your account has been deactivated', httpStatus.FORBIDDEN);
+  }
+
   // Check if user is a team manager
   const isTeamManager = await teamMemberRepository.isUserManagerOfAnyTeam(user.id!);
 
