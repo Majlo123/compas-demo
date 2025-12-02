@@ -20,15 +20,6 @@ export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
 const { create, findById, findByField, findAll, updateById, deleteById } =
   createBaseRepository<User>('users');
 
-// Ensure is_activated column exists (soft delete support)
-(async () => {
-  try {
-    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_activated BOOLEAN NOT NULL DEFAULT TRUE');
-  } catch (e) {
-    console.error('Failed ensuring is_activated column', e);
-  }
-})();
-
 /**
  * Search users by name or email
  */
