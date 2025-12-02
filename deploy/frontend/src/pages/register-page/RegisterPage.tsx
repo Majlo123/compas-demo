@@ -1,8 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
@@ -29,24 +29,57 @@ type RegisterForm = z.infer<typeof registerSchema>;
 
 const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
+  const [inviteEmail, setInviteEmail] = useState('');
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    setValue,
   } = useForm<RegisterForm>({
     resolver: zodResolver(registerSchema),
     defaultValues: { fullName: '', email: '', password: '', confirmPassword: '' },
     mode: 'onChange',
   });
 
+  useEffect(() => {
+    const token = searchParams.get('token');
+    
+    if (!token) {
+      setIsValidToken(false);
+      toast.error('Invalid or missing invite token');
+      return;
+    }
+
+    // Validate token - for now just decode it (backend validation will happen on submit)
+    try {
+      // Simple JWT decode without verification (just to extract email)
+      const payload = JSON.parse(atob(token.split('.')[1]));
+      
+      if (payload.email && payload.actionType === 'INVITE') {
+        setInviteEmail(payload.email);
+        setValue('email', payload.email);
+        setIsValidToken(true);
+      } else {
+        setIsValidToken(false);
+        toast.error('Invalid invite token');
+      }
+    } catch (error) {
+      setIsValidToken(false);
+      toast.error('Invalid invite token format');
+    }
+  }, [searchParams, setValue]);
+
   const onSubmit = async (data: RegisterForm) => {
     if (isSubmitting) return;
     setIsSubmitting(true);
     
     try {
+      const token = searchParams.get('token');
       const response = await registerUser({
         email: data.email,
         password: data.password,
@@ -55,7 +88,6 @@ const RegisterPage: React.FC = () => {
 
       if (isApiSuccess(response)) {
         toast.success('Registration successful! Please log in to continue.');
-        // Reset the form and redirect to login page
         reset();
         navigate('/login');
       } else {
@@ -69,6 +101,34 @@ const RegisterPage: React.FC = () => {
     }
   };
 
+  // Show loading state while validating token
+  if (isValidToken === null) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <p className="text-darkGrey">Validating invite...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Show error if token is invalid
+  if (isValidToken === false) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-xl text-center">
+          <h2 className="font-inter font-bold text-h2 text-red mb-md">Invalid Invite</h2>
+          <p className="text-darkGrey mb-lg">
+            The invite link is invalid or has expired. Please contact your administrator for a new invite.
+          </p>
+          <Button variant="primary" onClick={() => navigate('/login')}>
+            Go to Login
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50">
       <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-xl">
@@ -76,7 +136,8 @@ const RegisterPage: React.FC = () => {
           <div className="mb-lg">
             <CalendarIconLarge />
           </div>
-          <h2 className="font-inter font-extrabold text-h2 text-center text-gray-800">Vacation Tracker</h2>
+          <h2 className="font-inter font-extrabold text-h2 text-center text-gray-800">Complete Registration</h2>
+          <p className="text-p2 text-darkGrey mt-2">You've been invited to join Vacation Tracker</p>
         </div>
 
         <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col gap-md">
@@ -99,7 +160,7 @@ const RegisterPage: React.FC = () => {
             type="email"
             inputClassName="w-full"
             placeholder='Email'
-            disabled={isSubmitting}
+            disabled={true}
           />
 
           <FormTextInput
@@ -125,18 +186,16 @@ const RegisterPage: React.FC = () => {
           />
 
           <Button type="submit" variant="primary" className="w-full mt-md" disabled={isSubmitting}>
-            Register
+            Complete Registration
           </Button>
-
-          
         </form>
 
         <div className="text-center text-p2 text-darkGrey mt-md">
-            Already have an account?{' '}
-            <a href="/login" className="text-primary hover:underline">
-              Log In
-            </a>
-          </div>
+          Already have an account?{' '}
+          <a href="/login" className="text-primary hover:underline">
+            Log In
+          </a>
+        </div>
       </div>
     </div>
   );
