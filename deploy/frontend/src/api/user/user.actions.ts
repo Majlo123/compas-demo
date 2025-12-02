@@ -15,3 +15,32 @@ export const searchUsers = async (query: string): Promise<ApiResponse<User[]>> =
     return formatError(error);
   }
 };
+
+export const getUsers = async (page = 1, pageSize = 10): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}`, {
+      params: { page, pageSize }
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const inviteUsers = async (emails: string[]): Promise<ApiResponse<{ invited: string[]; skipped: string[] }>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/invite`, { emails });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const deactivateUser = async (userId: string): Promise<ApiResponse<{ deactivated: boolean }>> => {
+  try {
+    const response = await axiosServer.delete(`${endpoint}/${userId}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
