@@ -5,6 +5,7 @@ import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
 import ReportsIcon from '@/components/images/ReportsIcon';
 import SettingsIcon from '@/components/images/SettingsIcon';
+import TeamRequestsIcon from '@/components/images/TeamRequestsIcon';
 import classNameBuilder from '@/utils/classNameBuilder';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum, Role } from '../../../../shared/auth.types';
@@ -18,7 +19,7 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
-  { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Manager] },
+  { label: 'Team Requests', path: '/team-requests', Icon: TeamRequestsIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
@@ -30,6 +31,13 @@ const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
 
   const visibleNavItems = navItems.filter((item) => {
+    // Special case for Team Requests: show to Admins OR team managers
+    if (item.path === '/team-requests') {
+      if (!user) return false;
+      return user.role === RoleEnum.Admin || user.isTeamManager === true;
+    }
+
+    // For other items, use allowedRoles if specified
     if (!item.allowedRoles) return true;
     if (!user) return false;
     return item.allowedRoles.includes(user.role);

@@ -24,7 +24,7 @@ type DecodedToken = {
 type AuthState = {
   isInitialized: boolean;
   isLoggedIn: boolean;
-  user: { id: string; email: string; fullName: string; role: Role } | null;
+  user: { id: string; email: string; fullName: string; role: Role; isTeamManager?: boolean } | null;
   login: (credentials: LoginRequest) => Promise<{ success: boolean; message?: string }>;
   logout: () => void;
   initialize: () => void;
@@ -56,11 +56,16 @@ export const useAuthStore = create<AuthState>((set) => {
         return { success: false, message: response.error?.message || 'Login failed' };
       }
 
+      const userData = {
+        ...response.content.user,
+        isTeamManager: response.content.user.isTeamManager || false,
+      };
+
       setToLocalStorage('token', response.content.token);
-      setToLocalStorage('user', JSON.stringify(response.content.user));
+      setToLocalStorage('user', JSON.stringify(userData));
       set({ 
         isLoggedIn: isAccessToken(response.content.token),
-        user: response.content.user,
+        user: userData,
       });
       
       return { success: true };

@@ -98,11 +98,37 @@ export const createLeaveRequest = async (
 
 /**
  * Get all team leave requests with pagination and sorting (for managers)
+ * Admins see all requests, team managers see only requests from teams they manage
  */
 export const getTeamLeaveRequests = async (
+  userId: string,
+  userRole: string,
   queryParams: QueryParams
 ): Promise<PaginatedResult<LeaveRequestResponse>> => {
-  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams);
+  let managedTeamIds: string[] | undefined;
+
+  // For team managers, get teams they manage
+  if (userRole !== RoleEnum.Admin) {
+    managedTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
+    
+    if (managedTeamIds.length === 0) {
+      throw new ApiError('You are not a manager of any team', httpStatus.FORBIDDEN);
+    }
+
+    // Check if there's a teamId filter - if yes, validate it's one of the managed teams
+    const teamIdFilter = queryParams.filters?.find(f => f.filterKey === 'teamId');
+    if (teamIdFilter) {
+      const requestedTeamId = String(teamIdFilter.value);
+      if (!managedTeamIds.includes(requestedTeamId)) {
+        throw new ApiError('You are not a manager of the requested team', httpStatus.FORBIDDEN);
+      }
+      // If specific team requested, don't pass managedTeamIds (let the filter handle it)
+      managedTeamIds = undefined;
+    }
+  }
+
+  // Call repository with or without team filter based on role
+  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams, managedTeamIds);
 
   return {
     data: paginatedResult.data.map((request: LeaveRequestWithEmployee) => ({
@@ -124,8 +150,11 @@ export const getTeamLeaveRequests = async (
 
 /**
  * Update leave request status (for managers)
+ * Admins can update any request, team managers can update only requests from teams they manage
  */
 export const updateLeaveRequestStatus = async (
+  userId: string,
+  userRole: string,
   id: string,
   status: 'approved' | 'declined'
 ): Promise<LeaveRequestResponse> => {
@@ -137,6 +166,20 @@ export const updateLeaveRequestStatus = async (
 
   if (existingRequest.status !== 'pending') {
     throw new ApiError('Only pending requests can be updated', httpStatus.BAD_REQUEST);
+  }
+
+  // Admin can update any request
+  if (userRole !== RoleEnum.Admin) {
+    // Check if user is manager in at least one of the teams where request user is member
+    const requestUserTeams = await teamMemberRepository.findByUserId(existingRequest.userId);
+    
+    const hasPermission = await Promise.all(
+      requestUserTeams.map(team => teamMemberRepository.isManagerForTeam(userId, team.teamId))
+    ).then(results => results.some(isManager => isManager));
+    
+    if (!hasPermission) {
+      throw new ApiError('You do not have permission to update this leave request', httpStatus.FORBIDDEN);
+    }
   }
 
   const updatedRequest = await leaveRequestRepository.updateStatus(id, status);

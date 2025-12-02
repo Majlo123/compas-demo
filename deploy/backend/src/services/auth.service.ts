@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
-import { authRepository } from 'repos/index';
+import { authRepository, teamMemberRepository } from 'repos/index';
 import ApiError from 'shared/error/ApiError';
 import config from 'config/config';
 import { RegisterRequest, RegisterResponse, LoginRequest, LoginResponse } from '../../../shared/auth.types';
@@ -60,6 +60,9 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
     throw new ApiError('Invalid email or password', httpStatus.BAD_REQUEST);
   }
 
+  // Check if user is a team manager
+  const isTeamManager = await teamMemberRepository.isUserManagerOfAnyTeam(user.id!);
+
   const token = jwt.sign(
     {
       sub: user.id,
@@ -79,6 +82,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
       email: user.email,
       fullName: user.fullName,
       role: user.role,
+      isTeamManager,
     },
   };
 };

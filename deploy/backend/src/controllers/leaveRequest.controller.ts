@@ -36,7 +36,14 @@ export const createLeaveRequest = catchAsync(async (req: Request, res: Response)
 });
 
 export const getTeamLeaveRequests = catchAsync(async (req: Request, res: Response) => {
-  const result = await leaveRequestService.getTeamLeaveRequests(req.queryParams);
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+
+  if (!userId || !userRole) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const result = await leaveRequestService.getTeamLeaveRequests(userId, userRole, req.queryParams);
 
   res.status(httpStatus.OK).send({
     success: true,
@@ -62,8 +69,14 @@ export const getCalendarLeaveRequests = catchAsync(async (req: Request, res: Res
 export const updateLeaveRequestStatus = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const { status } = req.body;
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
 
-  const updatedRequest = await leaveRequestService.updateLeaveRequestStatus(id, status);
+  if (!userId || !userRole) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const updatedRequest = await leaveRequestService.updateLeaveRequestStatus(userId, userRole, id, status);
 
   res.status(httpStatus.OK).send({
     success: true,
