@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import TableIconCalendar from '@/components/images/TableIconCalendar';
 import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
+import TableIconUser from '@/components/images/TableIconUser';
 import ReportsIcon from '@/components/images/ReportsIcon';
 import SettingsIcon from '@/components/images/SettingsIcon';
 import classNameBuilder from '@/utils/classNameBuilder';
@@ -21,6 +22,7 @@ const navItems: NavItem[] = [
   { label: 'Team Requests', path: '/team-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Manager] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
   { label: 'Settings', path: '/settings', Icon: SettingsIcon },
