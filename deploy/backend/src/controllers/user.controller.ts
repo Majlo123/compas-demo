@@ -21,4 +21,36 @@ export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
     content: paginatedResult,
   });
 });
+
+export const inviteUsers = catchAsync(async (req: Request, res: Response) => {
+  const { emails } = req.body;
+  if (!Array.isArray(emails) || emails.length === 0) {
+    res.status(httpStatus.BAD_REQUEST).send({
+      success: false,
+      error: { message: 'Emails array required' },
+    });
+    return;
+  }
+  const result = await userService.inviteUsers(emails);
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: result,
+  });
+});
+
+export const deactivateUser = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const success = await userService.deactivate(userId);
+  if (!success) {
+    res.status(httpStatus.NOT_FOUND).send({
+      success: false,
+      error: { message: 'User not found' },
+    });
+    return;
+  }
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: { deactivated: true },
+  });
+});
  
