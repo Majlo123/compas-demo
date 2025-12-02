@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Table, { Column, Row } from '@/components/controls/table/Table';
+import TextInput from '@/components/controls/TextInput';
 import Button from '@/components/controls/button/Button';
 import PageLayout from '@/components/layout/PageLayout';
 import { getUsers, searchUsers } from '@/api/user/user.actions';
@@ -73,7 +74,6 @@ const UsersPage: React.FC = () => {
       accessor: 'teams',
       header: 'Teams',
       formatter: (_v: any, _row: any) => (
-        // For now, we don't fetch or show real teams — placeholder column
         <span>-</span>
       ),
     },
@@ -82,7 +82,6 @@ const UsersPage: React.FC = () => {
       header: 'Actions',
       formatter: (_v: any, _row: any) => (
         <div className="flex gap-2 items-center justify-center">
-          {/* Keep the button look from TeamDetails (variant delete, size sm), but do nothing */}
           <Button variant="delete" size="sm" disabled>
             Delete
           </Button>
@@ -94,27 +93,24 @@ const UsersPage: React.FC = () => {
   return (
     <PageLayout
       title="Users"
-      action={
-        <div className="flex gap-4 items-center xl:w-2/3">
-          <div className="relative flex-1">
-            <input
-              id="users-search"
-              placeholder="Search by name or email"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
-            />
-          </div>
-        </div>
-      }
-      actionPosition="inline"
       emptyMessage="No users yet"
       emptyDescription="Add users to get started"
       isLoading={isLoading}
       hasError={hasError}
-      isEmpty={users.length === 0}
+      isEmpty={users.length === 0 && !search}
       onRetry={fetchUsers}
     >
+      <div className="w-full md:w-1/5">
+        <TextInput
+          id="users-search"
+          placeholder="Search by name or email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          InputclassName="w-full"
+          className="text-darkGrey"
+        />
+      </div>
+
       <Table columns={columns} data={users} tableClassName="text-p2 lg:text-p1" headerClassName="text-p2 lg:text-p1 font-bold" cellClassName="text-p2 lg:text-p1" />
 
       <div className="flex justify-between items-center mt-4">
