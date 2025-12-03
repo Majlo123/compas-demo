@@ -2,12 +2,16 @@ import BigCalendar from '@/components/calendar/BigCalendar';
 import CustomDialog from '@/components/dialog/dialog-props';
 import React, { useState } from 'react';
 import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
+import { getTeams, getTeamsByUserId } from '@/api/team/team.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
+import { Team } from '@/api/team/team.types';
 import { format } from 'date-fns';
-import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import resolveConfig from 'tailwindcss/resolveConfig';
 import tailwindConfig from '../../../tailwind.config';
+import Select, { SelectOption } from '@/components/controls/Select';
+import { useAuthStore } from '@/stores/useAuthStore';
+import { RoleEnum } from '../../../../shared/auth.types';
 
 const fullConfig = resolveConfig(tailwindConfig);
 
@@ -28,12 +32,36 @@ const getLeaveTypeColor = (type: string): string => {
 };
 
 const TeamCalendarPage: React.FC = () => {
+  const user = useAuthStore((state) => state.user);
   const [eventsToShow, setEventsToShow] = React.useState<any[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
+
+  // Load teams on mount based on user role
+  React.useEffect(() => {
+    const loadTeams = async () => {
+      if (!user) return;
+      
+      if (user.role === RoleEnum.Admin) {
+        const response = await getTeams();
+        if (isApiSuccess(response)) {
+          setTeams(response.content.data);
+        }
+      } else {
+        const response = await getTeamsByUserId(user.id);
+        if (isApiSuccess(response)) {
+          setTeams(response.content.data);
+        }
+      }
+    };
+    loadTeams();
+  }, [user]);
 
   React.useEffect(() => {
     const fetchEvents = async () => {
       try {
-        const response = await getCalendarLeaveRequests();
+        const teamId = selectedTeam?.value;
+        const response = await getCalendarLeaveRequests(teamId);
         if (isApiSuccess(response)) {
           const data = response.content as LeaveRequestWithEmployee[];
           const filtered = data.filter((r) => r.status === 'approved' || r.status === 'pending');
@@ -69,7 +97,7 @@ const TeamCalendarPage: React.FC = () => {
     };
 
     fetchEvents();
-  }, []);
+  }, [selectedTeam]);
 
   const eventPropGetter = (event: any) => ({
     style: {
@@ -94,29 +122,49 @@ const TeamCalendarPage: React.FC = () => {
 
   return (
     <div className="flex flex-col h-full">
-      {/* Legend */}
-      <div className="flex items-center gap-6 mb-4 px-2">
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-vacation-leave"></div>
-          <span className="text-sm font-medium text-gray-700">Vacation</span>
+      {/* Filter and Legend Section */}
+      <div className="flex items-center justify-between gap-6 mb-4 px-2">
+        <div className="flex items-center gap-3">
+          <Select 
+            className="text-p1 w-64" 
+            placeholder="Filter by Team" 
+            options={teams.map(team => ({ label: team.name, value: team.id }))} 
+            value={selectedTeam} 
+            onChange={setSelectedTeam}
+          />
+          {selectedTeam && (
+            <button
+              onClick={() => setSelectedTeam(null)}
+              className="text-sm text-gray-600 hover:text-gray-800 underline"
+            >
+              Clear filter
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-sick-leave"></div>
-          <span className="text-sm font-medium text-gray-700">Sick Leave</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-personal-leave"></div>
-          <span className="text-sm font-medium text-gray-700">Personal</span>
-        </div>
-        <div className="flex items-center gap-2">
-          <div className="w-4 h-4 rounded bg-other-leave"></div>
-          <span className="text-sm font-medium text-gray-700">Other</span>
-        </div>
-        <div className="flex items-center gap-2 ml-4">
-          <div className="w-4 h-4 rounded border-2 border-gray-400" style={{ 
-            background: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px)'
-          }}></div>
-          <span className="text-sm font-medium text-gray-700">Pending</span>
+
+        <div className="flex items-center gap-6">
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-vacation-leave"></div>
+            <span className="text-sm font-medium text-gray-700">Vacation</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-sick-leave"></div>
+            <span className="text-sm font-medium text-gray-700">Sick Leave</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-personal-leave"></div>
+            <span className="text-sm font-medium text-gray-700">Personal</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded bg-other-leave"></div>
+            <span className="text-sm font-medium text-gray-700">Other</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="w-4 h-4 rounded border-2 border-gray-400" style={{ 
+              background: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px)'
+            }}></div>
+            <span className="text-sm font-medium text-gray-700">Pending</span>
+          </div>
         </div>
       </div>
 
