@@ -11,6 +11,7 @@ enum UserFunctions {
   searchUsers = 'searchUsers',
   getAllUsers = 'getAllUsers',
   deactivateUser = 'deactivateUser',
+  getUserProfile = 'getUserProfile',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -43,6 +44,18 @@ const createUserRoute = (basePath: string): Router => {
       basePath,
     },
     {
+      name: 'Get User Profile',
+      desc: 'Get current user profile with vacation days information',
+      path: '/profile',
+      method: 'get',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'User profile' },
+      ],
+      functionName: UserFunctions.getUserProfile,
+      basePath,
+    },
+    {
       name: 'Deactivate User',
       desc: 'Soft delete user by setting is_activated to false',
       path: '/:userId',
@@ -62,6 +75,7 @@ const createUserRoute = (basePath: string): Router => {
     searchUsers: userController.searchUsers as RequestHandler,
     getAllUsers: userController.getAllUsers as RequestHandler,
     deactivateUser: userController.deactivateUser as RequestHandler,
+    getUserProfile: userController.getUserProfile as RequestHandler,
   };
 
   const router = Router();

@@ -36,6 +36,7 @@ export const listTeams = catchAsync(async (req: Request, res: Response) => {
 export const listTeamsByUserId = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;
   const teams = await teamService.listTeamsByUserId(userId);
+  console.log('Teams for user', userId, teams);
   res.status(httpStatus.OK).send({
     success: true,
     content: { data: teams },

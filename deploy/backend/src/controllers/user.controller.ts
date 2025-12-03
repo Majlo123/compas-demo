@@ -3,6 +3,7 @@ import httpStatus from 'http-status';
 import { userService } from 'services';
 import catchAsync from 'shared/utils/CatchAsync';
 import QueryParams from 'repos/utils/query/QueryParams';
+import ApiError from 'shared/error/ApiError';
 
 export const searchUsers = catchAsync(async (req: Request, res: Response) => {
   const query = (req.query.query as string) || '';
@@ -37,4 +38,19 @@ export const deactivateUser = catchAsync(async (req: Request, res: Response) => 
     content: { deactivated: true },
   });
 });
- 
+
+export const getUserProfile = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
+  }
+  const profile = await userService.getUserProfile(userId);
+  if (!profile) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: profile,
+  });
+});
+
