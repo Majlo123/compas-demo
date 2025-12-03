@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
@@ -16,14 +17,17 @@ interface LeaveRequestRow extends Row {
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(null);
 
   useEffect(() => {
     fetchLeaveRequests();
-  }, []);
+  }, [requestIdFilter]);
 
   const fetchLeaveRequests = async () => {
     setIsLoading(true);
@@ -41,7 +45,11 @@ const MyLeaveRequestsPage: React.FC = () => {
       console.log('Leave requests response:', response);
 
       if (response.success && response.content) {
-        const formattedData: LeaveRequestRow[] = response.content.map((request: LeaveRequest) => ({
+        let content = response.content;
+        if (requestIdFilter) {
+          content = content.filter((r) => r.id === requestIdFilter);
+        }
+        const formattedData: LeaveRequestRow[] = content.map((request: LeaveRequest) => ({
           _id: request.id,
           type: formatLeaveType(request.type),
           startDate: formatDate(request.startDate),
@@ -62,6 +70,13 @@ const MyLeaveRequestsPage: React.FC = () => {
 
     setIsLoading(false);
   };
+
+  // Load requestId filter from URL
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const reqId = params.get('requestId');
+    if (reqId) setRequestIdFilter(reqId);
+  }, [location.search]);
 
   const formatLeaveType = (type: string): string => {
     return type.charAt(0).toUpperCase() + type.slice(1);
@@ -122,9 +137,21 @@ const MyLeaveRequestsPage: React.FC = () => {
       <PageLayout
         title="My Leave Requests"
         action={
-          <Button onClick={handleNewRequest} className="text-lg font-medium">
-            + New Leave Request
-          </Button>
+          <div className="flex gap-3 items-center">
+            <Button onClick={handleNewRequest} className="text-lg font-medium">
+              + New Leave Request
+            </Button>
+            {requestIdFilter && (
+              <Button onClick={() => {
+                setRequestIdFilter(null);
+                const params = new URLSearchParams(location.search);
+                params.delete('requestId');
+                navigate({ pathname: location.pathname, search: params.toString() });
+              }} className="text-lg font-medium">
+                Show all
+              </Button>
+            )}
+          </div>
         }
         actionPosition="inline"
         emptyMessage="No leave requests yet"

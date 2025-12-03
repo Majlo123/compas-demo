@@ -1,10 +1,12 @@
 import httpStatus from 'http-status';
-import { leaveRequestRepository, teamMemberRepository } from 'repos/index';
+import { leaveRequestRepository, teamMemberRepository, userRepository } from 'repos/index';
 import { LeaveRequest, LeaveRequestWithEmployee, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
 import { RoleEnum } from '../../../shared/auth.types';
+import logger from 'config/logger';
+import { sendLeaveRequestNotification, sendLeaveStatusUpdateEmail } from './email.service';
 
 export type LeaveRequestResponse = {
   id: string;
@@ -84,6 +86,51 @@ export const createLeaveRequest = async (
   };
 
   const createdRequest = await leaveRequestRepository.create(leaveRequestData);
+
+  // Fire-and-forget notifications to team managers
+  (async () => {
+    try {
+      logger.info(`Leave request ${createdRequest.id} created; preparing manager notifications for user ${userId}`);
+      const requester = await userRepository.findById({ id: userId });
+      if (!requester) return;
+
+      const memberships = await teamMemberRepository.findByUserId(userId);
+      logger.info(`Requester team memberships fetched: count=${memberships.length}`);
+      if (!memberships || memberships.length === 0) {
+        logger.info('No team memberships; skipping manager notifications');
+        return;
+      }
+
+      // Collect manager emails across all teams the requester belongs to
+      const teamsMembers = await Promise.all(
+        memberships.map((m) => teamMemberRepository.findByTeamId(m.teamId))
+      );
+      const managerEmailsSet = new Set<string>();
+      teamsMembers.flat().
+        filter(tm => tm.isManager && tm.email).
+        forEach(tm => managerEmailsSet.add(tm.email!));
+
+      const managerEmails = Array.from(managerEmailsSet);
+      logger.info(`Manager recipients resolved: ${managerEmails.join(', ')}`);
+      if (managerEmails.length === 0) {
+        logger.info('No manager recipients; skipping notifications');
+        return;
+      }
+
+      await sendLeaveRequestNotification(managerEmails, {
+        requesterName: requester.fullName,
+        requesterEmail: requester.email,
+        type: createdRequest.type,
+        startDate: createdRequest.startDate,
+        endDate: createdRequest.endDate,
+        reason: createdRequest.reason,
+        requestId: createdRequest.id!,
+      });
+      logger.info(`Manager notifications sent to ${managerEmails.length} recipients`);
+    } catch (err) {
+      logger.warn(`Failed to send manager notification for leave request: ${String(err)}`);
+    }
+  })();
 
   return {
     id: createdRequest.id!,
@@ -187,6 +234,26 @@ export const updateLeaveRequestStatus = async (
   if (!updatedRequest) {
     throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
   }
+
+  // Notify requester of status change (fire-and-forget)
+  (async () => {
+    try {
+      const requester = await userRepository.findById({ id: updatedRequest.userId });
+      if (!requester) return;
+      await sendLeaveStatusUpdateEmail(requester.email, {
+        requesterName: requester.fullName,
+        requesterEmail: requester.email,
+        type: updatedRequest.type,
+        startDate: updatedRequest.startDate,
+        endDate: updatedRequest.endDate,
+        status,
+        requestId: updatedRequest.id!,
+      });
+      logger.info(`Status update email sent to requester ${requester.email} for request ${updatedRequest.id}`);
+    } catch (err) {
+      logger.warn(`Failed to send status update email: ${String(err)}`);
+    }
+  })();
 
   return {
     id: updatedRequest.id!,
