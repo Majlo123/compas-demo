@@ -1,5 +1,5 @@
 import { userRepository } from 'repos/index';
-import { bulkInviteUsers, deactivateUser, findAllActivePaginated } from 'repos/user.model';
+import { deactivateUser, findAllActivePaginated } from 'repos/user.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import { User as UserModel } from 'repos/user.model';
@@ -24,16 +24,6 @@ export const findAll = async (query: QueryParams): Promise<PaginatedResult<UserP
     totalItems: activeResult.totalItems,
     totalPages: activeResult.totalPages,
   } as PaginatedResult<UserPublic>;
-};
-
-export const inviteUsers = async (emails: string[]): Promise<{ invited: string[]; skipped: string[] }> => {
-  const sanitized = emails
-    .map(e => e.trim().toLowerCase())
-    .filter(e => e.length > 0);
-  const unique = Array.from(new Set(sanitized));
-  const invited = await bulkInviteUsers(unique);
-  const skipped = unique.filter(e => !invited.includes(e));
-  return { invited, skipped };
 };
 
 export const deactivate = async (userId: string): Promise<boolean> => {

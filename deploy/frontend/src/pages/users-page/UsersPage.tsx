@@ -129,7 +129,11 @@ const UsersPage: React.FC = () => {
             />
           </div>
           {user && (user.role === RoleEnum.Admin || user.isTeamManager) && (
-            <Button variant="primary" size="sm" onClick={() => setInviteOpen(true)}>
+            <Button 
+              variant="primary" 
+              onClick={() => setInviteOpen(true)}
+              className="h-[48px] whitespace-nowrap px-4"
+            >
               Invite User
             </Button>
           )}

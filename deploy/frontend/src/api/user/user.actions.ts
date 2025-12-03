@@ -27,7 +27,11 @@ export const getUsers = async (page = 1, pageSize = 10): Promise<ApiResponse<any
   }
 };
 
-export const inviteUsers = async (emails: string[]): Promise<ApiResponse<{ invited: string[]; skipped: string[] }>> => {
+export const inviteUsers = async (emails: string[]): Promise<ApiResponse<{ 
+  invited: string[]; 
+  skipped: string[]; 
+  failed: Array<{ email: string; reason: string }> 
+}>> => {
   try {
     const response = await axiosServer.post(`${endpoint}/invite`, { emails });
     return response.data;

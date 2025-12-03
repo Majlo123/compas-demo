@@ -10,7 +10,6 @@ import { RoleEnum } from '../../../../shared/auth.types';
 enum UserFunctions {
   searchUsers = 'searchUsers',
   getAllUsers = 'getAllUsers',
-  inviteUsers = 'inviteUsers',
   deactivateUser = 'deactivateUser',
 }
 
@@ -44,19 +43,6 @@ const createUserRoute = (basePath: string): Router => {
       basePath,
     },
     {
-      name: 'Invite Users',
-      desc: 'Bulk invite users by email',
-      path: '/invite',
-      method: 'post',
-      authorize: true,
-      allowedRoles: [RoleEnum.Admin],
-      responses: [
-        { code: httpStatus.OK, desc: 'Invited users result' },
-      ],
-      functionName: UserFunctions.inviteUsers,
-      basePath,
-    },
-    {
       name: 'Deactivate User',
       desc: 'Soft delete user by setting is_activated to false',
       path: '/:userId',
@@ -75,7 +61,6 @@ const createUserRoute = (basePath: string): Router => {
   const userControllerFunctions: Record<UserFunctions, RequestHandler> = {
     searchUsers: userController.searchUsers as RequestHandler,
     getAllUsers: userController.getAllUsers as RequestHandler,
-    inviteUsers: userController.inviteUsers as RequestHandler,
     deactivateUser: userController.deactivateUser as RequestHandler,
   };
 
