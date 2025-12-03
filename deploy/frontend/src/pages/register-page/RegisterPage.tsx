@@ -30,7 +30,6 @@ type RegisterForm = z.infer<typeof registerSchema>;
 const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
-  const [inviteEmail, setInviteEmail] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -47,31 +46,39 @@ const RegisterPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    
-    if (!token) {
-      setIsValidToken(false);
-      toast.error('Invalid or missing invite token');
-      return;
-    }
-
-    // Validate token - for now just decode it (backend validation will happen on submit)
-    try {
-      // Simple JWT decode without verification (just to extract email)
-      const payload = JSON.parse(atob(token.split('.')[1]));
+    const verifyToken = async () => {
+      const token = searchParams.get('invite');
       
-      if (payload.email && payload.actionType === 'INVITE') {
-        setInviteEmail(payload.email);
-        setValue('email', payload.email);
-        setIsValidToken(true);
-      } else {
+      if (!token) {
         setIsValidToken(false);
-        toast.error('Invalid invite token');
+        toast.error('Invalid or missing invite token');
+        return;
       }
-    } catch (error) {
-      setIsValidToken(false);
-      toast.error('Invalid invite token format');
-    }
+
+      try {
+        // Verify token with backend
+        const response = await fetch('http://localhost:3000/api/user-invite/verify', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ token }),
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.content.email) {
+          setValue('email', data.content.email);
+          setIsValidToken(true);
+        } else {
+          setIsValidToken(false);
+          toast.error(data.error?.message || 'Invalid invite token');
+        }
+      } catch (error) {
+        setIsValidToken(false);
+        toast.error('Failed to verify invite token');
+      }
+    };
+
+    verifyToken();
   }, [searchParams, setValue]);
 
   const onSubmit = async (data: RegisterForm) => {
@@ -79,11 +86,12 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const token = searchParams.get('token');
+      const inviteToken = searchParams.get('invite');
       const response = await registerUser({
         email: data.email,
         password: data.password,
         fullName: data.fullName,
+        inviteToken: inviteToken || undefined,
       });
 
       if (isApiSuccess(response)) {

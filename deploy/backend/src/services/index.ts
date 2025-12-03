@@ -4,3 +4,4 @@ export * as leaveRequestService from 'services/leaveRequest.service';
 export * as teamService from 'services/team.service';
 export * as userService from 'services/user.service';
 export * as userInviteService from 'services/userInvite.service';
+export * as emailService from 'services/email.service';

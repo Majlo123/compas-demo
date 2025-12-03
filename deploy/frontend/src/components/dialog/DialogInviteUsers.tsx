@@ -6,6 +6,7 @@ import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
 import CustomDialog from '@/components/dialog/dialog-props';
 import FormTextInput from '@/components/controls/FormTextInput';
+import { inviteUsers as inviteUsersApi } from '@/api/user/user.actions';
 
 const emailSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -76,13 +77,45 @@ const DialogInviteUsers: React.FC<DialogInviteUsersProps> = ({
     setIsSubmitting(true);
 
     try {
-      // Just close the dialog without doing anything
-      setInviteList([]);
-      reset();
-      onOpenChange(false);
+      const emails = inviteList.map(inv => inv.email);
+      const response = await inviteUsersApi(emails);
 
-      if (onSuccess) {
-        onSuccess();
+      if (response.success) {
+        const { invited, failed } = response.content;
+        
+        // Show success message
+        if (invited.length > 0) {
+          toast.success(
+            `Successfully sent ${invited.length} invitation${invited.length > 1 ? 's' : ''}! Please check your email inbox.`,
+            { autoClose: 5000 }
+          );
+        }
+
+        // Show failures if any
+        if (failed && failed.length > 0) {
+          failed.forEach(failure => {
+            toast.error(`${failure.email}: ${failure.reason}`, { autoClose: 5000 });
+          });
+        }
+
+        // Reset and close if at least one was successful
+        if (invited.length > 0) {
+          setInviteList([]);
+          reset();
+          onOpenChange(false);
+
+          if (onSuccess) {
+            onSuccess();
+          }
+        } else {
+          setError('All invitations failed. Please check the errors above.');
+        }
+      } else {
+        // Response is error
+        const errorMessage = !response.success && 'error' in response 
+          ? response.error.message 
+          : 'Failed to invite users';
+        setError(errorMessage);
       }
     } catch (err: any) {
       setError(err.message || 'Failed to invite users');
