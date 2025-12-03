@@ -211,6 +211,8 @@ const TeamRequestsPage: React.FC = () => {
         },
       ];
 
+  const hasActiveFilters = debouncedSearch || selectedFilter || selectedStatus || selectedTeam;
+
   return (
     <PageLayout
       title="Team Requests"
@@ -240,6 +242,11 @@ const TeamRequestsPage: React.FC = () => {
             >
               Clear filters
             </Button>
+            {hasActiveFilters && (
+              <div className="text-p1 font-bold text-darkGrey whitespace-nowrap">
+                Total requests: {totalItems}
+              </div>
+            )}
         </div>
       }
       actionPosition="below"
