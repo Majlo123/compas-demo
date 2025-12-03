@@ -52,9 +52,10 @@ export const getTeamLeaveRequests = async (
   }
 };
 
-export const getCalendarLeaveRequests = async (): Promise<ApiResponse<LeaveRequestListResponse>> => {
+export const getCalendarLeaveRequests = async (teamId?: string): Promise<ApiResponse<LeaveRequestListResponse>> => {
   try {
-    const response = await axiosServer.get(`${endpoint}/calendar`);
+    const queryParams = teamId ? `?teamId=${teamId}` : '';
+    const response = await axiosServer.get(`${endpoint}/calendar${queryParams}`);
     return response.data;
   } catch (error) {
     return formatError(error);

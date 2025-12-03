@@ -201,25 +201,50 @@ export const updateLeaveRequestStatus = async (
 
  // Get all leave requests for calendar (no pagination)
 
-export const getCalendarLeaveRequests = async (userId: string, userRole: string): Promise<LeaveRequestResponse[]> => {
+export const getCalendarLeaveRequests = async (
+  userId: string, 
+  userRole: string, 
+  teamId?: string
+): Promise<LeaveRequestResponse[]> => {
   let result: LeaveRequestWithEmployee[];
 
   if (userRole === RoleEnum.Admin) {
-    result = await leaveRequestRepository.findAllForCalendar();
+    // Admin: if teamId provided, filter by that team; otherwise show all
+    if (teamId) {
+      result = await leaveRequestRepository.findAllForCalendar({ teamIds: [teamId] });
+    } else {
+      result = await leaveRequestRepository.findAllForCalendar();
+    }
   } else {
     const userTeams = await teamMemberRepository.findByUserId(userId);
-    const teamIds = userTeams.map(team => team.teamId);
-
-    if (teamIds.length === 0) {
-      result = await leaveRequestRepository.findAllForCalendar({ userId });
+    const managedTeams = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
+    
+    // If teamId filter is provided, validate user has access to that team
+    if (teamId) {
+      const hasAccessToTeam = userTeams.some(team => team.teamId === teamId) || 
+                              managedTeams.includes(teamId);
+      
+      if (!hasAccessToTeam) {
+        throw new ApiError('You do not have access to this team', httpStatus.FORBIDDEN);
+      }
+      
+      result = await leaveRequestRepository.findAllForCalendar({ teamIds: [teamId] });
     } else {
-      const teamResults = await leaveRequestRepository.findAllForCalendar({ teamIds });      const ownResults = await leaveRequestRepository.findAllForCalendar({ userId });
+      // No filter: show own requests + all managed teams
+      const teamIds = userTeams.map(team => team.teamId);
 
-      const merged = new Map<string, LeaveRequestWithEmployee>();
-      [...teamResults, ...ownResults].forEach((r) => {
-        if (r.id) merged.set(r.id, r);
-      });
-      result = Array.from(merged.values());
+      if (teamIds.length === 0) {
+        result = await leaveRequestRepository.findAllForCalendar({ userId });
+      } else {
+        const teamResults = await leaveRequestRepository.findAllForCalendar({ teamIds });      
+        const ownResults = await leaveRequestRepository.findAllForCalendar({ userId });
+
+        const merged = new Map<string, LeaveRequestWithEmployee>();
+        [...teamResults, ...ownResults].forEach((r) => {
+          if (r.id) merged.set(r.id, r);
+        });
+        result = Array.from(merged.values());
+      }
     }
   }
 

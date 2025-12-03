@@ -1,8 +1,6 @@
 import createBaseRepository from 'repos/utils/baseRepository';
 import { Role } from '../../../shared/auth.types';
 import pool from 'config/database';
-import bcrypt from 'bcrypt';
-import { v4 as uuidv4 } from 'uuid';
 
 export type User = {
   id?: string;
@@ -19,15 +17,6 @@ export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
   createBaseRepository<User>('users');
-
-// Ensure is_activated column exists (soft delete support)
-(async () => {
-  try {
-    await pool.query('ALTER TABLE users ADD COLUMN IF NOT EXISTS is_activated BOOLEAN NOT NULL DEFAULT TRUE');
-  } catch (e) {
-    console.error('Failed ensuring is_activated column', e);
-  }
-})();
 
 /**
  * Search users by name or email
@@ -74,29 +63,6 @@ export const findAllActivePaginated = async (page: number, pageSize: number): Pr
     page,
     pageSize,
   };
-};
-
-export const bulkInviteUsers = async (emails: string[]): Promise<string[]> => {
-  if (emails.length === 0) return [];
-
-  const inserted: string[] = [];
-  for (const email of emails) {
-    const existing = await findByField('email', email);
-    if (existing) {
-      continue; // skip existing
-    }
-    const passwordPlaceholder = uuidv4();
-    const passwordHash = await bcrypt.hash(passwordPlaceholder, 10);
-    await create({
-      email,
-      passwordHash,
-      fullName: email.split('@')[0],
-      role: 'employee',
-      isActivated: true,
-    });
-    inserted.push(email);
-  }
-  return inserted;
 };
 
 export const deactivateUser = async (userId: string): Promise<boolean> => {
