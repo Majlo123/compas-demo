@@ -3,3 +3,4 @@ export * as authController from 'controllers/auth.controller';
 export * as leaveRequestController from 'controllers/leaveRequest.controller';
 export * as teamController from 'controllers/team.controller';
 export * as userController from 'controllers/user.controller';
+export * as userInviteController from 'controllers/userInvite.controller';
