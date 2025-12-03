@@ -21,4 +21,20 @@ export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
     content: paginatedResult,
   });
 });
+
+export const deactivateUser = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  const success = await userService.deactivate(userId);
+  if (!success) {
+    res.status(httpStatus.NOT_FOUND).send({
+      success: false,
+      error: { message: 'User not found' },
+    });
+    return;
+  }
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: { deactivated: true },
+  });
+});
  
