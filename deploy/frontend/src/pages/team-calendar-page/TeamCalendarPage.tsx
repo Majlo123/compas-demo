@@ -34,8 +34,11 @@ const getLeaveTypeColor = (type: string): string => {
 const TeamCalendarPage: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const [eventsToShow, setEventsToShow] = React.useState<any[]>([]);
+  const [allEvents, setAllEvents] = React.useState<any[]>([]);
   const [teams, setTeams] = useState<Team[]>([]);
   const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
+  const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set(['vacation', 'sick', 'personal', 'other']));
+  const [showPending, setShowPending] = useState(true);
 
   // Load teams on mount based on user role
   React.useEffect(() => {
@@ -87,7 +90,7 @@ const TeamCalendarPage: React.FC = () => {
           });
 
           console.debug('TeamCalendar: fetched', mapped.length, 'events');
-          setEventsToShow(mapped);
+          setAllEvents(mapped);
         } else {
           console.error('Failed to load calendar leave requests', response);
         }
@@ -98,6 +101,28 @@ const TeamCalendarPage: React.FC = () => {
 
     fetchEvents();
   }, [selectedTeam]);
+
+  // Filter events based on selected types and pending status
+  React.useEffect(() => {
+    const filtered = allEvents.filter(event => {
+      const typeMatch = selectedTypes.has(event.type);
+      const statusMatch = event.status === 'approved' || (event.status === 'pending' && showPending);
+      return typeMatch && statusMatch;
+    });
+    setEventsToShow(filtered);
+  }, [allEvents, selectedTypes, showPending]);
+
+  const toggleType = (type: string) => {
+    setSelectedTypes(prev => {
+      const newSet = new Set(prev);
+      if (newSet.has(type)) {
+        newSet.delete(type);
+      } else {
+        newSet.add(type);
+      }
+      return newSet;
+    });
+  };
 
   const eventPropGetter = (event: any) => ({
     style: {
@@ -143,28 +168,73 @@ const TeamCalendarPage: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-6">
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-vacation-leave"></div>
+          <button 
+            onClick={() => toggleType('vacation')}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              selectedTypes.has('vacation') ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded bg-vacation-leave flex items-center justify-center text-white text-xs font-bold transition-all duration-200 ${
+              selectedTypes.has('vacation') ? 'ring-2 ring-vacation-leave ring-offset-1' : ''
+            }`}>
+              {selectedTypes.has('vacation') && '✓'}
+            </div>
             <span className="text-sm font-medium text-gray-700">Vacation</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-sick-leave"></div>
+          </button>
+          <button 
+            onClick={() => toggleType('sick')}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              selectedTypes.has('sick') ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded bg-sick-leave flex items-center justify-center text-white text-xs font-bold transition-all duration-200 ${
+              selectedTypes.has('sick') ? 'ring-2 ring-sick-leave ring-offset-1' : ''
+            }`}>
+              {selectedTypes.has('sick') && '✓'}
+            </div>
             <span className="text-sm font-medium text-gray-700">Sick Leave</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-personal-leave"></div>
+          </button>
+          <button 
+            onClick={() => toggleType('personal')}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              selectedTypes.has('personal') ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded bg-personal-leave flex items-center justify-center text-white text-xs font-bold transition-all duration-200 ${
+              selectedTypes.has('personal') ? 'ring-2 ring-personal-leave ring-offset-1' : ''
+            }`}>
+              {selectedTypes.has('personal') && '✓'}
+            </div>
             <span className="text-sm font-medium text-gray-700">Personal</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded bg-other-leave"></div>
+          </button>
+          <button 
+            onClick={() => toggleType('other')}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              selectedTypes.has('other') ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded bg-other-leave flex items-center justify-center text-white text-xs font-bold transition-all duration-200 ${
+              selectedTypes.has('other') ? 'ring-2 ring-other-leave ring-offset-1' : ''
+            }`}>
+              {selectedTypes.has('other') && '✓'}
+            </div>
             <span className="text-sm font-medium text-gray-700">Other</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="w-4 h-4 rounded border-2 border-gray-400" style={{ 
+          </button>
+          <button 
+            onClick={() => setShowPending(!showPending)}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              showPending ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded border-2 border-gray-400 flex items-center justify-center text-gray-700 text-xs font-bold transition-all duration-200 ${
+              showPending ? 'ring-2 ring-gray-400 ring-offset-1' : ''
+            }`} style={{ 
               background: 'repeating-linear-gradient(45deg, rgba(0,0,0,0.1) 0, rgba(0,0,0,0.1) 2px, transparent 2px, transparent 4px)'
-            }}></div>
+            }}>
+              {showPending && '✓'}
+            </div>
             <span className="text-sm font-medium text-gray-700">Pending</span>
-          </div>
+          </button>
         </div>
       </div>
 
