@@ -44,7 +44,7 @@ const Table: FC<TableProps> = ({
       {/* Canvas */}
       <div className="w-full overflow-x-auto">
         {/* Table */}
-        <div className={twMerge('flex flex-col w-full bg-white rounded-lg overflow-hidden', tableClassName)}>
+        <div className={twMerge('flex flex-col w-full bg-white rounded-lg overflow-hidden mb-4', tableClassName)}>
           {/* Header */}
           <div className={twMerge('flex bg-gray-50 border-b border-gray-200', headerClassName)}>
             {columns.map((col) => (
@@ -82,8 +82,6 @@ const Table: FC<TableProps> = ({
               </div>
             ))}
           </div>
-          {/* Footer */}
-          <div className="min-h-[15px] w-full" />
         </div>
       </div>
     </div>

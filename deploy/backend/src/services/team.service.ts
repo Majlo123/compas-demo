@@ -31,7 +31,23 @@ export const getTeamById = async (id: string): Promise<Team> => {
 };
 
 export const listTeams = async (query: QueryParams): Promise<PaginatedResult<Team>> => {
-  return teamRepository.findAll({ queryParams: query });
+  const result = await teamRepository.findAll({ queryParams: query });
+  
+  // Add memberCount to each team
+  const teamsWithCounts = await Promise.all(
+    result.data.map(async (team) => {
+      const members = await teamMemberRepository.findByTeamId(team.id!);
+      return {
+        ...team,
+        memberCount: members.length,
+      };
+    })
+  );
+
+  return {
+    ...result,
+    data: teamsWithCounts,
+  };
 };
 
 export const listTeamsByUserId = async (userId: string): Promise<Team[]> => {
