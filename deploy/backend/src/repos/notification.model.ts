@@ -1,25 +1,26 @@
 import createBaseRepository from 'repos/utils/baseRepository';
 import pool from 'config/database';
 
-export type Notification = {
+export type LeaveRequestNotification = {
   id?: string;
   userId: string;
+  leaveRequestId: string;
   title: string;
   isRead?: boolean;
   createdAt?: Date;
 };
 
-export type CreateNotification = Omit<Notification, 'id' | 'createdAt'>;
+export type CreateLeaveRequestNotification = Omit<LeaveRequestNotification, 'id' | 'createdAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
-  createBaseRepository<Notification>('notifications');
+  createBaseRepository<LeaveRequestNotification>('leave_request_notifications');
 
 /**
  * Find all notifications for a specific user
  */
-export const findByUserId = async (userId: string): Promise<Notification[]> => {
+export const findByUserId = async (userId: string): Promise<LeaveRequestNotification[]> => {
   const query = {
-    text: 'SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC',
+    text: 'SELECT * FROM leave_request_notifications WHERE user_id = $1 ORDER BY created_at DESC',
     values: [userId],
   };
 
@@ -27,6 +28,7 @@ export const findByUserId = async (userId: string): Promise<Notification[]> => {
   return result.rows.map((row) => ({
     id: row.id,
     userId: row.user_id,
+    leaveRequestId: row.leave_request_id,
     title: row.title,
     isRead: row.is_read,
     createdAt: row.created_at,
@@ -36,9 +38,9 @@ export const findByUserId = async (userId: string): Promise<Notification[]> => {
 /**
  * Find unread notifications for a specific user
  */
-export const findUnreadByUserId = async (userId: string): Promise<Notification[]> => {
+export const findUnreadByUserId = async (userId: string): Promise<LeaveRequestNotification[]> => {
   const query = {
-    text: 'SELECT * FROM notifications WHERE user_id = $1 AND is_read = FALSE ORDER BY created_at DESC',
+    text: 'SELECT * FROM leave_request_notifications WHERE user_id = $1 AND is_read = FALSE ORDER BY created_at DESC',
     values: [userId],
   };
 
@@ -46,6 +48,7 @@ export const findUnreadByUserId = async (userId: string): Promise<Notification[]
   return result.rows.map((row) => ({
     id: row.id,
     userId: row.user_id,
+    leaveRequestId: row.leave_request_id,
     title: row.title,
     isRead: row.is_read,
     createdAt: row.created_at,
@@ -55,9 +58,9 @@ export const findUnreadByUserId = async (userId: string): Promise<Notification[]
 /**
  * Mark notification as read
  */
-export const markAsRead = async (id: string): Promise<Notification | null> => {
+export const markAsRead = async (id: string): Promise<LeaveRequestNotification | null> => {
   const query = {
-    text: 'UPDATE notifications SET is_read = TRUE WHERE id = $1 RETURNING *',
+    text: 'UPDATE leave_request_notifications SET is_read = TRUE WHERE id = $1 RETURNING *',
     values: [id],
   };
 
@@ -71,6 +74,7 @@ export const markAsRead = async (id: string): Promise<Notification | null> => {
   return {
     id: row.id,
     userId: row.user_id,
+    leaveRequestId: row.leave_request_id,
     title: row.title,
     isRead: row.is_read,
     createdAt: row.created_at,
@@ -82,7 +86,7 @@ export const markAsRead = async (id: string): Promise<Notification | null> => {
  */
 export const markAllAsReadForUser = async (userId: string): Promise<number> => {
   const query = {
-    text: 'UPDATE notifications SET is_read = TRUE WHERE user_id = $1 AND is_read = FALSE',
+    text: 'UPDATE leave_request_notifications SET is_read = TRUE WHERE user_id = $1 AND is_read = FALSE',
     values: [userId],
   };
 
