@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BellIcon from '@/components/images/BellIcon';
+import NotificationBadge from '@/components/controls/NotificationBadge';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getFromLocalStorage } from '@/services/local.storage';
 
@@ -8,6 +9,7 @@ const HeaderNav: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(105); // Mock data - will fetch from API
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // Close dropdown when clicking outside
@@ -88,14 +90,14 @@ const HeaderNav: React.FC = () => {
       {/* Right side actions */}
       <div className="flex items-center gap-4">
         {/* Notifications */}
-        <button
-          className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
-          aria-label="Notifications"
-        >
-          <BellIcon className="w-5 h-5 stroke-gray-600" />
-          {/* Notification badge */}
-          <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-        </button>
+        <NotificationBadge count={unreadNotificationCount}>
+          <button
+            className="relative p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            aria-label="Notifications"
+          >
+            <BellIcon className="w-5 h-5 stroke-gray-600" />
+          </button>
+        </NotificationBadge>
 
         {/* User Menu */}
         <div className="relative" ref={dropdownRef}>
