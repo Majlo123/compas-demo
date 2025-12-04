@@ -5,6 +5,7 @@ import { authRepository, teamMemberRepository, userInviteRepository } from 'repo
 import ApiError from 'shared/error/ApiError';
 import config from 'config/config';
 import { RegisterRequest, RegisterResponse, LoginRequest, LoginResponse } from '../../../shared/auth.types';
+import { verifyInviteToken } from './userInvite.service';
 
 export const register = async (input: RegisterRequest & { inviteToken?: string }): Promise<RegisterResponse> => {
   const { email, password, fullName, inviteToken } = input;
@@ -17,20 +18,7 @@ export const register = async (input: RegisterRequest & { inviteToken?: string }
   // If inviteToken is provided, verify it
   let inviteId: string | undefined;
   if (inviteToken) {
-    const invite = await userInviteRepository.findByToken(inviteToken);
-    
-    if (!invite) {
-      throw new ApiError('Invalid invite token', httpStatus.BAD_REQUEST);
-    }
-    
-    if (invite.status !== 'pending') {
-      throw new ApiError('This invite has already been used or revoked', httpStatus.BAD_REQUEST);
-    }
-    
-    if (new Date() > new Date(invite.expiresAt)) {
-      await userInviteRepository.updateStatus(invite.id!, 'expired');
-      throw new ApiError('This invite has expired', httpStatus.BAD_REQUEST);
-    }
+    const invite = await verifyInviteToken(inviteToken);
     
     if (invite.email.toLowerCase() !== email.toLowerCase()) {
       throw new ApiError('Email does not match the invited email', httpStatus.BAD_REQUEST);

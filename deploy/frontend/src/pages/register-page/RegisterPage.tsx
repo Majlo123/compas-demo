@@ -9,6 +9,7 @@ import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
 import { register as registerUser } from '@/api/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import { verifyInviteToken } from '@/api/user-invite/userInvite.actions';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
@@ -55,26 +56,15 @@ const RegisterPage: React.FC = () => {
         return;
       }
 
-      try {
-        // Verify token with backend
-        const response = await fetch('http://localhost:3000/api/user-invite/verify', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ token }),
-        });
+      const response = await verifyInviteToken(token);
 
-        const data = await response.json();
-
-        if (data.success && data.content.email) {
-          setValue('email', data.content.email);
-          setIsValidToken(true);
-        } else {
-          setIsValidToken(false);
-          toast.error(data.error?.message || 'Invalid invite token');
-        }
-      } catch (error) {
+      if (isApiSuccess(response) && response.content.email) {
+        setValue('email', response.content.email);
+        setIsValidToken(true);
+      } else {
         setIsValidToken(false);
-        toast.error('Failed to verify invite token');
+        const errorMsg = isApiSuccess(response) ? 'Invalid invite token' : (response.error?.message || 'Invalid invite token');
+        toast.error(errorMsg);
       }
     };
 
