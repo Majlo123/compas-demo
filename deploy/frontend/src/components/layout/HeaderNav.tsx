@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import BellIcon from '@/components/images/BellIcon';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -7,10 +7,35 @@ import { getFromLocalStorage } from '@/services/local.storage';
 const HeaderNav: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    };
+
+    if (isDropdownOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [isDropdownOpen]);
 
   const handleLogout = () => {
+    setIsDropdownOpen(false);
     logout();
     navigate('/login');
+  };
+
+  const handleProfileClick = () => {
+    setIsDropdownOpen(false);
+    navigate('/profile');
   };
 
   const getUserInitials = (): string => {
@@ -29,6 +54,24 @@ const HeaderNav: React.FC = () => {
     }
     return 'U';
   };
+
+  const getUserInfo = (): { fullName: string; email: string } | null => {
+    const userString = getFromLocalStorage('user');
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        return {
+          fullName: user.fullName || 'User',
+          email: user.email || '',
+        };
+      } catch {
+        return null;
+      }
+    }
+    return null;
+  };
+
+  const userInfo = getUserInfo();
 
   return (
     <header className="bg-headerBg border-b border-2 border-headerBorder flex items-center justify-between px-4 py-2 sticky top-0 z-50">
@@ -55,24 +98,43 @@ const HeaderNav: React.FC = () => {
         </button>
 
         {/* User Menu */}
-        <div className="relative group">
-          <button className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors">
+        <div className="relative" ref={dropdownRef}>
+          <button 
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
+          >
             <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
               {getUserInitials()}
             </div>
           </button>
           
           {/* Dropdown menu */}
-          <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-[9999]">
-            <div className="py-1">
-              <button
-                onClick={handleLogout}
-                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
-              >
-                Log out
-              </button>
+          {isDropdownOpen && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-lg shadow-lg border border-gray-200 z-[9999]">
+              {/* User Info Header */}
+              {userInfo && (
+                <div className="px-4 py-3 border-b border-gray-200">
+                  <div className="font-medium text-gray-800 truncate">{userInfo.fullName}</div>
+                  <div className="text-sm text-gray-600 truncate">{userInfo.email}</div>
+                </div>
+              )}
+              
+              <div className="py-1">
+                <button
+                  onClick={handleProfileClick}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Profile
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 transition-colors"
+                >
+                  Log out
+                </button>
+              </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </header>

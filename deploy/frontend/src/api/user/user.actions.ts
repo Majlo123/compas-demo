@@ -48,3 +48,12 @@ export const deactivateUser = async (userId: string): Promise<ApiResponse<{ deac
     return formatError(error);
   }
 };
+
+export const getUserProfile = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/profile`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
