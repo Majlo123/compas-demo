@@ -119,9 +119,11 @@ const RegisterPage: React.FC = () => {
           <p className="text-darkGrey mb-lg">
             The invite link is invalid or has expired. Please contact your administrator for a new invite.
           </p>
-          <Button variant="primary" onClick={() => navigate('/login')}>
-            Go to Login
-          </Button>
+          <div className="mt-lg flex justify-center">
+            <Button variant="primary" onClick={() => navigate('/login')}>
+              Go to Login
+            </Button>
+          </div>
         </div>
       </div>
     );
