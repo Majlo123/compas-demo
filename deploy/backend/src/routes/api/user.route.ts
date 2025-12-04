@@ -3,7 +3,7 @@ import { EndpointMeta } from 'docs/swagger';
 import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
-import { SearchUsersResponseSchema, UserSchema } from 'types/zod/user.schema';
+import { SearchUsersResponseSchema, UserSchema, InviteUsersBodySchema, InviteUsersResponseSchema } from 'types/zod/user.schema';
 import { QuerySchema, PaginatedResponseSchema } from 'types/zod/shared.schema';
 import { RoleEnum } from '../../../../shared/auth.types';
 
@@ -12,6 +12,7 @@ enum UserFunctions {
   getAllUsers = 'getAllUsers',
   deactivateUser = 'deactivateUser',
   getUserProfile = 'getUserProfile',
+  inviteUsers = 'inviteUsers',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -69,13 +70,30 @@ const createUserRoute = (basePath: string): Router => {
       functionName: UserFunctions.deactivateUser,
       basePath,
     },
+    {
+      name: 'Invite Users',
+      desc: 'Send invitation emails to multiple users',
+      path: '/invite',
+      method: 'post',
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      requestBodySchema: InviteUsersBodySchema,
+      responses: [
+        { code: httpStatus.OK, desc: 'Invitation results', schema: InviteUsersResponseSchema },
+      ],
+      functionName: UserFunctions.inviteUsers,
+      basePath,
+    },
   ];
 
+  console.log('Available userController functions:', Object.keys(userController));
+  
   const userControllerFunctions: Record<UserFunctions, RequestHandler> = {
     searchUsers: userController.searchUsers as RequestHandler,
     getAllUsers: userController.getAllUsers as RequestHandler,
     deactivateUser: userController.deactivateUser as RequestHandler,
     getUserProfile: userController.getUserProfile as RequestHandler,
+    inviteUsers:userController.inviteUsers as RequestHandler,
   };
 
   const router = Router();

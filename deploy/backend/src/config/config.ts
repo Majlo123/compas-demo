@@ -19,6 +19,12 @@ const envVars = cleanEnv(
     JWT_SECRET: str(),
     JWT_EXPIRES_IN: str({ default: '24h' }),
     DATABASE_URL: str({ default: '' }),
+    SMTP_HOST: str({ default: 'smtp.ethereal.email' }),
+    SMTP_PORT: str({ default: '587' }),
+    SMTP_SECURE: str({ default: 'false' }),
+    SMTP_USER: str({ default: '' }),
+    SMTP_PASSWORD: str({ default: '' }),
+    SMTP_FROM: str({ default: '"Vacation Tracker" <noreply@vacationtracker.com>' }),
   },
   {
     reporter: ({ errors }) => {
@@ -54,6 +60,14 @@ const config = {
   },
   database: {
     url: envVars.DATABASE_URL,
+  },
+  smtp: {
+    host: envVars.SMTP_HOST,
+    port: parseInt(envVars.SMTP_PORT),
+    secure: envVars.SMTP_SECURE === 'true',
+    user: envVars.SMTP_USER,
+    password: envVars.SMTP_PASSWORD,
+    from: envVars.SMTP_FROM,
   },
 };
 

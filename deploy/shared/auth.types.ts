@@ -9,6 +9,7 @@ export type RegisterRequest = {
   email: string;
   password: string;
   fullName: string;
+  inviteToken?: string;
 };
 
 export type RegisterResponse = {

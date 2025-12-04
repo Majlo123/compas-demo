@@ -4,8 +4,8 @@ import { authService } from 'services';
 import catchAsync from 'shared/utils/CatchAsync';
 
 export const register = catchAsync(async (req: Request, res: Response) => {
-  const { email, password, fullName } = req.body;
-  const result = await authService.register({ email, password, fullName });
+  const { email, password, fullName, inviteToken } = req.body;
+  const result = await authService.register({ email, password, fullName, inviteToken });
 
   res.status(httpStatus.CREATED).send({
     success: true,

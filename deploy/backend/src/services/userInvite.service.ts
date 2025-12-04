@@ -4,6 +4,7 @@ import crypto from 'crypto';
 import { userInviteRepository, authRepository } from 'repos/index';
 import ApiError from 'shared/error/ApiError';
 import config from 'config/config';
+import { sendInvitationEmail } from './email.service';
 
 export type CreateUserInviteInput = {
   email: string;
@@ -71,6 +72,15 @@ export const createUserInvite = async (
     token,
     expiresAt,
   });
+
+  // Send invitation email
+  try {
+    await sendInvitationEmail(email, token);
+  } catch (error) {
+    // Log error but don't fail the invite creation
+    // The invite is still valid even if email fails
+    console.error('Failed to send invitation email:', error);
+  }
 
   return {
     inviteId: invite.id!,

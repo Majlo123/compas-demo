@@ -13,10 +13,13 @@ import {
 import {
   CreateUserInviteBodySchema,
   CreateUserInviteSuccessSchema,
+  VerifyInviteBodySchema,
+  VerifyInviteSuccessSchema,
 } from 'types/zod/userInvite.schema';
 
 enum UserInviteFunctions {
   create = 'createUserInvite',
+  verify = 'verifyInvite',
 }
 
 const createUserInviteRoute = (basePath: string): Router => {
@@ -54,10 +57,33 @@ const createUserInviteRoute = (basePath: string): Router => {
       functionName: UserInviteFunctions.create,
       basePath,
     },
+    {
+      name: 'Verify Invite Token',
+      desc: 'Verify if an invite token is valid and not yet used',
+      path: '/verify',
+      method: 'post',
+      requestBodySchema: VerifyInviteBodySchema,
+      authorize: false,
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Invite token is valid',
+          schema: VerifyInviteSuccessSchema,
+        },
+        { 
+          code: httpStatus.BAD_REQUEST, 
+          desc: 'Invalid or expired token', 
+          schema: BadRequestResponseSchema 
+        },
+      ],
+      functionName: UserInviteFunctions.verify,
+      basePath,
+    },
   ];
 
   const endpointsHandlers: Record<UserInviteFunctions, RequestHandler> = {
     createUserInvite: userInviteController.createUserInvite as RequestHandler,
+    verifyInvite: userInviteController.verifyInvite as RequestHandler,
   };
 
   const router = Router();

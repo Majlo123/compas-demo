@@ -84,14 +84,7 @@ const LoginPage: React.FC = () => {
           <Button type="submit" variant="primary" className="w-full mt-md">
             Log in
           </Button>
-
         </form>
-        <div className="text-center text-p2 text-darkGrey mt-md">
-          Don't have an account?{' '}
-          <a href="/register" className="text-primary hover:underline">
-            Register
-          </a>
-        </div>
       </div>
     </div>
   );
