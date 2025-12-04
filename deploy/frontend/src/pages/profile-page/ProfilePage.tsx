@@ -231,7 +231,7 @@ const ProfilePage: React.FC = () => {
           {profile.role !== RoleEnum.Admin && leaveRequests.length > 0 && (
             <Card className="mt-6">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-800">Vacation History</h3>
+                <h3 className="text-lg font-semibold text-gray-800">Leave Request History</h3>
                 <div className="flex items-center gap-3 bg-gray-50 rounded-lg px-4 py-2 border border-gray-200">
                   <button
                     onClick={() => setSelectedYear(selectedYear - 1)}
