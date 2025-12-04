@@ -9,6 +9,7 @@ import createLeaveRequestRoute from 'routes/api/leaveRequest.route';
 import createTeamRoute from 'routes/api/team.route';
 import createUserRoute from 'routes/api/user.route';
 import createUserInviteRoute from 'routes/api/userInvite.route';
+import createNotificationRoute from 'routes/api/notification.route';
 
 const apiRouter = express.Router();
 
@@ -36,6 +37,10 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/user-invite',
     route: createUserInviteRoute('/user-invite'),
+  },
+  {
+    path: '/notifications',
+    route: createNotificationRoute('/notifications'),
   },
 ];
 
