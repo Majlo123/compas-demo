@@ -192,12 +192,12 @@ const DialogTeamDetailsForm: React.FC<DialogTeamDetailsFormProps> = ({
           <div className="border rounded-lg p-3 max-h-60 overflow-y-auto">
             <p className="text-sm font-semibold mb-2 text-gray-700">Search Results:</p>
             {searchResults.map(user => (
-              <div
+              <label
                 key={user.id}
                 className="flex items-center gap-3 py-2 hover:bg-gray-50 px-2 rounded cursor-pointer"
-                onClick={() => handleUserToggle(user.id)}
               >
                 <Checkbox
+                  id={`user-${user.id}`}
                   checked={selectedUsers.has(user.id)}
                   onChange={() => handleUserToggle(user.id)}
                 />
@@ -205,7 +205,7 @@ const DialogTeamDetailsForm: React.FC<DialogTeamDetailsFormProps> = ({
                   <div className="font-medium text-sm">{user.fullName}</div>
                   <div className="text-xs text-gray-500">{user.email}</div>
                 </div>
-              </div>
+              </label>
             ))}
           </div>
         )}
