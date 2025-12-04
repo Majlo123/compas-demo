@@ -4,7 +4,7 @@ import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
-import { LoginSchema, RegisterSchema, LoginSuccessSchema } from 'types/zod/auth.schema';
+import { LoginSchema, RegisterSchema, LoginSuccessSchema, ChangePasswordSchema, ChangePasswordSuccessSchema } from 'types/zod/auth.schema';
 import {
   BadRequestResponseSchema,
   UnauthorizedResponseSchema,
@@ -13,6 +13,7 @@ import {
 enum AuthFunctions {
   login = 'login',
   register = 'register',
+  changePassword = 'changePassword',
 }
 
 const createAuthRoute = (basePath: string): Router => {
@@ -64,11 +65,39 @@ const createAuthRoute = (basePath: string): Router => {
       functionName: AuthFunctions.register,
       basePath,
     },
+    {
+      name: 'Change Password',
+      desc: 'Change authenticated user password',
+      path: '/change-password',
+      method: 'patch',
+      authorize: true,
+      requestBodySchema: ChangePasswordSchema,
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Password changed successfully',
+          schema: ChangePasswordSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid current password or password validation failed',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+      ],
+      functionName: AuthFunctions.changePassword,
+      basePath,
+    },
   ];
 
   const authControllerFunctions: Record<AuthFunctions, RequestHandler> = {
     login: authController.login,
     register: authController.register,
+    changePassword: authController.changePassword,
   };
 
   const router = Router();

@@ -99,3 +99,32 @@ export const verifyToken = (token: string): any => {
     throw new ApiError('Invalid or expired token', httpStatus.UNAUTHORIZED);
   }
 };
+
+export const changePassword = async (
+  userId: string,
+  currentPassword: string,
+  newPassword: string
+): Promise<{ success: boolean; message: string }> => {
+  const user = await authRepository.findById({ id: userId });
+  
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+
+  // Verify current password
+  const passwordMatches = await bcrypt.compare(currentPassword, user.passwordHash);
+  if (!passwordMatches) {
+    throw new ApiError('Current password is incorrect', httpStatus.BAD_REQUEST);
+  }
+
+  // Hash new password
+  const newPasswordHash = await bcrypt.hash(newPassword, 10);
+
+  // Update password in database
+  await authRepository.updateById(user.id!, { passwordHash: newPasswordHash });
+
+  return {
+    success: true,
+    message: 'Password changed successfully',
+  };
+};
