@@ -36,7 +36,7 @@ export const listTeams = async (query: QueryParams): Promise<PaginatedResult<Tea
 
 export const listTeamsByUserId = async (userId: string): Promise<Team[]> => {
   const teamMembers = await teamMemberRepository.findByUserId(userId);
-  const teamIds = teamMembers.filter(tm => tm.isManager).map(tm => tm.teamId);
+  const teamIds = teamMembers.map(tm => tm.teamId);
   
   if (teamIds.length === 0) {
     return [];

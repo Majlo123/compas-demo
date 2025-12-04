@@ -20,6 +20,7 @@ import TeamRequestsPage from '@/pages/team-requests-page/TeamRequestsPage';
 import TeamsListPage from '@/pages/teams-list-page/TeamsListPage';
 import TeamDetailsPage from '@/pages/team-details-page/TeamDetailsPage';
 import UsersPage from '@/pages/users-page/UsersPage';
+import ProfilePage from '@/pages/profile-page/ProfilePage';
 
 const Router: FC = () => {
   return (
@@ -49,6 +50,8 @@ const Router: FC = () => {
             </Route>
             
             <Route path="/my-leave-requests" element={<MyLeaveRequestsPage />} />
+            
+            <Route path="/profile" element={<ProfilePage />} />
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
             <Route path="/reports" element={<ReportsPage />} />

@@ -11,6 +11,7 @@ enum UserFunctions {
   searchUsers = 'searchUsers',
   getAllUsers = 'getAllUsers',
   deactivateUser = 'deactivateUser',
+  getUserProfile = 'getUserProfile',
   inviteUsers = 'inviteUsers',
 }
 
@@ -41,6 +42,18 @@ const createUserRoute = (basePath: string): Router => {
         { code: httpStatus.OK, desc: 'All Users list', schema: PaginatedResponseSchema(UserSchema) },
       ],
       functionName: UserFunctions.getAllUsers,
+      basePath,
+    },
+    {
+      name: 'Get User Profile',
+      desc: 'Get current user profile with vacation days information',
+      path: '/profile',
+      method: 'get',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'User profile' },
+      ],
+      functionName: UserFunctions.getUserProfile,
       basePath,
     },
     {
@@ -76,10 +89,11 @@ const createUserRoute = (basePath: string): Router => {
   console.log('Available userController functions:', Object.keys(userController));
   
   const userControllerFunctions: Record<UserFunctions, RequestHandler> = {
-    [UserFunctions.searchUsers]: userController.searchUsers as RequestHandler,
-    [UserFunctions.getAllUsers]: userController.getAllUsers as RequestHandler,
-    [UserFunctions.deactivateUser]: userController.deactivateUser as RequestHandler,
-    [UserFunctions.inviteUsers]: userController.inviteUsers as RequestHandler,
+    searchUsers: userController.searchUsers as RequestHandler,
+    getAllUsers: userController.getAllUsers as RequestHandler,
+    deactivateUser: userController.deactivateUser as RequestHandler,
+    getUserProfile: userController.getUserProfile as RequestHandler,
+    inviteUsers:userController.inviteUsers as RequestHandler,
   };
 
   const router = Router();

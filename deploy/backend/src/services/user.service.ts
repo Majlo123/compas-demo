@@ -31,6 +31,18 @@ export const deactivate = async (userId: string): Promise<boolean> => {
   return deactivateUser(userId);
 };
 
+export const getUserProfile = async (userId: string): Promise<any> => {
+  const user = await userRepository.findById({ id: userId });
+  if (!user) return null;
+
+  return {
+    id: user.id,
+    fullName: user.fullName,
+    email: user.email,
+    role: user.role,
+  };
+};
+
 /**
  * Invite multiple users
  * Returns results for each email - both successful and failed invitations
@@ -64,5 +76,3 @@ export const inviteUsers = async (emails: string[]): Promise<InviteUsersResult> 
 
   return result;
 };
-
-
