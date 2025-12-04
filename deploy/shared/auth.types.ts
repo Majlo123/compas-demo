@@ -9,6 +9,7 @@ export type RegisterRequest = {
   email: string;
   password: string;
   fullName: string;
+  inviteToken?: string;
 };
 
 export type RegisterResponse = {
@@ -35,4 +36,15 @@ export type LoginResponse = {
     role: Role;
     isTeamManager: boolean;
   };
+};
+
+export type ChangePasswordRequest = {
+  currentPassword: string;
+  newPassword: string;
+  confirmPassword: string;
+};
+
+export type ChangePasswordResponse = {
+  success: boolean;
+  message: string;
 };

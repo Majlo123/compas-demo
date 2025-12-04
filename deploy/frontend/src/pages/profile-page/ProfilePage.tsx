@@ -12,6 +12,8 @@ import { isApiSuccess } from '@/api/shared.types';
 import { Team } from '@/api/team/team.types';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { RoleEnum } from '../../../../shared/auth.types';
+import Button from '@/components/controls/button/Button';
+import DialogChangePassword from '@/components/dialog/DialogChangePassword';
 import resolveConfig from 'tailwindcss/resolveConfig';
 import tailwindConfig from '../../../tailwind.config';
 
@@ -30,6 +32,7 @@ const ProfilePage: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequest[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [tooltip, setTooltip] = useState<{ visible: boolean; content: string; x: number; y: number }>({
     visible: false,
@@ -156,6 +159,16 @@ const ProfilePage: React.FC = () => {
                 <span className="inline-block px-3 py-1 rounded-full text-sm font-medium bg-primary/10 text-primary capitalize">
                   {profile.role}
                 </span>
+              </div>
+              
+              <div className="flex-shrink-0">
+                <Button
+                  onClick={() => setChangePasswordDialogOpen(true)}
+                  variant="secondary"
+                  className="text-sm"
+                >
+                  Change Password
+                </Button>
               </div>
             </div>
 
@@ -325,6 +338,11 @@ const ProfilePage: React.FC = () => {
           <div className="absolute left-1/2 bottom-0 transform -translate-x-1/2 translate-y-1/2 w-2 h-2 bg-gray-800 rotate-45" />
         </div>
       )}
+      <DialogChangePassword
+        isOpen={changePasswordDialogOpen}
+        onOpenChange={setChangePasswordDialogOpen}
+        onSuccess={fetchProfile}
+      />
     </PageLayout>
   );
 };

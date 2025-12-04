@@ -9,6 +9,7 @@ import FormTextInput from '@/components/controls/FormTextInput';
 import React from 'react';
 import { register as registerUser } from '@/api/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import { verifyInviteToken } from '@/api/user-invite/userInvite.actions';
 
 import CalendarIconLarge from '@/components/images/CalendarIconLarge';
 
@@ -30,7 +31,6 @@ type RegisterForm = z.infer<typeof registerSchema>;
 const RegisterPage: React.FC = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isValidToken, setIsValidToken] = useState<boolean | null>(null);
-  const [inviteEmail, setInviteEmail] = useState('');
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
@@ -47,31 +47,28 @@ const RegisterPage: React.FC = () => {
   });
 
   useEffect(() => {
-    const token = searchParams.get('token');
-    
-    if (!token) {
-      setIsValidToken(false);
-      toast.error('Invalid or missing invite token');
-      return;
-    }
-
-    // Validate token - for now just decode it (backend validation will happen on submit)
-    try {
-      // Simple JWT decode without verification (just to extract email)
-      const payload = JSON.parse(atob(token.split('.')[1]));
+    const verifyToken = async () => {
+      const token = searchParams.get('invite');
       
-      if (payload.email && payload.actionType === 'INVITE') {
-        setInviteEmail(payload.email);
-        setValue('email', payload.email);
+      if (!token) {
+        setIsValidToken(false);
+        toast.error('Invalid or missing invite token');
+        return;
+      }
+
+      const response = await verifyInviteToken(token);
+
+      if (isApiSuccess(response) && response.content.email) {
+        setValue('email', response.content.email);
         setIsValidToken(true);
       } else {
         setIsValidToken(false);
-        toast.error('Invalid invite token');
+        const errorMsg = isApiSuccess(response) ? 'Invalid invite token' : (response.error?.message || 'Invalid invite token');
+        toast.error(errorMsg);
       }
-    } catch (error) {
-      setIsValidToken(false);
-      toast.error('Invalid invite token format');
-    }
+    };
+
+    verifyToken();
   }, [searchParams, setValue]);
 
   const onSubmit = async (data: RegisterForm) => {
@@ -79,11 +76,12 @@ const RegisterPage: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      const token = searchParams.get('token');
+      const inviteToken = searchParams.get('invite');
       const response = await registerUser({
         email: data.email,
         password: data.password,
         fullName: data.fullName,
+        inviteToken: inviteToken || undefined,
       });
 
       if (isApiSuccess(response)) {

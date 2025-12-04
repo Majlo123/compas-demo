@@ -3,6 +3,7 @@ import { deactivateUser, findAllActivePaginated } from 'repos/user.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import { User as UserModel } from 'repos/user.model';
+import { createUserInvite } from './userInvite.service';
 
 /**
  * Search users by name or email
@@ -40,4 +41,38 @@ export const getUserProfile = async (userId: string): Promise<any> => {
     email: user.email,
     role: user.role,
   };
+};
+
+/**
+ * Invite multiple users
+ * Returns results for each email - both successful and failed invitations
+ */
+export type InviteUsersResult = {
+  invited: Array<{ email: string; inviteId: string }>;
+  failed: Array<{ email: string; reason: string }>;
+};
+
+export const inviteUsers = async (emails: string[]): Promise<InviteUsersResult> => {
+  const result: InviteUsersResult = {
+    invited: [],
+    failed: [],
+  };
+
+  // Process each email invitation
+  for (const email of emails) {
+    try {
+      const invite = await createUserInvite({ email: email.trim().toLowerCase() });
+      result.invited.push({
+        email: invite.email,
+        inviteId: invite.inviteId,
+      });
+    } catch (error: any) {
+      result.failed.push({
+        email,
+        reason: error.message || 'Failed to create invite',
+      });
+    }
+  }
+
+  return result;
 };

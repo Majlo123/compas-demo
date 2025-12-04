@@ -23,11 +23,14 @@ import Pagination from '@/components/controls/Pagination';
 import PageSizeSelector from '@/components/controls/PageSizeSelector';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum } from '../../../../shared/auth.types';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const TeamRequestsPage: React.FC = () => {
   const { page, pageSize, setPageSize, setPage } = usePagination();
   const { sort } = useSort();
   const user = useAuthStore((state) => state.user);
+  const location = useLocation();
+  const navigate = useNavigate();
   
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestWithEmployee[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -53,6 +56,7 @@ const TeamRequestsPage: React.FC = () => {
   const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
   const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
+  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(null);
 
   const [debouncedSearch] = useDebounce(search, 1000);
 
@@ -78,6 +82,17 @@ const TeamRequestsPage: React.FC = () => {
     loadTeams();
   }, [user]);
 
+  // Read requestId from query params and set filter
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const reqId = params.get('requestId');
+    if (reqId) {
+      setRequestIdFilter(reqId);
+      // Also default status to pending for clearer view
+      setSelectedStatus({ label: 'Pending', value: 'pending' });
+    }
+  }, [location.search]);
+
   // Reset page to 1 when filters change
   useEffect(() => {
     setPage(1);
@@ -99,6 +114,9 @@ const TeamRequestsPage: React.FC = () => {
     }
     if (selectedTeam) {
       filters.push({ filterKey: 'teamId', operator: 'equals', value: selectedTeam.value });
+    }
+    if (requestIdFilter) {
+      filters.push({ filterKey: 'requestId', operator: 'equals', value: requestIdFilter });
     }
 
     const queryParams: QueryParams = {
@@ -129,6 +147,13 @@ const TeamRequestsPage: React.FC = () => {
     setSelectedFilter(null);
     setSelectedStatus(null);
     setSelectedTeam(null);
+    setRequestIdFilter(null);
+    // Remove requestId from URL for a full list view
+    if (location.search.includes('requestId')) {
+      const params = new URLSearchParams(location.search);
+      params.delete('requestId');
+      navigate({ pathname: location.pathname, search: params.toString() });
+    }
   };
 
   const handleStatusUpdate = async (id: string, status: 'approved' | 'declined') => {
