@@ -203,3 +203,180 @@ export const sendInvitationEmail = async (email: string, token: string): Promise
     text: generateInviteEmailText(inviteLink),
   });
 };
+
+/**
+ * Manager notification: new leave request pending approval
+ */
+type LeaveNotificationPayload = {
+  requesterName: string;
+  requesterEmail: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  reason?: string;
+  requestId: string;
+};
+
+const formatDate = (d: Date) => d.toISOString().split('T')[0];
+
+const generateLeaveNotificationHtml = (payload: LeaveNotificationPayload): string => {
+  const manageLink = `${config.frontendUrl}/team-requests?requestId=${payload.requestId}`;
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background-color: #111827; color: #ffffff; padding: 20px; text-align: center; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+          .content { padding: 24px; }
+          .row { margin: 8px 0; }
+          .label { color: #6b7280; }
+          .button-container { text-align: center; margin: 24px 0; }
+          .button { display: inline-block; padding: 12px 24px; background-color: #111827; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; }
+          .footer { background-color: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; }
+          .link { color: #111827; text-decoration: none; word-break: break-all; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>New Leave Request Pending Approval</h1>
+          </div>
+          <div class="content">
+            <div class="row"><span class="label">Requester:</span> <strong>${payload.requesterName}</strong> (${payload.requesterEmail})</div>
+            <div class="row"><span class="label">Type:</span> ${payload.type.charAt(0).toUpperCase() + payload.type.slice(1)}</div>
+            <div class="row"><span class="label">Dates:</span> ${formatDate(payload.startDate)} → ${formatDate(payload.endDate)}</div>
+            ${payload.reason ? `<div class="row"><span class="label">Reason:</span> ${payload.reason}</div>` : ''}
+            <div class="button-container">
+              <a href="${manageLink}" class="button">Review in Vacation Tracker</a>
+            </div>
+            <div class="row"><span class="label">Direct link:</span> <a href="${manageLink}" class="link">${manageLink}</a></div>
+          </div>
+          <div class="footer">You received this because you manage the requester’s team.</div>
+        </div>
+      </body>
+    </html>
+  `;
+};
+
+const generateLeaveNotificationText = (payload: LeaveNotificationPayload): string => {
+  const manageLink = `${config.frontendUrl}/team-requests?requestId=${payload.requestId}`;
+  return `New Leave Request Pending Approval
+
+Requester: ${payload.requesterName} (${payload.requesterEmail})
+Type: ${payload.type}
+Dates: ${formatDate(payload.startDate)} -> ${formatDate(payload.endDate)}
+${payload.reason ? `Reason: ${payload.reason}\n` : ''}
+
+Review in Vacation Tracker: ${manageLink}
+`;
+};
+
+export const sendLeaveRequestNotification = async (
+  to: string | string[],
+  payload: LeaveNotificationPayload
+): Promise<void> => {
+  const recipients = Array.isArray(to) ? to : [to];
+  if (recipients.length === 0) return;
+
+  const html = generateLeaveNotificationHtml(payload);
+  const text = generateLeaveNotificationText(payload);
+
+  await Promise.all(
+    recipients.map((email) =>
+      sendEmail({
+        to: email,
+        subject: 'New leave request pending approval',
+        html,
+        text,
+      })
+    )
+  );
+};
+
+/**
+ * Notify requester when status changes (approved/declined)
+ */
+type LeaveStatusUpdatePayload = {
+  requesterName: string;
+  requesterEmail: string;
+  type: string;
+  startDate: Date;
+  endDate: Date;
+  status: 'approved' | 'declined';
+  requestId: string;
+};
+
+const generateLeaveStatusUpdateHtml = (p: LeaveStatusUpdatePayload): string => {
+  const statusColor = p.status === 'approved' ? '#059669' : '#DC2626';
+  const statusLabel = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+  const viewLink = `${config.frontendUrl}/my-leave-requests?requestId=${p.requestId}`;
+  return `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; line-height: 1.6; color: #333; background-color: #f5f5f5; margin: 0; padding: 0; }
+          .container { max-width: 600px; margin: 20px auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); overflow: hidden; }
+          .header { background-color: ${statusColor}; color: #ffffff; padding: 20px; text-align: center; }
+          .header h1 { margin: 0; font-size: 20px; font-weight: 600; }
+          .content { padding: 24px; }
+          .row { margin: 8px 0; }
+          .label { color: #6b7280; }
+          .button-container { text-align: center; margin: 24px 0; }
+          .button { display: inline-block; padding: 12px 24px; background-color: ${statusColor}; color: #ffffff !important; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; }
+          .footer { background-color: #f9fafb; padding: 16px 24px; text-align: center; font-size: 12px; color: #6b7280; }
+          .link { color: ${statusColor}; text-decoration: none; word-break: break-all; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h1>Your Leave Request Was ${statusLabel}</h1>
+          </div>
+          <div class="content">
+            <div class="row"><span class="label">Type:</span> ${p.type.charAt(0).toUpperCase() + p.type.slice(1)}</div>
+            <div class="row"><span class="label">Dates:</span> ${formatDate(p.startDate)} → ${formatDate(p.endDate)}</div>
+            <div class="row"><span class="label">Status:</span> <strong>${statusLabel}</strong></div>
+            <div class="button-container">
+              <a href="${viewLink}" class="button">View Details and Comments</a>
+            </div>
+            <div class="row"><span class="label">Direct link:</span> <a href="${viewLink}" class="link">${viewLink}</a></div>
+          </div>
+          <div class="footer">You can view any comments or notes in the request details.</div>
+        </div>
+      </body>
+    </html>
+  `;
+};
+
+const generateLeaveStatusUpdateText = (p: LeaveStatusUpdatePayload): string => {
+  const viewLink = `${config.frontendUrl}/my-leave-requests?requestId=${p.requestId}`;
+  const statusLabel = p.status.charAt(0).toUpperCase() + p.status.slice(1);
+  return `Your Leave Request Was ${statusLabel}
+
+Type: ${p.type}
+Dates: ${formatDate(p.startDate)} -> ${formatDate(p.endDate)}
+Status: ${statusLabel}
+
+View details and comments: ${viewLink}
+`;
+};
+
+export const sendLeaveStatusUpdateEmail = async (
+  to: string,
+  payload: LeaveStatusUpdatePayload
+): Promise<void> => {
+  await sendEmail({
+    to,
+    subject: `Your leave request was ${payload.status}`,
+    html: generateLeaveStatusUpdateHtml(payload),
+    text: generateLeaveStatusUpdateText(payload),
+  });
+};

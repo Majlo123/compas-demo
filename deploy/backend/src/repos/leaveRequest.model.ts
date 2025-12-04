@@ -102,6 +102,10 @@ export const findAllWithFilters = async (
       whereClauses.push(`lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = $${paramIndex})`);
       whereValues.push(filter.value);
       paramIndex++;
+    } else if (filter.filterKey === 'requestId') {
+      whereClauses.push(`lr.id = $${paramIndex}`);
+      whereValues.push(filter.value);
+      paramIndex++;
     }
   });
 
