@@ -6,6 +6,8 @@ import { getTeamsByUserId } from '@/api/team/team.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { Team } from '@/api/team/team.types';
 import { RoleEnum } from '../../../../shared/auth.types';
+import Button from '@/components/controls/button/Button';
+import DialogChangePassword from '@/components/dialog/DialogChangePassword';
 
 interface UserProfile {
   id: string;
@@ -19,6 +21,7 @@ const ProfilePage: React.FC = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
+  const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
 
   useEffect(() => {
     fetchProfile();
@@ -93,6 +96,16 @@ const ProfilePage: React.FC = () => {
                   {profile.role}
                 </span>
               </div>
+              
+              <div className="flex-shrink-0">
+                <Button
+                  onClick={() => setChangePasswordDialogOpen(true)}
+                  variant="secondary"
+                  className="text-sm"
+                >
+                  Change Password
+                </Button>
+              </div>
             </div>
 
             {/* Vacation Days Info */}
@@ -152,6 +165,11 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
       )}
+      <DialogChangePassword
+        isOpen={changePasswordDialogOpen}
+        onOpenChange={setChangePasswordDialogOpen}
+        onSuccess={fetchProfile}
+      />
     </PageLayout>
   );
 };
