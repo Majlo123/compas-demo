@@ -82,3 +82,18 @@ CREATE TABLE IF NOT EXISTS user_invites (
 );
 
 CREATE INDEX IF NOT EXISTS idx_user_invites_email ON user_invites(email);
+
+-- Create leave_request_notifications table
+CREATE TABLE IF NOT EXISTS leave_request_notifications (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    leave_request_id UUID NOT NULL REFERENCES leave_requests(id) ON DELETE CASCADE,
+    title VARCHAR(500) NOT NULL,
+    is_read BOOLEAN NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_user_id ON leave_request_notifications(user_id);
+CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_leave_request_id ON leave_request_notifications(leave_request_id);
+CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_is_read ON leave_request_notifications(is_read);
+CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_created_at ON leave_request_notifications(created_at DESC);
