@@ -14,10 +14,7 @@ import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { RoleEnum } from '../../../../shared/auth.types';
 import Button from '@/components/controls/button/Button';
 import DialogChangePassword from '@/components/dialog/DialogChangePassword';
-import resolveConfig from 'tailwindcss/resolveConfig';
-import tailwindConfig from '../../../tailwind.config';
-
-const fullConfig = resolveConfig(tailwindConfig);
+import { getLeaveTypeColor } from '@/utils/colorUtils';
 
 interface UserProfile {
   id: string;
@@ -83,22 +80,6 @@ const ProfilePage: React.FC = () => {
       return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
     }
     return fullName[0]?.toUpperCase() || 'U';
-  };
-
-  const getLeaveTypeColor = (type: string): string => {
-    const colors = fullConfig.theme.colors as any;
-    switch (type) {
-      case 'vacation':
-        return colors['vacation-leave'];
-      case 'sick':
-        return colors['sick-leave'];
-      case 'personal':
-        return colors['personal-leave'];
-      case 'other':
-        return colors['other-leave'];
-      default:
-        return colors.primary;
-    }
   };
 
   const prepareHeatmapData = () => {
