@@ -6,44 +6,80 @@ import Dropdown from '@/components/controls/Dropdown';
 import NotificationsDropdown, { type Notification } from '@/components/layout/NotificationsDropdown';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getFromLocalStorage } from '@/services/local.storage';
+import { initializeSocket, onNotification, offNotification } from '@/services/socket.service';
+import {
+  fetchUnreadNotifications,
+  type LeaveRequestNotification,
+} from '@/api/notification.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
 const HeaderNav: React.FC = () => {
   const navigate = useNavigate();
   const { logout } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [unreadNotificationCount] = useState(5); // Mock data - will fetch from API
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
-  // Sample notification data
-  const [notifications] = useState<Notification[]>([
-    {
-      id: '1',
-      title: 'Your leave request for June 15-20 has been approved',
-      timestamp: new Date(Date.now() - 5 * 60000), // 5 minutes ago
-    },
-    {
-      id: '2',
-      title: 'John Smith requested approval for leave on July 10-15',
-      timestamp: new Date(Date.now() - 2 * 3600000), // 2 hours ago
-    },
-    {
-      id: '3',
-      title: 'Your leave request for August 1-5 was denied',
-      timestamp: new Date(Date.now() - 1 * 86400000), // 1 day ago
-    },
-    {
-      id: '4',
-      title: 'Team meeting scheduled for tomorrow at 2 PM',
-      timestamp: new Date(Date.now() - 2 * 86400000), // 2 days ago
-    },
-    {
-      id: '5',
-      title: 'Your profile has been updated successfully',
-      timestamp: new Date(Date.now() - 3 * 86400000), // 3 days ago
-    },
-  ]);
+  // Fetch notifications on mount
+  useEffect(() => {
+    const loadNotifications = async () => {
+      const response = await fetchUnreadNotifications();
+      if (isApiSuccess(response)) {
+        const notifs: Notification[] = response.content.map(
+          (n: LeaveRequestNotification) => ({
+            id: n.id,
+            title: n.title,
+            timestamp: new Date(n.createdAt),
+            leaveRequestId: n.leaveRequestId,
+          }),
+        );
+        setNotifications(notifs);
+        setUnreadNotificationCount(notifs.length);
+      }
+    };
+
+    loadNotifications();
+  }, []);
+
+  // Initialize socket and listen for new notifications
+  useEffect(() => {
+    // Only initialize if we have a token
+    const token = getFromLocalStorage('token');
+    console.log('Socket initialization useEffect triggered, token exists:', !!token);
+    if (!token) {
+      console.log('No token found, skipping socket initialization');
+      return;
+    }
+
+    try {
+      console.log('Calling initializeSocket');
+      initializeSocket();
+
+      const handleNewNotification = (notification: LeaveRequestNotification) => {
+        console.log('New notification received:', notification);
+        const newNotif: Notification = {
+          id: notification.id,
+          title: notification.title,
+          timestamp: new Date(notification.createdAt),
+          leaveRequestId: notification.leaveRequestId,
+        };
+
+        setNotifications((prev) => [newNotif, ...prev]);
+        setUnreadNotificationCount((prev) => prev + 1);
+      };
+
+      onNotification(handleNewNotification);
+
+      return () => {
+        offNotification(handleNewNotification);
+      };
+    } catch (error) {
+      console.error('Failed to initialize socket:', error);
+    }
+  }, []);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -108,6 +144,16 @@ const HeaderNav: React.FC = () => {
 
   const userInfo = getUserInfo();
 
+  const handleNotificationRead = (notificationId: string) => {
+    setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
+    setUnreadNotificationCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleAllNotificationsRead = () => {
+    setNotifications([]);
+    setUnreadNotificationCount(0);
+  };
+
   return (
     <header className="bg-headerBg border-b border-2 border-headerBorder flex items-center justify-between px-4 py-2 sticky top-0 z-50">
       {/* Organization Name */}
@@ -137,6 +183,8 @@ const HeaderNav: React.FC = () => {
             isOpen={isNotificationsOpen}
             notifications={notifications}
             onClose={() => setIsNotificationsOpen(false)}
+            onNotificationRead={handleNotificationRead}
+            onAllRead={handleAllNotificationsRead}
           />
         </div>
 

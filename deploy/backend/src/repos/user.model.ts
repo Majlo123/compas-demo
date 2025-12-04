@@ -70,4 +70,32 @@ export const deactivateUser = async (userId: string): Promise<boolean> => {
   return !!updated;
 };
 
+/**
+ * Find user by email
+ */
+export const findByEmail = async (email: string): Promise<User | null> => {
+  const query = {
+    text: 'SELECT * FROM users WHERE email = $1 LIMIT 1',
+    values: [email],
+  };
+  
+  const result = await pool.query(query);
+  
+  if (result.rows.length === 0) {
+    return null;
+  }
+  
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    fullName: row.full_name,
+    email: row.email,
+    passwordHash: row.password_hash,
+    role: row.role,
+    isActivated: row.is_activated,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+  };
+};
+
 export { create, findById, findByField, findAll, updateById, deleteById };

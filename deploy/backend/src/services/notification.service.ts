@@ -1,5 +1,27 @@
 import { leaveRequestNotificationRepository } from 'repos/index';
+import type { CreateLeaveRequestNotification } from 'repos/notification.model';
 import logger from 'config/logger';
+import { emitToUser } from 'config/socket';
+
+/**
+ * Create a new notification and emit socket event
+ */
+export const createNotification = async (
+  notificationData: CreateLeaveRequestNotification,
+): Promise<any> => {
+  try {
+    const notification = await leaveRequestNotificationRepository.create(notificationData);
+    
+    // Emit socket event to the user
+    emitToUser(notificationData.userId, 'notification:new', notification);
+    
+    logger.info(`Created notification for user ${notificationData.userId}`);
+    return notification;
+  } catch (error) {
+    logger.error(`Failed to create notification: ${String(error)}`);
+    throw error;
+  }
+};
 
 /**
  * Get unread notifications for a user

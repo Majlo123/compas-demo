@@ -7,6 +7,7 @@ import ApiError from 'shared/error/ApiError';
 import { RoleEnum } from '../../../shared/auth.types';
 import logger from 'config/logger';
 import { sendLeaveRequestNotification, sendLeaveStatusUpdateEmail } from './email.service';
+import { createNotification } from './notification.service';
 
 export type LeaveRequestResponse = {
   id: string;
@@ -127,6 +128,26 @@ export const createLeaveRequest = async (
         requestId: createdRequest.id!,
       });
       logger.info(`Manager notifications sent to ${managerEmails.length} recipients`);
+
+      // Create in-app notifications for each manager
+      const managerUsersPromises = Array.from(managerEmailsSet).map((email) => 
+        userRepository.findByEmail(email)
+      );
+      const managerUsers = await Promise.all(managerUsersPromises);
+      
+      const notificationPromises = managerUsers
+        .filter((manager): manager is NonNullable<typeof manager> => manager !== null)
+        .map((manager) =>
+          createNotification({
+            userId: manager.id!,
+            leaveRequestId: createdRequest.id!,
+            title: `${requester.fullName} requested ${createdRequest.type} leave`,
+            isRead: false,
+          })
+        );
+      
+      await Promise.all(notificationPromises);
+      logger.info(`In-app notifications created for ${managerUsers.filter((m) => m !== null).length} managers`);
     } catch (err) {
       logger.warn(`Failed to send manager notification for leave request: ${String(err)}`);
     }
@@ -235,12 +256,22 @@ export const updateLeaveRequestStatus = async (
     throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
   }
 
-  // Notify requester of status change (fire-and-forget)
-  (async () => {
-    try {
-      const requester = await userRepository.findById({ id: updatedRequest.userId });
-      if (!requester) return;
-      await sendLeaveStatusUpdateEmail(requester.email, {
+  // Notify requester of status change (synchronous for real-time socket emission)
+  try {
+    const requester = await userRepository.findById({ id: updatedRequest.userId });
+    if (requester) {
+      // Create in-app notification for requester (emits socket event immediately)
+      const statusText = status === 'approved' ? 'approved' : 'declined';
+      await createNotification({
+        userId: updatedRequest.userId,
+        leaveRequestId: updatedRequest.id!,
+        title: `Your ${updatedRequest.type} leave request was ${statusText}`,
+        isRead: false,
+      });
+      logger.info(`In-app notification created for requester ${requester.email}`);
+
+      // Send email notification (fire-and-forget - doesn't need to be real-time)
+      sendLeaveStatusUpdateEmail(requester.email, {
         requesterName: requester.fullName,
         requesterEmail: requester.email,
         type: updatedRequest.type,
@@ -248,12 +279,13 @@ export const updateLeaveRequestStatus = async (
         endDate: updatedRequest.endDate,
         status,
         requestId: updatedRequest.id!,
+      }).catch((err) => {
+        logger.warn(`Failed to send status update email: ${String(err)}`);
       });
-      logger.info(`Status update email sent to requester ${requester.email} for request ${updatedRequest.id}`);
-    } catch (err) {
-      logger.warn(`Failed to send status update email: ${String(err)}`);
     }
-  })();
+  } catch (err) {
+    logger.warn(`Failed to create status update notification: ${String(err)}`);
+  }
 
   return {
     id: updatedRequest.id!,
