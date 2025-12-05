@@ -7,3 +7,4 @@ export * as teamRepository from 'repos/team.model'
 export * as teamMemberRepository from 'repos/teamMember.model';
 export * as userInviteRepository from 'repos/userInvite.model';
 export * as leaveRequestNotificationRepository from 'repos/notification.model';
+export * as collectiveDayOffRepository from 'repos/collectiveDayOff.model';
