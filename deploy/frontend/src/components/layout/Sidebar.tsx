@@ -10,6 +10,7 @@ import TeamRequestsIcon from '@/components/images/TeamRequestsIcon';
 import classNameBuilder from '@/utils/classNameBuilder';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum, Role } from '../../../../shared/auth.types';
+import TableIconFile from '@/components/images/TableIconFile';
 
 type NavItem = {
   label: string;
@@ -24,7 +25,7 @@ const navItems: NavItem[] = [
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Days Off', path: '/days-off', Icon: TableIconCalendar, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Days Off', path: '/days-off', Icon: TableIconFile, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
   { label: 'Settings', path: '/settings', Icon: SettingsIcon },
