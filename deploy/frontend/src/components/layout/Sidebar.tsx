@@ -46,7 +46,7 @@ const Sidebar: React.FC = () => {
   });
 
   return (
-    <aside className="w-64 bg-primary flex flex-col h-full rounded-l-2xl overflow-hidden">
+    <aside className="min-w-48 bg-primary flex flex-col h-full rounded-l-2xl overflow-hidden">
       {/* Logo/Brand */}
       <div className="p-4 border-b border-sidebarBorder">
         <div className="flex items-center gap-3 text-white">

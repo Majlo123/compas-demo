@@ -236,42 +236,42 @@ const TeamRequestsPage: React.FC = () => {
         },
       ];
 
-  const hasActiveFilters = debouncedSearch || selectedFilter || selectedStatus || selectedTeam;
-
   return (
     <PageLayout
       title="Team Requests"
       action={
-        <div className="flex gap-3 items-center xl:w-2/3">
-            <div className="relative flex-1">
-              <input
-                id="team-requests-search"
-                placeholder="Search by name"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
-              />
-            </div>
-            <Select 
-              className="text-p1 flex-1" 
-              placeholder="Team" 
-              options={teams.map(team => ({ label: team.name, value: team.id }))} 
-              value={selectedTeam} 
-              onChange={setSelectedTeam} 
-            />
-            <Select className="text-p1 flex-1" placeholder="Type" options={filterOptions} value={selectedFilter} onChange={setSelectedFilter} />
-            <Select className="text-p1 flex-1" placeholder="Status" options={statusOptions} value={selectedStatus} onChange={setSelectedStatus} />
-            <Button
-              onClick={handleClearFilters}
-              className="px-4 py-6 text-p2"
-            >
-              Clear filters
-            </Button>
-            {hasActiveFilters && (
-              <div className="text-p1 font-bold text-darkGrey whitespace-nowrap">
-                Total requests: {totalItems}
+        <div>
+          <div className="flex gap-3 items-center w-full xl:w-3/4 flex-wrap">
+              <div className="relative flex-1 min-w-fit">
+                <input
+                  id="team-requests-search"
+                  placeholder="Search by name"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
+                />
               </div>
-            )}
+              <Select 
+                className="text-p1 min-w-fit flex-1" 
+                placeholder="Team" 
+                options={teams.map(team => ({ label: team.name, value: team.id }))} 
+                value={selectedTeam} 
+                onChange={setSelectedTeam} 
+              />
+              <Select className="text-p1 min-w-fit flex-1" placeholder="Type" options={filterOptions} value={selectedFilter} onChange={setSelectedFilter} />
+              <Select className="text-p1 min-w-fit flex-1" placeholder="Status" options={statusOptions} value={selectedStatus} onChange={setSelectedStatus} />
+              <Button
+                onClick={handleClearFilters}
+                className="px-4 py-6 text-p2 whitespace-nowrap"
+              >
+                Clear filters
+              </Button>
+          </div>
+          <div className="mt-2">
+            <div className="text-p2 text-darkGrey whitespace-nowrap">
+              Total requests: {totalItems}
+            </div>
+          </div>
         </div>
       }
       actionPosition="below"
