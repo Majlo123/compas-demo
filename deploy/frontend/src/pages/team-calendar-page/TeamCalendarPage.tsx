@@ -7,29 +7,10 @@ import { isApiSuccess } from '@/api/shared.types';
 import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import { Team } from '@/api/team/team.types';
 import { format } from 'date-fns';
-import resolveConfig from 'tailwindcss/resolveConfig';
-import tailwindConfig from '../../../tailwind.config';
 import Select, { SelectOption } from '@/components/controls/Select';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum } from '../../../../shared/auth.types';
-
-const fullConfig = resolveConfig(tailwindConfig);
-
-const getLeaveTypeColor = (type: string): string => {
-  const colors = fullConfig.theme.colors as any;
-  switch (type) {
-    case 'vacation':
-      return colors['vacation-leave'];
-    case 'sick':
-      return colors['sick-leave'];
-    case 'personal':
-      return colors['personal-leave'];
-    case 'other':
-      return colors['other-leave'];
-    default:
-      return colors.primary;
-  }
-};
+import { getLeaveTypeColor } from '@/utils/colorUtils';
 
 const TeamCalendarPage: React.FC = () => {
   const user = useAuthStore((state) => state.user);
