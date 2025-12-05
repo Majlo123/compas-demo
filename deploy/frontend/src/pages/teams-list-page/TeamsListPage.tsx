@@ -35,7 +35,7 @@ const TeamsListPage: React.FC = () => {
       const response = await getTeams();
 
       if (isApiSuccess(response)) {
-        const formattedData: TeamRow[] = response.content.data.map((team) => ({
+        const formattedData: TeamRow[] = response.content.data.map((team: any) => ({
           _id: team.id,
           name: team.name,
           memberCount: team.memberCount || 0,

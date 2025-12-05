@@ -1,4 +1,4 @@
-import { FC } from 'react';
+import { FC, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -32,14 +32,48 @@ type DialogLeaveRequestFormProps = {
   isOpen: boolean;
   onOpenChange: (isOpen: boolean) => void;
   onSubmit?: (data: { type: LeaveRequestType; startDate: string; endDate: string }) => Promise<void>;
+  onCancel?: () => Promise<void>;
+  initialData?: {
+    id?: string;
+    type: LeaveRequestType;
+    startDate: string;
+    endDate: string;
+  } | null;
+  mode?: 'create' | 'edit';
 };
 
-const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({ isOpen, onOpenChange, onSubmit }) => {
-  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<LeaveRequestForm>({
+const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({ 
+  isOpen, 
+  onOpenChange, 
+  onSubmit,
+  onCancel,
+  initialData,
+  mode = 'create'
+}) => {
+  const leaveTypeOptions = [
+    { label: 'Vacation', value: 'vacation' },
+    { label: 'Sick Leave', value: 'sick' },
+    { label: 'Personal Leave', value: 'personal' },
+    { label: 'Other', value: 'other' },
+  ];
+
+  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue } = useForm<LeaveRequestForm>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: { leaveType: null, startDate: '', endDate: '' },
     mode: 'onChange',
   });
+
+  // Set initial values when editing
+  useEffect(() => {
+    if (initialData && isOpen) {
+      const leaveTypeOption = leaveTypeOptions.find(opt => opt.value === initialData.type);
+      setValue('leaveType', leaveTypeOption || null);
+      setValue('startDate', initialData.startDate.split('T')[0]);
+      setValue('endDate', initialData.endDate.split('T')[0]);
+    } else if (!isOpen) {
+      reset();
+    }
+  }, [initialData, isOpen]);
 
   const onSubmitHandler = async (data: LeaveRequestForm) => {
     try {
@@ -60,22 +94,27 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({ isOpen, onOpe
     }
   };
 
-  const leaveTypeOptions = [
-    { label: 'Vacation', value: 'vacation' },
-    { label: 'Sick Leave', value: 'sick' },
-    { label: 'Personal Leave', value: 'personal' },
-    { label: 'Other', value: 'other' },
-  ];
+  const handleCancel = async () => {
+    if (onCancel) {
+      try {
+        await onCancel();
+        reset();
+        onOpenChange(false);
+      } catch (error: any) {
+        toast.error(error?.message || 'Failed to cancel leave request');
+      }
+    }
+  };
 
   return (
     <CustomDialog
-      title="New Leave Request"
-      description="Fill out the form to create a new leave request."
+      title={mode === 'edit' ? 'Edit Leave Request' : 'New Leave Request'}
+      description={mode === 'edit' ? 'Update or cancel your leave request.' : 'Fill out the form to create a new leave request.'}
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >
       <form onSubmit={handleSubmit(onSubmitHandler)}>
-        <div className="mb-md">
+        <div className="mb-lg">
           <FormSelect
             name="leaveType"
             control={control}
@@ -85,25 +124,37 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({ isOpen, onOpe
             errors={errors}
           />
         </div>
-        <div className="mb-md">
+        <div className="mb-lg">
           <DateInput
             label="Start Date"
             required
             error={errors.startDate?.message}
+            min={new Date().toISOString().split('T')[0]}
             {...register('startDate')}
           />
         </div>
-        <div className="mb-xl">
+        <div className="mb-lg">
           <DateInput
             label="End Date"
             required
             error={errors.endDate?.message}
+            min={new Date().toISOString().split('T')[0]}
             {...register('endDate')}
           />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end gap-4">
+          {mode === 'edit' && (
+            <Button
+              type="button"
+              variant="delete"
+              onClick={handleCancel}
+              disabled={isSubmitting}
+            >
+              Cancel Request
+            </Button>
+          )}
           <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Submitting...' : 'Submit'}
+            {isSubmitting ? (mode === 'edit' ? 'Updating...' : 'Submitting...') : (mode === 'edit' ? 'Update' : 'Submit')}
           </Button>
         </div>
       </form>

@@ -73,3 +73,26 @@ export const updateLeaveRequestStatus = async (
     return formatError(error);
   }
 };
+
+export const updateLeaveRequest = async (
+  id: string,
+  data: CreateLeaveRequestData
+): Promise<ApiResponse<LeaveRequest>> => {
+  try {
+    const response = await axiosServer.put(`${endpoint}/${id}`, data);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const cancelLeaveRequest = async (
+  id: string
+): Promise<ApiResponse<LeaveRequest>> => {
+  try {
+    const response = await axiosServer.delete(`${endpoint}/${id}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
