@@ -4,13 +4,11 @@ import TableIconCalendar from '@/components/images/TableIconCalendar';
 import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
 import TableIconUser from '@/components/images/TableIconUser';
-import ReportsIcon from '@/components/images/ReportsIcon';
-import SettingsIcon from '@/components/images/SettingsIcon';
-import TeamRequestsIcon from '@/components/images/TeamRequestsIcon';
+import TeamsIcon from '@/components/images/TeamsIcon';
+import TableIconEdit from '@/components/images/TableIconEdit';
 import classNameBuilder from '@/utils/classNameBuilder';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum, Role } from '../../../../shared/auth.types';
-import TableIconFile from '@/components/images/TableIconFile';
 
 type NavItem = {
   label: string;
@@ -21,14 +19,14 @@ type NavItem = {
 
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
-  { label: 'Team Requests', path: '/team-requests', Icon: TeamRequestsIcon, allowedRoles: [RoleEnum.Admin] },
-  { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
-  { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Days Off', path: '/days-off', Icon: TableIconFile, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Teams', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
+  { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
+  { label: 'Team Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
-  { label: 'Reports', path: '/reports', Icon: ReportsIcon },
-  { label: 'Settings', path: '/settings', Icon: SettingsIcon },
+  { label: 'Days Off', path: '/days-off', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
+  // { label: 'Reports', path: '/reports', Icon: ReportsIcon },
+  // { label: 'Settings', path: '/settings', Icon: SettingsIcon },
 ];
 
 const Sidebar: React.FC = () => {
