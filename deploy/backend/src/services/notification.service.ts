@@ -18,7 +18,8 @@ export const createNotification = async (
     logger.info(`Created notification for user ${notificationData.userId}`);
     return notification;
   } catch (error) {
-    logger.error(`Failed to create notification: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(String(error));
+    logger.error(err);
     throw error;
   }
 };
@@ -31,7 +32,8 @@ export const getUnreadNotifications = async (userId: string) => {
     const notifications = await leaveRequestNotificationRepository.findUnreadByUserId(userId);
     return notifications;
   } catch (error) {
-    logger.error(`Failed to fetch notifications for user ${userId}: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(`Failed to fetch notifications for user ${userId}`);
+    logger.error(err);
     throw error;
   }
 };
@@ -44,7 +46,8 @@ export const markNotificationAsRead = async (notificationId: string) => {
     const notification = await leaveRequestNotificationRepository.markAsRead(notificationId);
     return notification;
   } catch (error) {
-    logger.error(`Failed to mark notification ${notificationId} as read: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(`Failed to mark notification ${notificationId} as read`);
+    logger.error(err);
     throw error;
   }
 };
@@ -57,7 +60,8 @@ export const markAllNotificationsAsRead = async (userId: string) => {
     const count = await leaveRequestNotificationRepository.markAllAsReadForUser(userId);
     return { count };
   } catch (error) {
-    logger.error(`Failed to mark all notifications as read for user ${userId}: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(`Failed to mark all notifications as read for user ${userId}`);
+    logger.error(err);
     throw error;
   }
 };
@@ -84,7 +88,8 @@ export const updateNotificationsForLeaveRequest = async (
     logger.info(`Updated ${notifications.length} notification(s) for leave request ${leaveRequestId}`);
     return notifications;
   } catch (error) {
-    logger.error(`Failed to update notifications for leave request ${leaveRequestId}: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(`Failed to update notifications for leave request ${leaveRequestId}`);
+    logger.error(err);
     throw error;
   }
 };
@@ -110,7 +115,8 @@ export const deleteNotificationsForLeaveRequest = async (
     logger.info(`Deleted ${deletedCount} notification(s) for leave request ${leaveRequestId}`);
     return deletedCount;
   } catch (error) {
-    logger.error(`Failed to delete notifications for leave request ${leaveRequestId}: ${String(error)}`);
+    const err = error instanceof Error ? error : new Error(`Failed to delete notifications for leave request ${leaveRequestId}`);
+    logger.error(err);
     throw error;
   }
 };
