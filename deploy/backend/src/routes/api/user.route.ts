@@ -13,6 +13,7 @@ enum UserFunctions {
   deactivateUser = 'deactivateUser',
   getUserProfile = 'getUserProfile',
   inviteUsers = 'inviteUsers',
+  updateEmailNotificationPreference = 'updateEmailNotificationPreference',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -84,6 +85,18 @@ const createUserRoute = (basePath: string): Router => {
       functionName: UserFunctions.inviteUsers,
       basePath,
     },
+    {
+      name: 'Update Email Notification Preference',
+      desc: 'Update user email notification preference',
+      path: '/email-notification-preference',
+      method: 'put',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'Email notification preference updated' },
+      ],
+      functionName: UserFunctions.updateEmailNotificationPreference,
+      basePath,
+    },
   ];
 
   console.log('Available userController functions:', Object.keys(userController));
@@ -94,6 +107,7 @@ const createUserRoute = (basePath: string): Router => {
     deactivateUser: userController.deactivateUser as RequestHandler,
     getUserProfile: userController.getUserProfile as RequestHandler,
     inviteUsers:userController.inviteUsers as RequestHandler,
+    updateEmailNotificationPreference: userController.updateEmailNotificationPreference as RequestHandler,
   };
 
   const router = Router();

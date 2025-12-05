@@ -107,9 +107,24 @@ export const createLeaveRequest = async (
         memberships.map((m) => teamMemberRepository.findByTeamId(m.teamId))
       );
       const managerEmailsSet = new Set<string>();
+      const managerEmailsWithPreferences: Record<string, boolean> = {};
+      
       teamsMembers.flat().
         filter(tm => tm.isManager && tm.email).
-        forEach(tm => managerEmailsSet.add(tm.email!));
+        forEach(tm => {
+          managerEmailsSet.add(tm.email!);
+        });
+
+      // Get email notification preferences for all managers
+      const managerUsersPromises = Array.from(managerEmailsSet).map((email) => 
+        userRepository.findByEmail(email)
+      );
+      const managerUsers = await Promise.all(managerUsersPromises);
+      managerUsers.forEach((manager) => {
+        if (manager && manager.email) {
+          managerEmailsWithPreferences[manager.email] = manager.emailNotificationsEnabled ?? true;
+        }
+      });
 
       const managerEmails = Array.from(managerEmailsSet);
       logger.info(`Manager recipients resolved: ${managerEmails.join(', ')}`);
@@ -126,15 +141,10 @@ export const createLeaveRequest = async (
         endDate: createdRequest.endDate,
         reason: createdRequest.reason,
         requestId: createdRequest.id!,
-      });
+      }, managerEmailsWithPreferences);
       logger.info(`Manager notifications sent to ${managerEmails.length} recipients`);
 
       // Create in-app notifications for each manager
-      const managerUsersPromises = Array.from(managerEmailsSet).map((email) => 
-        userRepository.findByEmail(email)
-      );
-      const managerUsers = await Promise.all(managerUsersPromises);
-      
       const notificationPromises = managerUsers
         .filter((manager): manager is NonNullable<typeof manager> => manager !== null)
         .map((manager) =>
@@ -279,7 +289,7 @@ export const updateLeaveRequestStatus = async (
         endDate: updatedRequest.endDate,
         status,
         requestId: updatedRequest.id!,
-      }).catch((err) => {
+      }, requester.emailNotificationsEnabled).catch((err) => {
         logger.warn(`Failed to send status update email: ${String(err)}`);
       });
     }

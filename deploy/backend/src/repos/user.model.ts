@@ -9,6 +9,7 @@ export type User = {
   passwordHash: string;
   role: Role;
   isActivated?: boolean;
+  emailNotificationsEnabled?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -93,6 +94,7 @@ export const findByEmail = async (email: string): Promise<User | null> => {
     passwordHash: row.password_hash,
     role: row.role,
     isActivated: row.is_activated,
+    emailNotificationsEnabled: row.email_notifications_enabled,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
