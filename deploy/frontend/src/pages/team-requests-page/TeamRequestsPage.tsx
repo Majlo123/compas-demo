@@ -238,7 +238,7 @@ const TeamRequestsPage: React.FC = () => {
 
   return (
     <PageLayout
-      title="Team Requests"
+      title="Leave Requests"
       action={
         <div>
           <div className="flex gap-3 items-center w-full xl:w-3/4 flex-wrap">
