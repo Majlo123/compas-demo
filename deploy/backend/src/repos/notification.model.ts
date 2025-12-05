@@ -94,4 +94,37 @@ export const markAllAsReadForUser = async (userId: string): Promise<number> => {
   return result.rowCount || 0;
 };
 
+/**
+ * Update notification titles for a specific leave request
+ */
+export const updateTitleByLeaveRequestId = async (leaveRequestId: string, newTitle: string): Promise<number> => {
+  const query = {
+    text: 'UPDATE leave_request_notifications SET title = $1 WHERE leave_request_id = $2',
+    values: [newTitle, leaveRequestId],
+  };
+
+  const result = await pool.query(query);
+  return result.rowCount || 0;
+};
+
+/**
+ * Find all notifications for a specific leave request
+ */
+export const findByLeaveRequestId = async (leaveRequestId: string): Promise<LeaveRequestNotification[]> => {
+  const query = {
+    text: 'SELECT * FROM leave_request_notifications WHERE leave_request_id = $1',
+    values: [leaveRequestId],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    leaveRequestId: row.leave_request_id,
+    title: row.title,
+    isRead: row.is_read,
+    createdAt: row.created_at,
+  }));
+};
+
 export { create, findById, findByField, findAll, updateById, deleteById };

@@ -7,7 +7,7 @@ import ApiError from 'shared/error/ApiError';
 import { RoleEnum } from '../../../shared/auth.types';
 import logger from 'config/logger';
 import { sendLeaveRequestNotification, sendLeaveStatusUpdateEmail } from './email.service';
-import { createNotification } from './notification.service';
+import { createNotification, updateNotificationsForLeaveRequest } from './notification.service';
 
 export type LeaveRequestResponse = {
   id: string;
@@ -361,6 +361,20 @@ export const updateLeaveRequest = async (
 
   if (!updatedRequest) {
     throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  // Update related notifications if the type has changed
+  if (existingRequest.type !== updatedRequest.type) {
+    try {
+      const requester = await userRepository.findById({ id: userId });
+      if (requester) {
+        const newNotificationTitle = `${requester.fullName} requested ${updatedRequest.type} leave`;
+        await updateNotificationsForLeaveRequest(id, newNotificationTitle);
+        logger.info(`Updated notifications for leave request ${id} after type change from ${existingRequest.type} to ${updatedRequest.type}`);
+      }
+    } catch (err) {
+      logger.warn(`Failed to update notifications for leave request ${id}: ${String(err)}`);
+    }
   }
 
   return {

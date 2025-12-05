@@ -61,3 +61,30 @@ export const markAllNotificationsAsRead = async (userId: string) => {
     throw error;
   }
 };
+
+/**
+ * Update notification titles for a specific leave request and emit socket events
+ */
+export const updateNotificationsForLeaveRequest = async (
+  leaveRequestId: string,
+  newTitle: string
+) => {
+  try {
+    // Update the notification titles
+    await leaveRequestNotificationRepository.updateTitleByLeaveRequestId(leaveRequestId, newTitle);
+    
+    // Get all updated notifications to emit socket events
+    const notifications = await leaveRequestNotificationRepository.findByLeaveRequestId(leaveRequestId);
+    
+    // Emit socket events to all affected users
+    notifications.forEach((notification) => {
+      emitToUser(notification.userId, 'notification:updated', notification);
+    });
+    
+    logger.info(`Updated ${notifications.length} notification(s) for leave request ${leaveRequestId}`);
+    return notifications;
+  } catch (error) {
+    logger.error(`Failed to update notifications for leave request ${leaveRequestId}: ${String(error)}`);
+    throw error;
+  }
+};

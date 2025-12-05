@@ -88,3 +88,30 @@ export const offNotification = (callback?: (notification: any) => void): void =>
     socket.off('notification:new');
   }
 };
+
+export const onNotificationUpdate = (callback: (notification: any) => void): void => {
+  if (!socket) {
+    console.warn('Socket not initialized, attempting to initialize...');
+    try {
+      initializeSocket();
+    } catch (error) {
+      console.error('Failed to initialize socket in onNotificationUpdate:', error);
+      return;
+    }
+  }
+
+  console.log('Registering notification update listener');
+  socket.on('notification:updated', callback);
+};
+
+export const offNotificationUpdate = (callback?: (notification: any) => void): void => {
+  if (!socket) {
+    return;
+  }
+
+  if (callback) {
+    socket.off('notification:updated', callback);
+  } else {
+    socket.off('notification:updated');
+  }
+};
