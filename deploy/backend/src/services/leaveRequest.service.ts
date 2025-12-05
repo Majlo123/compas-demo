@@ -266,6 +266,98 @@ export const updateLeaveRequestStatus = async (
   };
 };
 
+/**
+ * Update an existing leave request (user can only update their own pending requests)
+ */
+export const updateLeaveRequest = async (
+  userId: string,
+  id: string,
+  data: CreateLeaveRequestInput
+): Promise<LeaveRequestResponse> => {
+  const existingRequest = await leaveRequestRepository.findById({ id });
+
+  if (!existingRequest) {
+    throw new ApiError('Leave request not found', httpStatus.NOT_FOUND);
+  }
+
+  // Only the owner can update their request
+  if (existingRequest.userId !== userId) {
+    throw new ApiError('You can only update your own leave requests', httpStatus.FORBIDDEN);
+  }
+
+  // Only pending requests can be updated
+  if (existingRequest.status !== 'pending') {
+    throw new ApiError('Only pending requests can be updated', httpStatus.BAD_REQUEST);
+  }
+
+  // Validate dates
+  const startDate = new Date(data.startDate);
+  const endDate = new Date(data.endDate);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  if (isNaN(startDate.getTime()) || isNaN(endDate.getTime())) {
+    throw new ApiError('Invalid date format', httpStatus.BAD_REQUEST);
+  }
+
+  if (startDate < today) {
+    throw new ApiError('Start date cannot be in the past', httpStatus.BAD_REQUEST);
+  }
+
+  if (endDate < startDate) {
+    throw new ApiError('End date cannot be before start date', httpStatus.BAD_REQUEST);
+  }
+
+  const updateData = {
+    type: data.type,
+    startDate,
+    endDate,
+    reason: data.reason,
+  };
+
+  const updatedRequest = await leaveRequestRepository.updateById(id, updateData);
+
+  if (!updatedRequest) {
+    throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  return {
+    id: updatedRequest.id!,
+    type: updatedRequest.type,
+    startDate: updatedRequest.startDate.toISOString().split('T')[0],
+    endDate: updatedRequest.endDate.toISOString().split('T')[0],
+    status: updatedRequest.status,
+    reason: updatedRequest.reason,
+    createdAt: updatedRequest.createdAt!.toISOString(),
+  };
+};
+
+/**
+ * Delete a leave request (user can only delete their own pending requests)
+ */
+export const deleteLeaveRequest = async (
+  userId: string,
+  id: string
+): Promise<void> => {
+  const existingRequest = await leaveRequestRepository.findById({ id });
+
+  if (!existingRequest) {
+    throw new ApiError('Leave request not found', httpStatus.NOT_FOUND);
+  }
+
+  // Only the owner can delete their request
+  if (existingRequest.userId !== userId) {
+    throw new ApiError('You can only delete your own leave requests', httpStatus.FORBIDDEN);
+  }
+
+  // Only pending requests can be deleted
+  if (existingRequest.status !== 'pending') {
+    throw new ApiError('Only pending requests can be deleted', httpStatus.BAD_REQUEST);
+  }
+
+  await leaveRequestRepository.deleteById( id );
+};
+
  // Get all leave requests for calendar (no pagination)
 
 export const getCalendarLeaveRequests = async (

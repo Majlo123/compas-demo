@@ -18,6 +18,7 @@ import {
   ForbiddenResponseSchema,
   BadRequestResponseSchema,
   QuerySchema,
+  BaseResponseSchema,
 } from 'types/zod/shared.schema';
 
 enum LeaveRequestFunctions {
@@ -26,6 +27,8 @@ enum LeaveRequestFunctions {
   getTeamLeaveRequests = 'getTeamLeaveRequests',
   getCalendarLeaveRequests = 'getCalendarLeaveRequests',
   updateLeaveRequestStatus = 'updateLeaveRequestStatus',
+  updateLeaveRequest = 'updateLeaveRequest',
+  deleteLeaveRequest = 'deleteLeaveRequest',
 }
 
 const createLeaveRequestRoute = (basePath: string): Router => {
@@ -183,6 +186,81 @@ const createLeaveRequestRoute = (basePath: string): Router => {
       functionName: LeaveRequestFunctions.updateLeaveRequestStatus,
       basePath,
     },
+    {
+      name: 'Update Leave Request',
+      desc: 'Update an existing leave request (user can only update their own pending requests)',
+      path: '/:id',
+      method: 'put',
+      authorize: true,
+      allowedRoles: [RoleEnum.Employee],
+      requestBodySchema: CreateLeaveRequestBodySchema,
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Leave request updated successfully',
+          schema: CreateLeaveRequestSuccessSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Invalid request data or only pending requests can be updated',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.NOT_FOUND,
+          desc: 'Leave request not found',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User can only update their own leave requests',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.updateLeaveRequest,
+      basePath,
+    },
+    {
+      name: 'Delete Leave Request',
+      desc: 'Delete (cancel) a leave request (user can only delete their own pending requests)',
+      path: '/:id',
+      method: 'delete',
+      authorize: true,
+      allowedRoles: [RoleEnum.Employee, RoleEnum.Admin],
+      responses: [
+        {
+          code: httpStatus.OK,
+          desc: 'Leave request cancelled successfully',
+          schema: BaseResponseSchema,
+        },
+        {
+          code: httpStatus.BAD_REQUEST,
+          desc: 'Only pending requests can be deleted',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.NOT_FOUND,
+          desc: 'Leave request not found',
+          schema: BadRequestResponseSchema,
+        },
+        {
+          code: httpStatus.UNAUTHORIZED,
+          desc: 'User not authenticated',
+          schema: UnauthorizedResponseSchema,
+        },
+        {
+          code: httpStatus.FORBIDDEN,
+          desc: 'User can only delete their own leave requests',
+          schema: ForbiddenResponseSchema,
+        },
+      ],
+      functionName: LeaveRequestFunctions.deleteLeaveRequest,
+      basePath,
+    },
   ];
 
   const leaveRequestControllerFunctions: Record<LeaveRequestFunctions, RequestHandler> = {
@@ -191,6 +269,8 @@ const createLeaveRequestRoute = (basePath: string): Router => {
     getTeamLeaveRequests: leaveRequestController.getTeamLeaveRequests,
     getCalendarLeaveRequests: leaveRequestController.getCalendarLeaveRequests,
     updateLeaveRequestStatus: leaveRequestController.updateLeaveRequestStatus,
+    updateLeaveRequest: leaveRequestController.updateLeaveRequest,
+    deleteLeaveRequest: leaveRequestController.deleteLeaveRequest,
   };
 
   const router = Router();
