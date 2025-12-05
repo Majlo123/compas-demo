@@ -88,3 +88,29 @@ export const updateNotificationsForLeaveRequest = async (
     throw error;
   }
 };
+
+/**
+ * Delete all notifications for a specific leave request and emit socket events
+ */
+export const deleteNotificationsForLeaveRequest = async (
+  leaveRequestId: string
+) => {
+  try {
+    // Get all notifications before deleting to emit socket events
+    const notifications = await leaveRequestNotificationRepository.findByLeaveRequestId(leaveRequestId);
+    
+    // Delete the notifications
+    const deletedCount = await leaveRequestNotificationRepository.deleteByLeaveRequestId(leaveRequestId);
+    
+    // Emit socket events to all affected users
+    notifications.forEach((notification) => {
+      emitToUser(notification.userId, 'notification:deleted', { id: notification.id });
+    });
+    
+    logger.info(`Deleted ${deletedCount} notification(s) for leave request ${leaveRequestId}`);
+    return deletedCount;
+  } catch (error) {
+    logger.error(`Failed to delete notifications for leave request ${leaveRequestId}: ${String(error)}`);
+    throw error;
+  }
+};

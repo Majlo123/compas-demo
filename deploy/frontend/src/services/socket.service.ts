@@ -115,3 +115,30 @@ export const offNotificationUpdate = (callback?: (notification: any) => void): v
     socket.off('notification:updated');
   }
 };
+
+export const onNotificationDelete = (callback: (data: { id: string }) => void): void => {
+  if (!socket) {
+    console.warn('Socket not initialized, attempting to initialize...');
+    try {
+      initializeSocket();
+    } catch (error) {
+      console.error('Failed to initialize socket in onNotificationDelete:', error);
+      return;
+    }
+  }
+
+  console.log('Registering notification delete listener');
+  socket.on('notification:deleted', callback);
+};
+
+export const offNotificationDelete = (callback?: (data: { id: string }) => void): void => {
+  if (!socket) {
+    return;
+  }
+
+  if (callback) {
+    socket.off('notification:deleted', callback);
+  } else {
+    socket.off('notification:deleted');
+  }
+};

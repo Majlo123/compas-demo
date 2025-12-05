@@ -6,7 +6,7 @@ import Dropdown from '@/components/controls/Dropdown';
 import NotificationsDropdown, { type Notification } from '@/components/layout/NotificationsDropdown';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { getFromLocalStorage } from '@/services/local.storage';
-import { initializeSocket, onNotification, offNotification, onNotificationUpdate, offNotificationUpdate } from '@/services/socket.service';
+import { initializeSocket, onNotification, offNotification, onNotificationUpdate, offNotificationUpdate, onNotificationDelete, offNotificationDelete } from '@/services/socket.service';
 import {
   fetchUnreadNotifications,
   type LeaveRequestNotification,
@@ -86,12 +86,20 @@ const HeaderNav: React.FC = () => {
         );
       };
 
+      const handleNotificationDelete = (data: { id: string }) => {
+        console.log('Notification deleted:', data.id);
+        setNotifications((prev) => prev.filter((n) => n.id !== data.id));
+        setUnreadNotificationCount((prev) => Math.max(0, prev - 1));
+      };
+
       onNotification(handleNewNotification);
       onNotificationUpdate(handleNotificationUpdate);
+      onNotificationDelete(handleNotificationDelete);
 
       return () => {
         offNotification(handleNewNotification);
         offNotificationUpdate(handleNotificationUpdate);
+        offNotificationDelete(handleNotificationDelete);
       };
     } catch (error) {
       console.error('Failed to initialize socket:', error);

@@ -127,4 +127,17 @@ export const findByLeaveRequestId = async (leaveRequestId: string): Promise<Leav
   }));
 };
 
+/**
+ * Delete all notifications for a specific leave request
+ */
+export const deleteByLeaveRequestId = async (leaveRequestId: string): Promise<number> => {
+  const query = {
+    text: 'DELETE FROM leave_request_notifications WHERE leave_request_id = $1',
+    values: [leaveRequestId],
+  };
+
+  const result = await pool.query(query);
+  return result.rowCount || 0;
+};
+
 export { create, findById, findByField, findAll, updateById, deleteById };

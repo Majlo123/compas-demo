@@ -7,7 +7,7 @@ import ApiError from 'shared/error/ApiError';
 import { RoleEnum } from '../../../shared/auth.types';
 import logger from 'config/logger';
 import { sendLeaveRequestNotification, sendLeaveStatusUpdateEmail } from './email.service';
-import { createNotification, updateNotificationsForLeaveRequest } from './notification.service';
+import { createNotification, updateNotificationsForLeaveRequest, deleteNotificationsForLeaveRequest } from './notification.service';
 
 export type LeaveRequestResponse = {
   id: string;
@@ -409,6 +409,14 @@ export const deleteLeaveRequest = async (
   // Only pending requests can be deleted
   if (existingRequest.status !== 'pending') {
     throw new ApiError('Only pending requests can be deleted', httpStatus.BAD_REQUEST);
+  }
+
+  // Delete all related notifications first
+  try {
+    await deleteNotificationsForLeaveRequest(id);
+    logger.info(`Deleted notifications for leave request ${id}`);
+  } catch (err) {
+    logger.warn(`Failed to delete notifications for leave request ${id}: ${String(err)}`);
   }
 
   await leaveRequestRepository.deleteById( id );
