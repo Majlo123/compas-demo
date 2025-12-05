@@ -15,16 +15,26 @@ type Event = {
   [k: string]: any;
 };
 
+type CollectiveDayOff = {
+  id: string;
+  startDate: string;
+  endDate: string;
+  description: string;
+  createdAt?: string;
+};
+
 type Props = {
   events: Event[];
   defaultView?: View;
   view?: View;
   onView?: (view: View) => void;
   onSelectEvent?: (evt: any) => void;
+  onSelectSlot?: (slotInfo: any) => void;
   onNavigate?: (date: Date, view?: View) => void;
   eventPropGetter?: (event: any) => any;
   style?: React.CSSProperties;
   currentDate?: Date;
+  collectiveDaysOff?: CollectiveDayOff[];
 };
 
 const locales = {
@@ -41,7 +51,7 @@ const localizer = dateFnsLocalizer({
   locales,
 });
 
-const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, onSelectEvent, onNavigate, eventPropGetter, style, currentDate }) => {
+const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, onSelectEvent, onSelectSlot, onNavigate, eventPropGetter, style, currentDate, collectiveDaysOff = [] }) => {
   const wrapperRef = useRef<HTMLDivElement>(null);
   const [internalDate, setInternalDate] = useState(currentDate || new Date());
   
@@ -83,6 +93,26 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
     onNavigate?.(newDate, view);
   };
 
+  const dayPropGetter = (date: Date) => {
+    const matchingDayOff = collectiveDaysOff.find(dayOff => {
+      const start = new Date(dayOff.startDate);
+      const end = new Date(dayOff.endDate);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= start && checkDate <= end;
+    });
+
+    if (matchingDayOff) {
+      return {
+        className: 'collective-day-off',
+        'data-tooltip': matchingDayOff.description,
+      };
+    }
+    return {};
+  };
+
   const CustomToolbar = () => (
     <div className="custom-calendar-toolbar">
       <div className="toolbar-nav">
@@ -120,8 +150,11 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
         showMultiDayTimes
         showAllEvents
         onSelectEvent={onSelectEvent}
+        selectable
+        onSelectSlot={onSelectSlot}
         style={view === 'agenda' ? { height: 'calc(100% - 2.7rem)' } : { height: 'fit-content' }}
         eventPropGetter={eventPropGetter}
+        dayPropGetter={dayPropGetter}
         popup={false}
         doShowMoreDrillDown={false}
         views={['month', 'week', 'agenda']}

@@ -3,9 +3,11 @@ import CustomDialog from '@/components/dialog/dialog-props';
 import React, { useState } from 'react';
 import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { getTeams, getTeamsByUserId } from '@/api/team/team.actions';
+import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import { Team } from '@/api/team/team.types';
+import { CollectiveDayOff } from '@/api/collective-day-off/collectiveDayOff.types';
 import { format } from 'date-fns';
 import Select, { SelectOption } from '@/components/controls/Select';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -20,6 +22,8 @@ const TeamCalendarPage: React.FC = () => {
   const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
   const [selectedTypes, setSelectedTypes] = useState<Set<string>>(new Set(['vacation', 'sick', 'personal', 'other']));
   const [showPending, setShowPending] = useState(true);
+  const [showDaysOff, setShowDaysOff] = useState(true);
+  const [collectiveDaysOff, setCollectiveDaysOff] = React.useState<CollectiveDayOff[]>([]);
 
   // Load teams on mount based on user role
   React.useEffect(() => {
@@ -40,6 +44,20 @@ const TeamCalendarPage: React.FC = () => {
     };
     loadTeams();
   }, [user]);
+
+  // Load collective days off on mount
+  React.useEffect(() => {
+    const loadCollectiveDaysOff = async () => {
+      const response = await getAllCollectiveDaysOff();
+      if (isApiSuccess(response)) {
+        setCollectiveDaysOff(response.content);
+        console.debug('TeamCalendar: fetched', response.content.length, 'collective days off');
+      } else {
+        console.error('Failed to load collective days off', response);
+      }
+    };
+    loadCollectiveDaysOff();
+  }, []);
 
   React.useEffect(() => {
     const fetchEvents = async () => {
@@ -124,6 +142,30 @@ const TeamCalendarPage: React.FC = () => {
   const handleEventClick = (event: any) => {
     setSelectedEvent(event);
     setDialogOpen(true);
+  };
+
+  const handleDayClick = (date: Date) => {
+    if (!showDaysOff) return;
+    
+    const matchingDayOff = collectiveDaysOff.find(dayOff => {
+      const start = new Date(dayOff.startDate);
+      const end = new Date(dayOff.endDate);
+      start.setHours(0, 0, 0, 0);
+      end.setHours(0, 0, 0, 0);
+      const checkDate = new Date(date);
+      checkDate.setHours(0, 0, 0, 0);
+      return checkDate >= start && checkDate <= end;
+    });
+
+    if (matchingDayOff) {
+      setSelectedEvent({
+        isCollective: true,
+        description: matchingDayOff.description,
+        start: matchingDayOff.startDate,
+        end: matchingDayOff.endDate,
+      });
+      setDialogOpen(true);
+    }
   };
 
   return (
@@ -216,6 +258,22 @@ const TeamCalendarPage: React.FC = () => {
             </div>
             <span className="text-sm font-medium text-gray-700">Pending</span>
           </button>
+          <button 
+            onClick={() => setShowDaysOff(!showDaysOff)}
+            className={`flex items-center gap-2 cursor-pointer transition-all duration-200 ${
+              showDaysOff ? 'opacity-100' : 'opacity-40'
+            }`}
+          >
+            <div className={`w-4 h-4 rounded flex items-center justify-center text-gray-700 font-black transition-all duration-200 ${
+              showDaysOff ? 'ring-2 ring-purple-400 ring-offset-1' : ''
+            }`} style={{ 
+              background: 'repeating-linear-gradient(45deg, rgba(233, 213, 255, 0.5) 0, rgba(233, 213, 255, 0.5) 2px, rgba(192, 132, 252, 0.5) 2px, rgba(192, 132, 252, 0.5) 4px)',
+              fontSize: '0.875rem'
+            }}>
+              {showDaysOff && '✓'}
+            </div>
+            <span className="text-sm font-medium text-gray-700">Days Off</span>
+          </button>
         </div>
       </div>
 
@@ -229,49 +287,67 @@ const TeamCalendarPage: React.FC = () => {
             onView={(v) => setView(v as any)}
             onNavigate={(newDate) => setCurrentDate(newDate)}
             onSelectEvent={handleEventClick}
+            onSelectSlot={(slotInfo: any) => handleDayClick(slotInfo.start)}
+            collectiveDaysOff={showDaysOff ? collectiveDaysOff : []}
           />
       </div>
 
       {/* Event Details Dialog */}
       {selectedEvent && (
         <CustomDialog
-          title="Leave Request Details"
+          title={selectedEvent.isCollective ? "Day Off Details" : "Leave Request Details"}
           isOpen={dialogOpen}
           onOpenChange={setDialogOpen}
         >
-          <div className="space-y-3">
-            <div>
-              <span className="font-semibold text-gray-700">User:</span>
-              <p className="text-gray-900">{selectedEvent.employeeName || selectedEvent.user || selectedEvent.title}</p>
+          {selectedEvent.isCollective ? (
+            <div className="space-y-3">
+              <div>
+                <span className="font-semibold text-gray-700">Description:</span>
+                <p className="text-gray-900">{selectedEvent.description}</p>
+              </div>
+              
+              <div>
+                <span className="font-semibold text-gray-700">Period:</span>
+                <p className="text-gray-900">
+                  {format(new Date(selectedEvent.start), 'dd.MM.yyyy')} - {format(new Date(selectedEvent.end), 'dd.MM.yyyy')}
+                </p>
+              </div>
             </div>
-            
-            <div>
-              <span className="font-semibold text-gray-700">Type:</span>
-              <p className="text-gray-900 capitalize">{selectedEvent.type}</p>
+          ) : (
+            <div className="space-y-3">
+              <div>
+                <span className="font-semibold text-gray-700">User:</span>
+                <p className="text-gray-900">{selectedEvent.employeeName || selectedEvent.user || selectedEvent.title}</p>
+              </div>
+              
+              <div>
+                <span className="font-semibold text-gray-700">Type:</span>
+                <p className="text-gray-900 capitalize">{selectedEvent.type}</p>
+              </div>
+              
+              <div>
+                <span className="font-semibold text-gray-700">Status:</span>
+                <p className={`capitalize ${selectedEvent.status === 'approved' ? 'text-green-600' : 'text-yellow-600'}`}>
+                  {selectedEvent.status === 'approved' ? 'Approved' : 'Pending'}
+                </p>
+              </div>
+              
+              <div>
+                <span className="font-semibold text-gray-700">Period:</span>
+                <p className="text-gray-900">
+                  {selectedEvent.allDay ? (
+                    <>
+                      {format(new Date(selectedEvent.start), 'dd.MM.yyyy')} - {format(new Date(selectedEvent.end), 'dd.MM.yyyy')}
+                    </>
+                  ) : (
+                    <>
+                      {format(new Date(selectedEvent.start), 'dd.MM.yyyy HH:mm')} - {format(new Date(selectedEvent.end), 'dd.MM.yyyy HH:mm')}
+                    </>
+                  )}
+                </p>
+              </div>
             </div>
-            
-            <div>
-              <span className="font-semibold text-gray-700">Status:</span>
-              <p className={`capitalize ${selectedEvent.status === 'approved' ? 'text-green-600' : 'text-yellow-600'}`}>
-                {selectedEvent.status === 'approved' ? 'Approved' : 'Pending'}
-              </p>
-            </div>
-            
-            <div>
-              <span className="font-semibold text-gray-700">Period:</span>
-              <p className="text-gray-900">
-                {selectedEvent.allDay ? (
-                  <>
-                    {format(new Date(selectedEvent.start), 'dd.MM.yyyy')} - {format(new Date(selectedEvent.end), 'dd.MM.yyyy')}
-                  </>
-                ) : (
-                  <>
-                    {format(new Date(selectedEvent.start), 'dd.MM.yyyy HH:mm')} - {format(new Date(selectedEvent.end), 'dd.MM.yyyy HH:mm')}
-                  </>
-                )}
-              </p>
-            </div>
-          </div>
+          )}
         </CustomDialog>
       )}
     </div>
