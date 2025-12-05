@@ -24,6 +24,7 @@ const navItems: NavItem[] = [
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Teams', path: '/teams-list', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Days Off', path: '/days-off', Icon: TableIconCalendar, allowedRoles: [RoleEnum.Admin] },
   { label: 'Team Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Reports', path: '/reports', Icon: ReportsIcon },
   { label: 'Settings', path: '/settings', Icon: SettingsIcon },
