@@ -57,3 +57,14 @@ export const getUserProfile = async (): Promise<ApiResponse<any>> => {
     return formatError(error);
   }
 };
+
+export const updateEmailNotificationPreference = async (emailNotificationsEnabled: boolean): Promise<ApiResponse<{ emailNotificationsEnabled: boolean }>> => {
+  try {
+    const response = await axiosServer.put(`${endpoint}/email-notification-preference`, { 
+      emailNotificationsEnabled 
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};

@@ -53,10 +53,22 @@ const TeamRequestsPage: React.FC = () => {
 
   const [search, setSearch] = useState<string>('');
   const [selectedFilter, setSelectedFilter] = useState<SelectOption | null>(null);
-  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(null);
+  const [selectedStatus, setSelectedStatus] = useState<SelectOption | null>(() => {
+    // Pre-populate status if we have requestId in URL
+    const params = new URLSearchParams(location.search);
+    if (params.get('requestId')) {
+      return { label: 'Pending', value: 'pending' };
+    }
+    return null;
+  });
   const [selectedTeam, setSelectedTeam] = useState<SelectOption | null>(null);
   const [teams, setTeams] = useState<Team[]>([]);
-  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(null);
+  
+  // Initialize requestIdFilter from URL on mount
+  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('requestId');
+  });
 
   const [debouncedSearch] = useDebounce(search, 1000);
 
@@ -86,11 +98,7 @@ const TeamRequestsPage: React.FC = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const reqId = params.get('requestId');
-    if (reqId) {
-      setRequestIdFilter(reqId);
-      // Also default status to pending for clearer view
-      setSelectedStatus({ label: 'Pending', value: 'pending' });
-    }
+    setRequestIdFilter(reqId);
   }, [location.search]);
 
   // Reset page to 1 when filters change
@@ -140,7 +148,7 @@ const TeamRequestsPage: React.FC = () => {
 
   useEffect(() => {
     fetchTeamLeaveRequests();
-  }, [page, pageSize, sort.by, sort.direction, debouncedSearch, selectedFilter, selectedStatus, selectedTeam]);
+  }, [page, pageSize, sort.by, sort.direction, debouncedSearch, selectedFilter, selectedStatus, selectedTeam, requestIdFilter]);
 
   const handleClearFilters = () => {
     setSearch('');
