@@ -70,3 +70,26 @@ export const getUserProfile = catchAsync(async (req: Request, res: Response) => 
   });
 });
 
+export const updateEmailNotificationPreference = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
+  }
+  const { emailNotificationsEnabled } = req.body;
+  if (typeof emailNotificationsEnabled !== 'boolean') {
+    res.status(httpStatus.BAD_REQUEST).send({
+      success: false,
+      error: { message: 'emailNotificationsEnabled must be a boolean' },
+    });
+    return;
+  }
+  const updated = await userService.updateEmailNotificationPreference(userId, emailNotificationsEnabled);
+  if (!updated) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: { emailNotificationsEnabled },
+  });
+});
+

@@ -85,3 +85,36 @@ export const updateLeaveRequestStatus = catchAsync(async (req: Request, res: Res
     content: updatedRequest,
   });
 });
+
+export const updateLeaveRequest = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const updatedRequest = await leaveRequestService.updateLeaveRequest(userId, id, req.body);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Leave request updated successfully',
+    content: updatedRequest,
+  });
+});
+
+export const deleteLeaveRequest = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  await leaveRequestService.deleteLeaveRequest(userId, id);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Leave request cancelled successfully',
+  });
+});

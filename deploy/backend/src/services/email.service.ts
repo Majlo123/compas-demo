@@ -278,16 +278,27 @@ Review in Vacation Tracker: ${manageLink}
 
 export const sendLeaveRequestNotification = async (
   to: string | string[],
-  payload: LeaveNotificationPayload
+  payload: LeaveNotificationPayload,
+  emailNotificationSettings?: Record<string, boolean>
 ): Promise<void> => {
   const recipients = Array.isArray(to) ? to : [to];
   if (recipients.length === 0) return;
+
+  // Filter recipients based on their email notification preference
+  const filteredRecipients = emailNotificationSettings 
+    ? recipients.filter(email => emailNotificationSettings[email] !== false)
+    : recipients;
+
+  if (filteredRecipients.length === 0) {
+    logger.info('All recipients have email notifications disabled; skipping notification');
+    return;
+  }
 
   const html = generateLeaveNotificationHtml(payload);
   const text = generateLeaveNotificationText(payload);
 
   await Promise.all(
-    recipients.map((email) =>
+    filteredRecipients.map((email) =>
       sendEmail({
         to: email,
         subject: 'New leave request pending approval',
@@ -371,8 +382,15 @@ View details and comments: ${viewLink}
 
 export const sendLeaveStatusUpdateEmail = async (
   to: string,
-  payload: LeaveStatusUpdatePayload
+  payload: LeaveStatusUpdatePayload,
+  emailNotificationsEnabled?: boolean
 ): Promise<void> => {
+  // Skip sending if email notifications are disabled for this recipient
+  if (emailNotificationsEnabled === false) {
+    logger.info(`Email notifications disabled for ${to}; skipping status update email`);
+    return;
+  }
+
   await sendEmail({
     to,
     subject: `Your leave request was ${payload.status}`,

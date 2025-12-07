@@ -4,8 +4,8 @@ import { format } from 'date-fns';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import PageLayout from '@/components/layout/PageLayout';
+import { getUserProfile, updateEmailNotificationPreference } from '@/api/user/user.actions';
 import Card from '@/components/layout/Card';
-import { getUserProfile } from '@/api/user/user.actions';
 import { getTeamsByUserId } from '@/api/team/team.actions';
 import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { isApiSuccess } from '@/api/shared.types';
@@ -21,6 +21,7 @@ interface UserProfile {
   fullName: string;
   email: string;
   role: string;
+  emailNotificationsEnabled?: boolean;
 }
 
 const ProfilePage: React.FC = () => {
@@ -30,6 +31,7 @@ const ProfilePage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [changePasswordDialogOpen, setChangePasswordDialogOpen] = useState(false);
+  const [isUpdatingNotification, setIsUpdatingNotification] = useState(false);
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [tooltip, setTooltip] = useState<{ visible: boolean; content: string; x: number; y: number }>({
     visible: false,
@@ -71,6 +73,23 @@ const ProfilePage: React.FC = () => {
       toast.error('An error occurred while loading profile');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleEmailNotificationToggle = async (enabled: boolean) => {
+    setIsUpdatingNotification(true);
+    try {
+      const response = await updateEmailNotificationPreference(enabled);
+      if (isApiSuccess(response)) {
+        setProfile(prev => prev ? { ...prev, emailNotificationsEnabled: enabled } : null);
+        toast.success(enabled ? 'Mail notifications enabled' : 'Mail notifications disabled');
+      } else {
+        toast.error(response.error?.message || 'Failed to update notification preference');
+      }
+    } catch (err) {
+      toast.error('An error occurred while updating notification preference');
+    } finally {
+      setIsUpdatingNotification(false);
     }
   };
 
@@ -142,7 +161,7 @@ const ProfilePage: React.FC = () => {
                 </span>
               </div>
               
-              <div className="flex-shrink-0">
+              <div className="flex-shrink-0 flex flex-col gap-3">
                 <Button
                   onClick={() => setChangePasswordDialogOpen(true)}
                   variant="secondary"
@@ -150,6 +169,37 @@ const ProfilePage: React.FC = () => {
                 >
                   Change Password
                 </Button>
+                
+                {/* Mail Notifications Toggle */}
+                <div className="flex items-center gap-3 bg-gray-50 rounded-lg p-3 border border-gray-200">
+                  <button
+                    onClick={() => handleEmailNotificationToggle(!profile.emailNotificationsEnabled)}
+                    disabled={isUpdatingNotification}
+                    className={`
+                      relative inline-flex h-6 w-11 rounded-full transition-colors
+                      ${profile.emailNotificationsEnabled 
+                        ? 'bg-primary' 
+                        : 'bg-gray-300'
+                      }
+                      ${isUpdatingNotification ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
+                    `}
+                    title={profile.emailNotificationsEnabled ? 'Mail notifications enabled' : 'Mail notifications disabled'}
+                  >
+                    <span
+                      className={`
+                        inline-block h-5 w-5 transform rounded-full bg-white shadow
+                        transition-transform
+                        ${profile.emailNotificationsEnabled 
+                          ? 'translate-x-5' 
+                          : 'translate-x-0.5'
+                        }
+                      `}
+                    />
+                  </button>
+                  <span className="text-sm font-medium text-gray-700 whitespace-nowrap">
+                    Mail Notifications
+                  </span>
+                </div>
               </div>
             </div>
 

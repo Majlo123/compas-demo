@@ -5,25 +5,34 @@ import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import PageLayout from '@/components/layout/PageLayout';
-import { getMyLeaveRequests, createLeaveRequest } from '@/api/leave-request/leaveRequest.actions';
+import { getMyLeaveRequests, createLeaveRequest, updateLeaveRequest, cancelLeaveRequest } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest, LeaveRequestStatus, LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 import DialogLeaveRequestForm from '@/components/dialog/DialogLeaveRequestForm';
+import TableIconEdit from '@/components/images/TableIconEdit';
+import { isApiSuccess } from '@/api/shared.types';
 
 interface LeaveRequestRow extends Row {
   type: string;
   startDate: string;
   endDate: string;
   status: LeaveRequestStatus;
+  rawData: LeaveRequest;
 }
 
 const MyLeaveRequestsPage: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editingRequest, setEditingRequest] = useState<LeaveRequest | null>(null);
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(null);
+  
+  // Initialize requestIdFilter from URL on mount
+  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('requestId');
+  });
 
   useEffect(() => {
     fetchLeaveRequests();
@@ -55,6 +64,7 @@ const MyLeaveRequestsPage: React.FC = () => {
           startDate: formatDate(request.startDate),
           endDate: formatDate(request.endDate),
           status: request.status,
+          rawData: request,
         }));
         setLeaveRequests(formattedData);
       } else {
@@ -71,11 +81,11 @@ const MyLeaveRequestsPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  // Load requestId filter from URL
+  // Update filter when URL search params change
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const reqId = params.get('requestId');
-    if (reqId) setRequestIdFilter(reqId);
+    setRequestIdFilter(reqId);
   }, [location.search]);
 
   const formatLeaveType = (type: string): string => {
@@ -92,19 +102,55 @@ const MyLeaveRequestsPage: React.FC = () => {
   };
 
   const handleNewRequest = () => {
+    setEditingRequest(null);
+    setDialogOpen(true);
+  };
+
+  const handleEdit = (row: LeaveRequestRow) => {
+    setEditingRequest(row.rawData);
     setDialogOpen(true);
   };
 
   const handleFormSubmit = async (data: { type: LeaveRequestType; startDate: string; endDate: string }) => {
-    const response = await createLeaveRequest(data);
+    if (editingRequest) {
+      const response = await updateLeaveRequest(editingRequest.id, data);
 
-    if (response.success) {
-      toast.success(response.message || 'Leave request submitted successfully');
-      setDialogOpen(false);
-      fetchLeaveRequests();
+      if (isApiSuccess(response)) {
+        toast.success(response.message || 'Leave request updated successfully');
+        setDialogOpen(false);
+        setEditingRequest(null);
+        fetchLeaveRequests();
+      } else {
+        toast.error(response.message || 'Failed to update leave request. Please try again.');
+        throw new Error(response.message);
+      }
     } else {
-      toast.error(response.message || 'Failed to submit leave request. Please try again.');
-      throw new Error(response.message);
+      const response = await createLeaveRequest(data);
+
+      if (response.success) {
+        toast.success(response.message || 'Leave request submitted successfully');
+        setDialogOpen(false);
+        fetchLeaveRequests();
+      } else {
+        toast.error(response.message || 'Failed to submit leave request. Please try again.');
+        throw new Error(response.message);
+      }
+    }
+  };
+
+  const handleCancelRequest = async () => {
+    if (editingRequest) {
+      const response = await cancelLeaveRequest(editingRequest.id);
+
+      if (isApiSuccess(response)) {
+        toast.success(response.message || 'Leave request cancelled successfully');
+        setDialogOpen(false);
+        setEditingRequest(null);
+        fetchLeaveRequests();
+      } else {
+        toast.error(response.message || 'Failed to cancel leave request. Please try again.');
+        throw new Error(response.message);
+      }
     }
   };
 
@@ -124,10 +170,22 @@ const MyLeaveRequestsPage: React.FC = () => {
     {
       accessor: 'status',
       header: 'Status',
-      formatter: (value: LeaveRequestStatus) => (
-        <StatusBadge status={value}>
-          {value.charAt(0).toUpperCase() + value.slice(1)}
-        </StatusBadge>
+      formatter: (value: LeaveRequestStatus, row: LeaveRequestRow) => (
+        <div className="flex items-center gap-2">
+          <StatusBadge status={value}>
+            {value.charAt(0).toUpperCase() + value.slice(1)}
+          </StatusBadge>
+          {row.status === 'pending' && (
+            <Button
+              variant="edit"
+              onClick={() => handleEdit(row)}
+              size="sm"
+              Icon={TableIconEdit}
+            >
+              <span className='self-center'>Edit</span>
+            </Button>
+          )}
+        </div>
       ),
     },
   ];
@@ -173,6 +231,13 @@ const MyLeaveRequestsPage: React.FC = () => {
           isOpen={dialogOpen} 
           onOpenChange={setDialogOpen}
           onSubmit={handleFormSubmit}
+          onCancel={handleCancelRequest}
+          initialData={editingRequest ? {
+            type: editingRequest.type,
+            startDate: editingRequest.startDate,
+            endDate: editingRequest.endDate,
+          } : undefined}
+          mode={editingRequest ? 'edit' : 'create'}
         />
     </>
   );

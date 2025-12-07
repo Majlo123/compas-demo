@@ -1,23 +1,32 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import Dropdown from '@/components/controls/Dropdown';
+import { markNotificationAsRead, markAllNotificationsAsRead } from '@/api/notification.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
 export interface Notification {
   id: string;
   title: string;
   timestamp: Date;
+  leaveRequestId?: string;
 }
 
 interface NotificationsDropdownProps {
   isOpen: boolean;
   notifications: Notification[];
   onClose: () => void;
+  onNotificationRead?: (notificationId: string) => void;
+  onAllRead?: () => void;
 }
 
 const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
   isOpen,
   notifications,
   onClose,
+  onNotificationRead,
+  onAllRead,
 }) => {
+  const navigate = useNavigate();
   const formatTime = (date: Date): string => {
     const now = new Date();
     const diffMs = now.getTime() - date.getTime();
@@ -30,6 +39,38 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
+
+  const handleNotificationClick = async (notification: Notification) => {
+    // Navigate immediately to avoid visual flash
+    if (notification.leaveRequestId) {
+      // Check if user is viewing their own requests or team requests
+      // Based on the notification title, determine the route
+      if (notification.title.toLowerCase().includes('requested')) {
+        // Manager notification - go to team requests
+        navigate(`/team-requests?requestId=${notification.leaveRequestId}`);
+      } else {
+        // Requester notification - go to my requests
+        navigate(`/my-leave-requests?requestId=${notification.leaveRequestId}`);
+      }
+    }
+
+    // Close dropdown
+    onClose();
+
+    // Mark as read in the background (fire-and-forget)
+    markNotificationAsRead(notification.id).then((response) => {
+      if (isApiSuccess(response)) {
+        onNotificationRead?.(notification.id);
+      }
+    });
+  };
+
+  const handleMarkAllAsRead = async () => {
+    const response = await markAllNotificationsAsRead();
+    if (isApiSuccess(response)) {
+      onAllRead?.();
+    }
   };
 
   if (!isOpen) return null;
@@ -51,10 +92,7 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
           {notifications.map((notification) => (
             <button
               key={notification.id}
-              onClick={() => {
-                // Handle notification click
-                onClose();
-              }}
+              onClick={() => handleNotificationClick(notification)}
               className="w-full text-left px-4 py-3 hover:bg-gray-50 transition-colors"
             >
               <div className="flex items-start gap-3">
@@ -75,8 +113,11 @@ const NotificationsDropdown: React.FC<NotificationsDropdownProps> = ({
       {/* Footer */}
       {notifications.length > 0 && (
         <div className="sticky bottom-0 bg-white border-t border-gray-200 px-4 py-2">
-          <button className="w-full text-center text-xs font-medium text-primary hover:text-primary/80 py-2 transition-colors">
-            View All Notifications
+          <button
+            onClick={handleMarkAllAsRead}
+            className="w-full text-center text-xs font-medium text-primary hover:text-primary/80 py-2 transition-colors"
+          >
+            Mark All as Read
           </button>
         </div>
       )}
