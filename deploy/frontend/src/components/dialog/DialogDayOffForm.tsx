@@ -36,7 +36,6 @@ const DialogDayOffForm: React.FC<DialogDayOffFormProps> = ({
     register,
     handleSubmit,
     reset,
-    watch,
     formState: { errors, isSubmitting, isValid },
   } = useForm<DayOffFormData>({
     resolver: zodResolver(dayOffFormSchema),
@@ -47,9 +46,6 @@ const DialogDayOffForm: React.FC<DialogDayOffFormProps> = ({
       title: '',
     },
   });
-
-  // Watch form changes to enable/disable save button
-  watch();
 
   useEffect(() => {
     if (initialData) {
