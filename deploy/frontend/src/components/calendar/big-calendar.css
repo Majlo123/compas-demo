@@ -153,27 +153,6 @@
   position: relative;
 }
 
-.rbc-month-view .rbc-event:hover::before {
-  content: var(--tooltip-text);
-  position: absolute;
-  left: 50%;
-  bottom: calc(100% + 4px);
-  transform: translateX(-50%);
-  background: #fff;
-  color: #000;
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  white-space: nowrap;
-  pointer-events: none;
-  transition: opacity 0.2s ease;
-  z-index: 100000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-  line-height: 1.4;
-  min-width: max-content;
-}
-
 /* Week/Day view: normal event blocks */
 .rbc-time-grid .rbc-event {
   color: #fff;
@@ -224,18 +203,20 @@
 
 .rbc-time-grid .rbc-event {
   position: absolute;
-  left: 0; /* allow inline styles from library to override left/width */
+  left: 0;
+  /* allow inline styles from library to override left/width */
 }
 
 .rbc-day-bg {
   border-left: 1px solid #F2F3F7;
 }
 
-.rbc-month-row + .rbc-month-row {
+.rbc-month-row+.rbc-month-row {
   border-top: 1px solid #F2F3F7;
 }
 
-.rbc-event, .rbc-day-slot .rbc-background-event {
+.rbc-event,
+.rbc-day-slot .rbc-background-event {
   padding: 0 5px;
 }
 
@@ -244,6 +225,10 @@
   display: flex;
   flex-direction: column;
   overflow: visible !important;
+  flex: 1 0 0;
+  /* Grow to fill space, basis 0 */
+  min-height: 100px;
+  /* Safety min-height */
 }
 
 .rbc-month-view .rbc-month-row::-webkit-scrollbar {
@@ -263,6 +248,7 @@
   display: flex;
   flex-direction: row;
   align-items: stretch;
+  overflow: visible;
 }
 
 .rbc-month-view .rbc-date-cell {
@@ -301,7 +287,7 @@
   flex-direction: column;
 }
 
-.rbc-row-content-scrollable{
+.rbc-row-content-scrollable {
   overflow: visible;
 }
 
@@ -312,6 +298,131 @@
 .rbc-row-content-scrollable .rbc-row-content-scroll-container {
   overflow: visible !important;
 }
+
 .rbc-agenda-event-cell:hover {
   cursor: pointer;
+}
+
+/* Collective Days Off - Full Cell Background */
+.rbc-day-bg.collective-day-off {
+  background: repeating-linear-gradient(45deg,
+      #e9d5ff,
+      #e9d5ff 8px,
+      #c084fc 8px,
+      #c084fc 16px) !important;
+}
+
+
+.rbc-date-cell.collective-day-off::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(to right,
+      rgba(0, 0, 0, 0.18) 0px,
+      rgba(0, 0, 0, 0.18) 2px,
+      transparent 2px,
+      transparent 8px),
+    repeating-linear-gradient(to bottom,
+      rgba(0, 0, 0, 0.18) 0px,
+      rgba(0, 0, 0, 0.18) 2px,
+      transparent 2px,
+      transparent 8px);
+  mix-blend-mode: multiply;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.rbc-date-cell.collective-day-off .rbc-off-range-bg {
+  background: transparent !important;
+}
+
+/* ================================================================= */
+/* UNIFIED TOOLTIP STYLING (Events & Collective Days)               */
+/* ================================================================= */
+
+/* 1. Define the shared visual style for the tooltip card */
+.rbc-month-view .rbc-event:hover::before,
+.rbc-day-bg.collective-day-off:hover::before {
+  /* Default to standard tooltip variable */
+  content: var(--tooltip-text);
+
+  /* Position ABOVE the cell */
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, -8px);
+  /* Move up 8px */
+  z-index: 99999;
+
+  /* Visual Look - White Card */
+  background-color: #ffffff;
+  color: #374151;
+  /* Dark Grey Text */
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  pointer-events: none;
+}
+
+/* 2. Specific override for Collective Day Off content variable */
+.rbc-day-bg.collective-day-off:hover::before {
+  content: var(--collective-tooltip-text);
+  /* Force display as block to ensure it renders */
+  display: block !important;
+}
+
+/* 3. The "Little Triangle" Arrow pointing down */
+.rbc-month-view .rbc-event:hover::after,
+.rbc-day-bg.collective-day-off:hover::after {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translate(-50%, 0);
+  /* Sit right on top of cell */
+  border-width: 6px;
+  border-style: solid;
+  border-color: #ffffff transparent transparent transparent;
+  z-index: 99999;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.05));
+}
+
+/* 4. Fix for the striped background hover darkening */
+.rbc-day-bg.collective-day-off {
+  /* Ensure position relative so tooltip positions correctly */
+  position: relative;
+}
+
+.rbc-day-bg.collective-day-off:hover {
+  /* Brightness effect */
+  filter: brightness(0.95);
+  /* CRITICAL: Bring this cell to front so tooltip isn't covered by neighbors */
+  z-index: 100;
+}
+
+.rbc-month-view .rbc-row-content,
+.rbc-month-view .rbc-row-content .rbc-row {
+  pointer-events: none;
+}
+
+/* 2. Re-enable pointer events on interactive elements so they still work */
+.rbc-month-view .rbc-event,
+.rbc-month-view .rbc-date-cell,
+.rbc-month-view .rbc-show-more,
+.rbc-date-cell a,
+.rbc-day-bg {
+  pointer-events: auto;
+}
+
+/* Ensure row background doesn't clip tooltips and fills height */
+.rbc-month-view .rbc-row-bg {
+  overflow: visible !important;
+  height: 100%;
 }
