@@ -7,7 +7,7 @@ import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayO
 import { isApiSuccess } from '@/api/shared.types';
 import { LeaveRequestWithEmployee } from '@/api/leave-request/leaveRequest.types';
 import { Team } from '@/api/team/team.types';
-import { CollectiveDayOff } from '@/api/collective-day-off/collectiveDayOff.types';
+import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
 import { format } from 'date-fns';
 import Select, { SelectOption } from '@/components/controls/Select';
 import { useAuthStore } from '@/stores/useAuthStore';
@@ -51,7 +51,8 @@ const TeamCalendarPage: React.FC = () => {
       const response = await getAllCollectiveDaysOff();
       if (isApiSuccess(response)) {
         setCollectiveDaysOff(response.content);
-        console.debug('TeamCalendar: fetched', response.content.length, 'collective days off');
+        console.log('TeamCalendar: fetched', response.content.length, 'collective days off');
+        console.log('Collective days off data:', response.content);
       } else {
         console.error('Failed to load collective days off', response);
       }
