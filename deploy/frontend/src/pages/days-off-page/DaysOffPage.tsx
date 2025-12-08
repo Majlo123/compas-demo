@@ -12,7 +12,7 @@ import {
   createCollectiveDayOff,
   deleteCollectiveDayOff,
 } from '@/api/collective-day-off/collectiveDayOff.actions';
-import { CollectiveDayOff } from '@/api/collective-day-off/collectiveDayOff.types';
+import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
 
 interface DayOffRow extends Row {
   id: string;

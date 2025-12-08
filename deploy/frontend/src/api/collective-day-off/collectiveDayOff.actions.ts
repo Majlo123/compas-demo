@@ -1,7 +1,7 @@
 import axiosServer from '@/services/axios';
 import { ApiResponse } from '@/api/shared.types';
 import { formatError } from '@/api/handle.error';
-import { CollectiveDayOff, CreateCollectiveDayOffRequest } from './collectiveDayOff.types';
+import { CollectiveDayOff, CreateCollectiveDayOffRequest } from '../../../../shared/collectiveDayOff.types';
 
 const endpoint = '/collective-days-off';
 
