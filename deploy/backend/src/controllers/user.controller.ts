@@ -115,7 +115,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
 
   // Check if requester has permission to update this user's vacation days
   const canManage = await userService.canManageUserVacationDays(requesterId, userId);
-  
+
   if (!canManage) {
     // Provide more specific error message
     const requesterUser = await userService.getUserWithVacationDays(requesterId);
@@ -125,7 +125,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
         httpStatus.UNAUTHORIZED
       );
     }
-    
+
     throw new ApiError(
       'Forbidden: You do not have permission to update this user\'s vacation days. Only Admins and Team Managers can modify vacation days.',
       httpStatus.FORBIDDEN
@@ -133,7 +133,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
   }
 
   const updated = await userService.updateUserVacationDays(userId, vacationDays);
-  
+
   if (!updated) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
@@ -147,9 +147,9 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
 
 export const getUserVacationDays = catchAsync(async (req: Request, res: Response) => {
   const { userId } = req.params;
-  
+
   const user = await userService.getUserWithVacationDays(userId);
-  
+
   if (!user) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
   }
@@ -157,6 +157,26 @@ export const getUserVacationDays = catchAsync(async (req: Request, res: Response
   res.status(httpStatus.OK).send({
     success: true,
     content: user,
+  });
+});
+
+export const distributeAnnualLeave = catchAsync(async (req: Request, res: Response) => {
+  const { days } = req.body;
+
+  if (typeof days !== 'number' || days < 0) {
+    res.status(httpStatus.BAD_REQUEST).send({
+      success: false,
+      error: { message: 'days must be a non-negative number' },
+    });
+    return;
+  }
+
+  const updatedCount = await userService.distributeAnnualLeave(days);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: `Successfully added ${days} vacation days to ${updatedCount} users`,
+    content: { updatedCount },
   });
 });
 

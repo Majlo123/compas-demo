@@ -27,10 +27,10 @@ export const getUsers = async (page = 1, pageSize = 10): Promise<ApiResponse<any
   }
 };
 
-export const inviteUsers = async (emails: string[]): Promise<ApiResponse<{ 
-  invited: string[]; 
-  skipped: string[]; 
-  failed: Array<{ email: string; reason: string }> 
+export const inviteUsers = async (emails: string[]): Promise<ApiResponse<{
+  invited: string[];
+  skipped: string[];
+  failed: Array<{ email: string; reason: string }>
 }>> => {
   try {
     const response = await axiosServer.post(`${endpoint}/invite`, { emails });
@@ -60,8 +60,8 @@ export const getUserProfile = async (): Promise<ApiResponse<any>> => {
 
 export const updateEmailNotificationPreference = async (emailNotificationsEnabled: boolean): Promise<ApiResponse<{ emailNotificationsEnabled: boolean }>> => {
   try {
-    const response = await axiosServer.put(`${endpoint}/email-notification-preference`, { 
-      emailNotificationsEnabled 
+    const response = await axiosServer.put(`${endpoint}/email-notification-preference`, {
+      emailNotificationsEnabled
     });
     return response.data;
   } catch (error) {
@@ -71,8 +71,8 @@ export const updateEmailNotificationPreference = async (emailNotificationsEnable
 
 export const updateUserVacationDays = async (userId: string, vacationDays: number): Promise<ApiResponse<{ vacationDays: number }>> => {
   try {
-    const response = await axiosServer.put(`${endpoint}/${userId}/vacation-days`, { 
-      vacationDays 
+    const response = await axiosServer.put(`${endpoint}/${userId}/vacation-days`, {
+      vacationDays
     });
     return response.data;
   } catch (error) {
@@ -83,6 +83,18 @@ export const updateUserVacationDays = async (userId: string, vacationDays: numbe
 export const getUserVacationDays = async (userId: string): Promise<ApiResponse<any>> => {
   try {
     const response = await axiosServer.get(`${endpoint}/${userId}/vacation-days`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+
+export const distributeAnnualLeave = async (days: number): Promise<ApiResponse<{ updatedCount: number }>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/distribute-vacation-days`, {
+      days
+    });
     return response.data;
   } catch (error) {
     return formatError(error);

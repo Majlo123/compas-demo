@@ -35,10 +35,10 @@ export const searchByNameOrEmail = async (searchQuery: string): Promise<any[]> =
       AND (LOWER(full_name) LIKE LOWER($1) OR LOWER(email) LIKE LOWER($1))
     LIMIT 5
   `;
-  
+
   const searchPattern = `%${searchQuery}%`;
   const result = await pool.query(query, [searchPattern]);
-  
+
   return result.rows;
 };
 
@@ -80,13 +80,13 @@ export const findByEmail = async (email: string): Promise<User | null> => {
     text: 'SELECT * FROM users WHERE email = $1 LIMIT 1',
     values: [email],
   };
-  
+
   const result = await pool.query(query);
-  
+
   if (result.rows.length === 0) {
     return null;
   }
-  
+
   const row = result.rows[0];
   return {
     id: row.id,
@@ -100,6 +100,17 @@ export const findByEmail = async (email: string): Promise<User | null> => {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
+};
+
+// ... existing exports
+export const addVacationDaysToAllActiveUsers = async (days: number): Promise<number> => {
+  const query = `
+    UPDATE users
+    SET vacation_days = COALESCE(vacation_days, 0) + $1
+    WHERE is_activated = TRUE
+  `;
+  const result = await pool.query(query, [days]);
+  return result.rowCount || 0;
 };
 
 export { create, findById, findByField, findAll, updateById, deleteById };

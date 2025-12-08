@@ -16,6 +16,7 @@ enum UserFunctions {
   updateEmailNotificationPreference = 'updateEmailNotificationPreference',
   updateUserVacationDays = 'updateUserVacationDays',
   getUserVacationDays = 'getUserVacationDays',
+  distributeAnnualLeave = 'distributeAnnualLeave',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -36,11 +37,11 @@ const createUserRoute = (basePath: string): Router => {
     {
       name: 'Get All Users',
       desc: 'Get list of all users',
-      path: '/', 
+      path: '/',
       method: 'get',
       querySchema: QuerySchema,
       authorize: true,
-      allowedRoles: [RoleEnum.Admin], 
+      allowedRoles: [RoleEnum.Admin],
       responses: [
         { code: httpStatus.OK, desc: 'All Users list', schema: PaginatedResponseSchema(UserSchema) },
       ],
@@ -88,6 +89,19 @@ const createUserRoute = (basePath: string): Router => {
       basePath,
     },
     {
+      name: 'Distribute Annual Leave',
+      desc: 'Add vacation days to all active users',
+      path: '/distribute-vacation-days',
+      method: 'post',
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Vacation days distributed successfully' },
+      ],
+      functionName: UserFunctions.distributeAnnualLeave,
+      basePath,
+    },
+    {
       name: 'Update Email Notification Preference',
       desc: 'Update user email notification preference',
       path: '/email-notification-preference',
@@ -129,16 +143,17 @@ const createUserRoute = (basePath: string): Router => {
   ];
 
   console.log('Available userController functions:', Object.keys(userController));
-  
+
   const userControllerFunctions: Record<UserFunctions, RequestHandler> = {
     searchUsers: userController.searchUsers as RequestHandler,
     getAllUsers: userController.getAllUsers as RequestHandler,
     deactivateUser: userController.deactivateUser as RequestHandler,
     getUserProfile: userController.getUserProfile as RequestHandler,
-    inviteUsers:userController.inviteUsers as RequestHandler,
+    inviteUsers: userController.inviteUsers as RequestHandler,
     updateEmailNotificationPreference: userController.updateEmailNotificationPreference as RequestHandler,
     updateUserVacationDays: userController.updateUserVacationDays as RequestHandler,
     getUserVacationDays: userController.getUserVacationDays as RequestHandler,
+    distributeAnnualLeave: userController.distributeAnnualLeave as RequestHandler,
   };
 
   const router = Router();

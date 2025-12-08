@@ -20,9 +20,9 @@ export const findAll = async (query: QueryParams): Promise<PaginatedResult<UserP
   const pageSize = query.pagination?.pageSize || 10;
   const activeResult = await findAllActivePaginated(page, pageSize);
   return {
-    data: activeResult.data.map((u: any) => ({ 
-      id: u.id, 
-      fullName: u.fullName, 
+    data: activeResult.data.map((u: any) => ({
+      id: u.id,
+      fullName: u.fullName,
       email: u.email,
       vacationDays: u.vacationDays ?? 0
     })),
@@ -115,7 +115,7 @@ export const canManageUserVacationDays = async (
 
   // Check if manager is a team manager and target user is in one of their teams
   const managerTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(managerId);
-  
+
   if (managerTeamIds.length === 0) {
     console.log('Manager is not a team manager');
     return false; // Not a team manager
@@ -123,13 +123,13 @@ export const canManageUserVacationDays = async (
 
   // Check if target user is in any of the manager's teams
   const targetUserTeams = await teamMemberRepository.findByUserId(targetUserId);
-  
-  const canManage = targetUserTeams.some(membership => 
+
+  const canManage = targetUserTeams.some(membership =>
     managerTeamIds.includes(membership.teamId)
   );
-  
+
   console.log(`Manager team IDs: ${managerTeamIds}, Target user teams: ${targetUserTeams.map(t => t.teamId)}, Can manage: ${canManage}`);
-  
+
   return canManage;
 };
 
@@ -163,4 +163,11 @@ export const getUserWithVacationDays = async (userId: string): Promise<any> => {
     role: user.role,
     vacationDays: user.vacationDays ?? 0,
   };
+};
+
+/**
+ * Add vacation days to all active users
+ */
+export const distributeAnnualLeave = async (days: number): Promise<number> => {
+  return userRepository.addVacationDaysToAllActiveUsers(days);
 };

@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import Button from '@/components/controls/button/Button';
 import PageLayout from '@/components/layout/PageLayout';
-import { getUsers, searchUsers, deactivateUser } from '@/api/user/user.actions';
+import { getUsers, searchUsers, deactivateUser, distributeAnnualLeave } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import usePagination from '@/hooks/usePagination';
 import Pagination from '@/components/controls/Pagination';
@@ -47,10 +47,10 @@ const UsersPage: React.FC = () => {
       if (debouncedSearch && debouncedSearch.trim() !== '') {
         const response = await searchUsers(debouncedSearch);
         if (isApiSuccess(response)) {
-          const formatted = response.content.map((u: any) => ({ 
-            _id: u.id, 
-            id: u.id, 
-            fullName: u.fullName, 
+          const formatted = response.content.map((u: any) => ({
+            _id: u.id,
+            id: u.id,
+            fullName: u.fullName,
             email: u.email,
             vacationDays: u.vacationDays ?? 0
           }));
@@ -63,10 +63,10 @@ const UsersPage: React.FC = () => {
       } else {
         const response = await getUsers(page, pageSize);
         if (isApiSuccess(response)) {
-          setUsers(response.content.data.map((u: any) => ({ 
-            _id: u.id, 
-            id: u.id, 
-            fullName: u.fullName, 
+          setUsers(response.content.data.map((u: any) => ({
+            _id: u.id,
+            id: u.id,
+            fullName: u.fullName,
             email: u.email,
             vacationDays: u.vacationDays ?? 0
           })));
@@ -99,6 +99,22 @@ const UsersPage: React.FC = () => {
     }
   };
 
+  const handleAddAnnualLeave = async () => {
+    if (!window.confirm('Are you sure you want to add 21 vacation days to ALL active users? This action cannot be undone.')) return;
+
+    try {
+      const response = await distributeAnnualLeave(21);
+      if (isApiSuccess(response)) {
+        toast.success(`Successfully added 21 days to ${response.content.updatedCount} users`);
+        fetchUsers();
+      } else {
+        toast.error(response.error?.message || 'Failed to distribute days');
+      }
+    } catch (err) {
+      toast.error('An error occurred');
+    }
+  };
+
   const columns: Column[] = [
     {
       accessor: 'fullName',
@@ -121,10 +137,10 @@ const UsersPage: React.FC = () => {
             variant="secondary"
             size="sm"
             onClick={() => {
-              setSelectedUser({ 
-                id: row.id, 
-                name: row.fullName, 
-                vacationDays: row.vacationDays ?? 0 
+              setSelectedUser({
+                id: row.id,
+                name: row.fullName,
+                vacationDays: row.vacationDays ?? 0
               });
               setEditVacationDaysOpen(true);
             }}
@@ -149,23 +165,34 @@ const UsersPage: React.FC = () => {
     <PageLayout
       title="Users"
       action={
-        <div className="flex gap-3 items-center xl:w-1/3">
-          <div className="relative flex-1">
-            <input
-              id="users-search"
-              placeholder="Search by name or email..."
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
-            />
+        <div className="flex justify-between items-center w-full">
+          <div className="flex gap-3 items-center flex-1 max-w-xl">
+            <div className="relative flex-1">
+              <input
+                id="users-search"
+                placeholder="Search by name or email..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-full border rounded-lg bg-transparent border-someGrey p-md text-p2 text-darkGrey"
+              />
+            </div>
+            {user && (user.role === RoleEnum.Admin || user.isTeamManager) && (
+              <Button
+                variant="primary"
+                onClick={() => setInviteOpen(true)}
+                className="h-[48px] whitespace-nowrap px-4"
+              >
+                Invite User
+              </Button>
+            )}
           </div>
-          {user && (user.role === RoleEnum.Admin || user.isTeamManager) && (
-            <Button 
-              variant="primary" 
-              onClick={() => setInviteOpen(true)}
-              className="h-[48px] whitespace-nowrap px-4"
+          {user && user.role === RoleEnum.Admin && (
+            <Button
+              variant="secondary"
+              onClick={handleAddAnnualLeave}
+              className="h-[48px] whitespace-nowrap px-4 ml-4"
             >
-              Invite User
+              Add Annual Leave (+21)
             </Button>
           )}
         </div>
@@ -204,7 +231,7 @@ const UsersPage: React.FC = () => {
           }}
         />
       )}
-    </PageLayout>
+    </PageLayout >
   );
 };
 
