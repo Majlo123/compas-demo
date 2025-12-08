@@ -21,6 +21,7 @@ import TeamsListPage from '@/pages/teams-list-page/TeamsListPage';
 import TeamDetailsPage from '@/pages/team-details-page/TeamDetailsPage';
 import UsersPage from '@/pages/users-page/UsersPage';
 import ProfilePage from '@/pages/profile-page/ProfilePage';
+import DaysOffPage from '@/pages/days-off-page/DaysOffPage';
 
 const Router: FC = () => {
   return (
@@ -43,6 +44,7 @@ const Router: FC = () => {
               <Route path="/teams-list" element={<TeamsListPage />} />
               <Route path="/users" element={<UsersPage />} />
               <Route path="/team-details/:teamId" element={<TeamDetailsPage />} />
+              <Route path="/days-off" element={<DaysOffPage />} />
             </Route>
             
             <Route element={<TeamManagerGuard />}>
