@@ -27,7 +27,12 @@ const MyLeaveRequestsPage: React.FC = () => {
   const [leaveRequests, setLeaveRequests] = useState<LeaveRequestRow[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
-  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(null);
+  
+  // Initialize requestIdFilter from URL on mount
+  const [requestIdFilter, setRequestIdFilter] = useState<string | null>(() => {
+    const params = new URLSearchParams(location.search);
+    return params.get('requestId');
+  });
 
   useEffect(() => {
     fetchLeaveRequests();
@@ -76,11 +81,11 @@ const MyLeaveRequestsPage: React.FC = () => {
     setIsLoading(false);
   };
 
-  // Load requestId filter from URL
+  // Update filter when URL search params change
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const reqId = params.get('requestId');
-    if (reqId) setRequestIdFilter(reqId);
+    setRequestIdFilter(reqId);
   }, [location.search]);
 
   const formatLeaveType = (type: string): string => {

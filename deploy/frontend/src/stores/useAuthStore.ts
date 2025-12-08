@@ -9,6 +9,7 @@ import {
 import { login as loginApi } from '@/api/auth.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { Role, LoginRequest } from '../../../shared/auth.types';
+import { initializeSocket, disconnectSocket } from '@/services/socket.service';
 
 enum TokenActionTypeENUM {
   FORGOT_PASSWORD = 'FORGOT_PASSWORD',
@@ -67,11 +68,24 @@ export const useAuthStore = create<AuthState>((set) => {
         isLoggedIn: isAccessToken(response.content.token),
         user: userData,
       });
+
+      // Initialize socket connection after login
+      // Use setTimeout to ensure local storage is updated first
+      setTimeout(() => {
+        try {
+          initializeSocket();
+        } catch (error) {
+          console.error('Failed to initialize socket:', error);
+        }
+      }, 100);
       
       return { success: true };
     },
 
     logout: (): void => {
+      // Disconnect socket before logout
+      disconnectSocket();
+      
       removeFromLocalStorage('token');
       removeFromLocalStorage('user');
       set({ isLoggedIn: false, user: null });
@@ -87,6 +101,15 @@ export const useAuthStore = create<AuthState>((set) => {
         isLoggedIn: isAccessToken(token),
         user,
       });
+
+      // Initialize socket if user is logged in
+      if (isAccessToken(token)) {
+        try {
+          initializeSocket();
+        } catch (error) {
+          console.error('Failed to initialize socket:', error);
+        }
+      }
     },
   };
 });

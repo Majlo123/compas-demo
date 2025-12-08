@@ -40,7 +40,13 @@ export const getUserProfile = async (userId: string): Promise<any> => {
     fullName: user.fullName,
     email: user.email,
     role: user.role,
+    emailNotificationsEnabled: user.emailNotificationsEnabled ?? true,
   };
+};
+
+export const updateEmailNotificationPreference = async (userId: string, emailNotificationsEnabled: boolean): Promise<boolean> => {
+  const updated = await userRepository.updateById(userId, { emailNotificationsEnabled });
+  return !!updated;
 };
 
 /**
