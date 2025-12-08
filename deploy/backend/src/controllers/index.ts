@@ -5,3 +5,4 @@ export * as teamController from 'controllers/team.controller';
 export * as userController from 'controllers/user.controller';
 export * as userInviteController from 'controllers/userInvite.controller';
 export * as notificationController from 'controllers/notification.controller';
+export * as collectiveDayOffController from 'controllers/collectiveDayOff.controller';
