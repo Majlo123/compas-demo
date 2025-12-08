@@ -20,7 +20,7 @@ export const getAllCollectiveDaysOff = async (): Promise<any[]> => {
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to fetch collective days off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -45,7 +45,7 @@ export const getCollectiveDaysOffByDateRange = async (startDate: string, endDate
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to fetch collective days off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -64,7 +64,7 @@ export const deleteCollectiveDayOff = async (id: string): Promise<void> => {
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to delete collective day off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -112,6 +112,6 @@ export const createCollectiveDayOff = async (data: {
     }
     const err = error instanceof Error ? error : new Error('Failed to create collective day off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
