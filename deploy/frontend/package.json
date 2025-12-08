@@ -26,6 +26,7 @@
     "postcss-simple-vars": "^7.0.1",
     "react": "^18",
     "react-big-calendar": "^1.19.4",
+    "react-calendar": "^4.8.0",
     "react-dom": "^18",
     "react-hook-form": "^7.65.0",
     "react-calendar-heatmap": "^1.8.0",
