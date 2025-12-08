@@ -51,8 +51,6 @@ const TeamCalendarPage: React.FC = () => {
       const response = await getAllCollectiveDaysOff();
       if (isApiSuccess(response)) {
         setCollectiveDaysOff(response.content);
-        console.log('TeamCalendar: fetched', response.content.length, 'collective days off');
-        console.log('Collective days off data:', response.content);
       } else {
         console.error('Failed to load collective days off', response);
       }
@@ -89,7 +87,6 @@ const TeamCalendarPage: React.FC = () => {
             };
           });
 
-          console.debug('TeamCalendar: fetched', mapped.length, 'events');
           setAllEvents(mapped);
         } else {
           console.error('Failed to load calendar leave requests', response);

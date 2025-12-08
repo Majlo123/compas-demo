@@ -175,7 +175,6 @@ const BigCalendar: FC<Props> = ({ events, defaultView = 'month', view, onView, o
         .replace(/"/g, "'")     // Replace double quotes
         .replace(/\n/g, " ");   // Replace newlines with spaces
 
-      console.log(`BigCalendar: Found collective day off for ${checkDate.toDateString()}:`, matchingDayOff.description, '-> safeDesc:', safeDesc, '-> CSS var:', `"${safeDesc}"`);
 
       return {
         className: 'collective-day-off',
