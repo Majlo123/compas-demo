@@ -2,7 +2,7 @@ import React, { FC } from 'react';
 
 import SVGComponentProps from '@/components/images/svg-component-props';
 
-const TeamRequestsIcon: FC<SVGComponentProps> = ({ className = '' }) => {
+const TeamsIcon: FC<SVGComponentProps> = ({ className = '' }) => {
   return (
     <svg
       className={className}
@@ -52,4 +52,4 @@ const TeamRequestsIcon: FC<SVGComponentProps> = ({ className = '' }) => {
   );
 };
 
-export default React.memo(TeamRequestsIcon);
+export default React.memo(TeamsIcon);
