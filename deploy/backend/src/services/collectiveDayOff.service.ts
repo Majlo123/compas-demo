@@ -3,6 +3,14 @@ import logger from 'config/logger';
 import ApiError from 'shared/error/ApiError';
 import httpStatus from 'http-status';
 
+const mapCollectiveDayOff = (day: any) => ({
+  id: day.id,
+  startDate: day.startDate.toISOString().split('T')[0],
+  endDate: day.endDate.toISOString().split('T')[0],
+  description: day.description,
+  createdAt: day.createdAt?.toISOString(),
+});
+
 /**
  * Get all collective days off
  */
@@ -10,17 +18,11 @@ export const getAllCollectiveDaysOff = async (): Promise<any[]> => {
   try {
     const result = await collectiveDayOffRepository.findAllCollectiveDaysOff();
     logger.info(`Fetched ${result.length} collective days off`);
-    return result.map((day: any) => ({
-      id: day.id,
-      startDate: day.startDate.toISOString().split('T')[0],
-      endDate: day.endDate.toISOString().split('T')[0],
-      description: day.description,
-      createdAt: day.createdAt?.toISOString(),
-    }));
+    return result.map(mapCollectiveDayOff);
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to fetch collective days off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -34,18 +36,12 @@ export const getCollectiveDaysOffByDateRange = async (startDate: string, endDate
 
     const result = await collectiveDayOffRepository.findByDateRange(start, end);
     logger.info(`Fetched ${result.length} collective days off for date range ${startDate} to ${endDate}`);
-    
-    return result.map((day: any) => ({
-      id: day.id,
-      startDate: day.startDate.toISOString().split('T')[0],
-      endDate: day.endDate.toISOString().split('T')[0],
-      description: day.description,
-      createdAt: day.createdAt?.toISOString(),
-    }));
+
+    return result.map(mapCollectiveDayOff);
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to fetch collective days off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -64,7 +60,7 @@ export const deleteCollectiveDayOff = async (id: string): Promise<void> => {
   } catch (error) {
     const err = error instanceof Error ? error : new Error('Failed to delete collective day off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };
 
@@ -99,19 +95,13 @@ export const createCollectiveDayOff = async (data: {
 
     logger.info(`Created collective day off: ${data.description} (${data.startDate} - ${data.endDate})`);
 
-    return {
-      id: newDayOff.id,
-      startDate: newDayOff.startDate.toISOString().split('T')[0],
-      endDate: newDayOff.endDate.toISOString().split('T')[0],
-      description: newDayOff.description,
-      createdAt: newDayOff.createdAt?.toISOString(),
-    };
+    return mapCollectiveDayOff(newDayOff);
   } catch (error) {
     if (error instanceof ApiError) {
       throw error;
     }
     const err = error instanceof Error ? error : new Error('Failed to create collective day off');
     logger.error(err);
-    throw error;
+    throw err;
   }
 };

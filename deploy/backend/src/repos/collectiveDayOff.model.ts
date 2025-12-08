@@ -59,12 +59,11 @@ export const findByDateRange = async (startDate: Date, endDate: Date): Promise<C
 /**
  * Check if dates overlap with existing collective days off
  */
-export const checkDateOverlap = async (startDate: Date, endDate: Date, excludeId?: string): Promise<boolean> => {
+export const checkDateOverlap = async (startDate: Date, endDate: Date): Promise<boolean> => {
   const query = {
     text: `SELECT COUNT(*) as count FROM collective_days_off 
-           WHERE start_date <= $2 AND end_date >= $1
-           ${excludeId ? 'AND id != $3' : ''}`,
-    values: excludeId ? [startDate, endDate, excludeId] : [startDate, endDate],
+           WHERE start_date <= $2 AND end_date >= $1`,
+    values: [startDate, endDate],
   };
 
   const result = await pool.query(query);
