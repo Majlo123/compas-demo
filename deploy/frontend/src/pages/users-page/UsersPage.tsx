@@ -10,6 +10,7 @@ import Pagination from '@/components/controls/Pagination';
 import PageSizeSelector from '@/components/controls/PageSizeSelector';
 import { useDebounce } from 'use-debounce';
 import DialogInviteUsers from '@/components/dialog/DialogInviteUsers';
+import DialogEditVacationDays from '@/components/dialog/DialogEditVacationDays';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum } from '../../../../shared/auth.types';
 
@@ -17,6 +18,7 @@ interface UserRow extends Row {
   id: string;
   fullName: string;
   email: string;
+  vacationDays?: number;
 }
 
 const UsersPage: React.FC = () => {
@@ -28,6 +30,8 @@ const UsersPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [editVacationDaysOpen, setEditVacationDaysOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; vacationDays: number } | null>(null);
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => setPage(1), [debouncedSearch]);
@@ -43,7 +47,13 @@ const UsersPage: React.FC = () => {
       if (debouncedSearch && debouncedSearch.trim() !== '') {
         const response = await searchUsers(debouncedSearch);
         if (isApiSuccess(response)) {
-          const formatted = response.content.map((u: any) => ({ _id: u.id, id: u.id, fullName: u.fullName, email: u.email }));
+          const formatted = response.content.map((u: any) => ({ 
+            _id: u.id, 
+            id: u.id, 
+            fullName: u.fullName, 
+            email: u.email,
+            vacationDays: u.vacationDays ?? 0
+          }));
           setUsers(formatted);
           setTotalPages(1);
         } else {
@@ -53,7 +63,13 @@ const UsersPage: React.FC = () => {
       } else {
         const response = await getUsers(page, pageSize);
         if (isApiSuccess(response)) {
-          setUsers(response.content.data.map((u: any) => ({ _id: u.id, id: u.id, fullName: u.fullName, email: u.email })));
+          setUsers(response.content.data.map((u: any) => ({ 
+            _id: u.id, 
+            id: u.id, 
+            fullName: u.fullName, 
+            email: u.email,
+            vacationDays: u.vacationDays ?? 0
+          })));
           setTotalPages(response.content.totalPages);
         } else {
           setHasError(true);
@@ -90,10 +106,10 @@ const UsersPage: React.FC = () => {
     },
     { accessor: 'email', header: 'Email' },
     {
-      accessor: 'teams',
-      header: 'Teams',
-      formatter: (_v: any, _row: any) => (
-        <span>-</span>
+      accessor: 'vacationDays',
+      header: 'Vacation Days',
+      formatter: (value: any) => (
+        <span className="font-medium">{value ?? 0}</span>
       ),
     },
     {
@@ -101,6 +117,21 @@ const UsersPage: React.FC = () => {
       header: 'Actions',
       formatter: (_v: any, row: any) => (
         <div className="flex gap-2 items-center justify-center">
+          <Button
+            variant="secondary"
+            size="sm"
+            onClick={() => {
+              setSelectedUser({ 
+                id: row.id, 
+                name: row.fullName, 
+                vacationDays: row.vacationDays ?? 0 
+              });
+              setEditVacationDaysOpen(true);
+            }}
+            disabled={!user || (user.role !== RoleEnum.Admin && !user.isTeamManager)}
+          >
+            Edit Days
+          </Button>
           <Button
             variant="delete"
             size="sm"
@@ -161,6 +192,18 @@ const UsersPage: React.FC = () => {
           fetchUsers();
         }}
       />
+      {selectedUser && (
+        <DialogEditVacationDays
+          isOpen={editVacationDaysOpen}
+          onOpenChange={setEditVacationDaysOpen}
+          userId={selectedUser.id}
+          userName={selectedUser.name}
+          currentVacationDays={selectedUser.vacationDays}
+          onSuccess={() => {
+            fetchUsers();
+          }}
+        />
+      )}
     </PageLayout>
   );
 };

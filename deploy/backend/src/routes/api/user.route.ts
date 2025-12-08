@@ -14,6 +14,8 @@ enum UserFunctions {
   getUserProfile = 'getUserProfile',
   inviteUsers = 'inviteUsers',
   updateEmailNotificationPreference = 'updateEmailNotificationPreference',
+  updateUserVacationDays = 'updateUserVacationDays',
+  getUserVacationDays = 'getUserVacationDays',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -97,6 +99,33 @@ const createUserRoute = (basePath: string): Router => {
       functionName: UserFunctions.updateEmailNotificationPreference,
       basePath,
     },
+    {
+      name: 'Update User Vacation Days',
+      desc: 'Update vacation days for a user (Admin or Team Manager only)',
+      path: '/:userId/vacation-days',
+      method: 'put',
+      authorize: true,
+      params: [{ name: 'userId', in: 'path', type: 'string', required: true }],
+      responses: [
+        { code: httpStatus.OK, desc: 'Vacation days updated successfully' },
+        { code: httpStatus.FORBIDDEN, desc: 'No permission to update this user' },
+      ],
+      functionName: UserFunctions.updateUserVacationDays,
+      basePath,
+    },
+    {
+      name: 'Get User Vacation Days',
+      desc: 'Get vacation days information for a user',
+      path: '/:userId/vacation-days',
+      method: 'get',
+      authorize: true,
+      params: [{ name: 'userId', in: 'path', type: 'string', required: true }],
+      responses: [
+        { code: httpStatus.OK, desc: 'User vacation days information' },
+      ],
+      functionName: UserFunctions.getUserVacationDays,
+      basePath,
+    },
   ];
 
   console.log('Available userController functions:', Object.keys(userController));
@@ -108,6 +137,8 @@ const createUserRoute = (basePath: string): Router => {
     getUserProfile: userController.getUserProfile as RequestHandler,
     inviteUsers:userController.inviteUsers as RequestHandler,
     updateEmailNotificationPreference: userController.updateEmailNotificationPreference as RequestHandler,
+    updateUserVacationDays: userController.updateUserVacationDays as RequestHandler,
+    getUserVacationDays: userController.getUserVacationDays as RequestHandler,
   };
 
   const router = Router();

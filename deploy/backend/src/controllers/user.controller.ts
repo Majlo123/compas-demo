@@ -93,3 +93,70 @@ export const updateEmailNotificationPreference = catchAsync(async (req: Request,
   });
 });
 
+export const updateUserVacationDays = catchAsync(async (req: Request, res: Response) => {
+  const requesterId = req.user?.id;
+  const { userId } = req.params;
+  const { vacationDays } = req.body;
+
+  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Days: ${vacationDays}`);
+  console.log(`Requester user object:`, req.user);
+
+  if (!requesterId) {
+    throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
+  }
+
+  if (typeof vacationDays !== 'number' || vacationDays < 0) {
+    res.status(httpStatus.BAD_REQUEST).send({
+      success: false,
+      error: { message: 'vacationDays must be a non-negative number' },
+    });
+    return;
+  }
+
+  // Check if requester has permission to update this user's vacation days
+  const canManage = await userService.canManageUserVacationDays(requesterId, userId);
+  
+  if (!canManage) {
+    // Provide more specific error message
+    const requesterUser = await userService.getUserWithVacationDays(requesterId);
+    if (!requesterUser) {
+      throw new ApiError(
+        'Your user session is invalid. Please log out and log back in.',
+        httpStatus.UNAUTHORIZED
+      );
+    }
+    
+    throw new ApiError(
+      'Forbidden: You do not have permission to update this user\'s vacation days. Only Admins and Team Managers can modify vacation days.',
+      httpStatus.FORBIDDEN
+    );
+  }
+
+  const updated = await userService.updateUserVacationDays(userId, vacationDays);
+  
+  if (!updated) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Vacation days updated successfully',
+    content: { vacationDays },
+  });
+});
+
+export const getUserVacationDays = catchAsync(async (req: Request, res: Response) => {
+  const { userId } = req.params;
+  
+  const user = await userService.getUserWithVacationDays(userId);
+  
+  if (!user) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: user,
+  });
+});
+

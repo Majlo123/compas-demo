@@ -107,7 +107,10 @@ const handleUnauthorizedResponse = async (error: any): Promise<any> => {
     return handleTokenExpiredResponse(error);
   }
 
-  if (error.config.url !== '/user/me') {
+  // Don't redirect for vacation days endpoints - let the component handle the error
+  const isVacationDaysEndpoint = error.config.url?.includes('/vacation-days');
+  
+  if (error.config.url !== '/user/me' && !isVacationDaysEndpoint) {
     window.location.href = '/login/';
   }
 

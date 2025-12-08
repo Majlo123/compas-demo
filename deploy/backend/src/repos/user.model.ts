@@ -10,6 +10,7 @@ export type User = {
   role: Role;
   isActivated?: boolean;
   emailNotificationsEnabled?: boolean;
+  vacationDays?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -28,7 +29,7 @@ export const searchByNameOrEmail = async (searchQuery: string): Promise<any[]> =
   }
 
   const query = `
-    SELECT id, full_name as "fullName", email
+    SELECT id, full_name as "fullName", email, vacation_days as "vacationDays"
     FROM users
     WHERE is_activated = TRUE
       AND (LOWER(full_name) LIKE LOWER($1) OR LOWER(email) LIKE LOWER($1))
@@ -45,7 +46,7 @@ export const findAllActivePaginated = async (page: number, pageSize: number): Pr
   const offset = (page - 1) * pageSize;
   const countQuery = 'SELECT COUNT(*) FROM users WHERE is_activated = TRUE';
   const dataQuery = `
-    SELECT id, full_name as "fullName", email
+    SELECT id, full_name as "fullName", email, vacation_days as "vacationDays"
     FROM users
     WHERE is_activated = TRUE
     ORDER BY created_at DESC
@@ -95,6 +96,7 @@ export const findByEmail = async (email: string): Promise<User | null> => {
     role: row.role,
     isActivated: row.is_activated,
     emailNotificationsEnabled: row.email_notifications_enabled,
+    vacationDays: row.vacation_days ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
