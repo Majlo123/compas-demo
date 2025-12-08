@@ -1,6 +1,8 @@
 import app from 'app';
 import config from 'config/config';
 import logger from 'config/logger';
+import { initializeSocket } from 'config/socket';
+import { createServer } from 'http';
 
 let server: any;
 
@@ -22,7 +24,13 @@ const unexpectedErrorHandler = (error: any): void => {
 };
 
 const startServer = async (): Promise<void> => {
-  server = app.listen(config.server.port, () => {
+  // Create HTTP server from Express app
+  const httpServer = createServer(app);
+
+  // Initialize Socket.IO
+  initializeSocket(httpServer);
+
+  server = httpServer.listen(config.server.port, () => {
     logger.info(`Server started at port: ${config.server.port}`);
   });
 };
