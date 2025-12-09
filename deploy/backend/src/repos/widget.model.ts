@@ -7,8 +7,8 @@ export type Widget = {
 	y: number;
 	width: number;
 	height: number;
-    userId: string;
-    type: string;
+  userId: string;
+  type: string;
 	createdAt?: Date;
 	updatedAt?: Date;
 };
