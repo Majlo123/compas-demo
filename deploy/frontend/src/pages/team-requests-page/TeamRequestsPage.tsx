@@ -187,7 +187,7 @@ const TeamRequestsPage: React.FC = () => {
     const columns: Column[] = [
         {
           accessor: 'employeeName',
-          header: 'Team Member',
+          header: 'Project Member',
         },
         {
           accessor: 'type',
@@ -261,7 +261,7 @@ const TeamRequestsPage: React.FC = () => {
               </div>
               <Select 
                 className="text-p1 min-w-fit flex-1" 
-                placeholder="Team" 
+                placeholder="Project" 
                 options={teams.map(team => ({ label: team.name, value: team.id }))} 
                 value={selectedTeam} 
                 onChange={setSelectedTeam} 
@@ -283,8 +283,8 @@ const TeamRequestsPage: React.FC = () => {
         </div>
       }
       actionPosition="below"
-      emptyMessage="No team requests yet"
-      emptyDescription="Your team members have not submitted any leave requests."
+      emptyMessage="No project requests yet"
+      emptyDescription="Your project members have not submitted any leave requests."
         isLoading={isLoading}
         hasError={hasError}
         isEmpty={leaveRequests.length === 0}

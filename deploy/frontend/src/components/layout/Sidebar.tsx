@@ -20,7 +20,7 @@ type NavItem = {
 const navItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Teams', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Projects', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },

@@ -8,7 +8,7 @@ import Button from '@/components/controls/button/Button';
 import FormTextInput from '@/components/controls/FormTextInput';
 
 const teamFormSchema = z.object({
-  name: z.string().min(1, 'Team name is required'),
+  name: z.string().min(1, 'Project name is required'),
   description: z.string().optional(),
 });
 
@@ -39,19 +39,19 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
       }
     } else {
       try {
-        toast.success('Team created successfully!');
+        toast.success('Project created successfully!');
         reset();
         onOpenChange(false);
       } catch (error: any) {
-        toast.error(error?.message || 'Failed to create team');
+        toast.error(error?.message || 'Failed to create project');
       }
     }
   };
 
   return (
     <CustomDialog
-      title="New Team"
-      description="Enter a name for the new team."
+      title="New Project"
+      description="Enter a name for the new project."
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >
@@ -63,8 +63,8 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
             errors={errors}
             type="text"
             inputClassName="w-full"
-            placeholder="Enter team name"
-            label="Team Name"
+            placeholder="Enter project name"
+            label="Project name"
             required
           />
         </div>
@@ -75,13 +75,13 @@ const DialogTeamForm: FC<DialogTeamFormProps> = ({ isOpen, onOpenChange, onSubmi
             errors={errors}
             type="text"
             inputClassName="w-full"
-            placeholder="Enter team description"
-            label="Team Description"
+            placeholder="Enter project description"
+            label="Project Description"
           />
         </div>
         <div className="flex justify-end">
           <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
-            {isSubmitting ? 'Creating...' : 'Create Team'}
+            {isSubmitting ? 'Creating...' : 'Create Project'}
           </Button>
         </div>
       </form>
