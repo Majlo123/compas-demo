@@ -2,6 +2,7 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
+  vacationDays?: number;
 }
 
 export interface UserProfile {
@@ -10,6 +11,15 @@ export interface UserProfile {
   email: string;
   role: string;
   emailNotificationsEnabled?: boolean;
+  vacationDays?: number;
+}
+
+export interface UserWithVacationDays {
+  id: string;
+  fullName: string;
+  email: string;
+  role: string;
+  vacationDays: number;
 }
 
 export interface SearchUsersResponse {
