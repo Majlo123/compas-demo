@@ -10,6 +10,7 @@ import Pagination from '@/components/controls/Pagination';
 import PageSizeSelector from '@/components/controls/PageSizeSelector';
 import { useDebounce } from 'use-debounce';
 import DialogInviteUsers from '@/components/dialog/DialogInviteUsers';
+import ConfirmDialog from '@/components/dialog/ConfirmDialog';
 import DialogEditVacationDays from '@/components/dialog/DialogEditVacationDays';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { RoleEnum } from '../../../../shared/auth.types';
@@ -30,8 +31,11 @@ const UsersPage: React.FC = () => {
   const [search, setSearch] = useState<string>('');
   const [debouncedSearch] = useDebounce(search, 500);
   const [inviteOpen, setInviteOpen] = useState(false);
+  const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [editVacationDaysOpen, setEditVacationDaysOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; vacationDays: number } | null>(null);
+  const [confirmAnnualLeaveOpen, setConfirmAnnualLeaveOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => setPage(1), [debouncedSearch]);
@@ -84,10 +88,15 @@ const UsersPage: React.FC = () => {
     }
   };
 
-  const handleDelete = async (userId: string): Promise<void> => {
-    if (!window.confirm('Are you sure you want to remove this user?')) return;
+  const handleDeleteClick = (userId: string): void => {
+    setUserToDelete(userId);
+    setConfirmDeleteOpen(true);
+  };
+
+  const handleConfirmDelete = async (): Promise<void> => {
+    if (!userToDelete) return;
     try {
-      const response = await deactivateUser(userId);
+      const response = await deactivateUser(userToDelete);
       if (isApiSuccess(response)) {
         toast.success('User removed successfully');
         fetchUsers();
@@ -96,12 +105,17 @@ const UsersPage: React.FC = () => {
       }
     } catch (err) {
       toast.error('An error occurred while removing user');
+    } finally {
+      setUserToDelete(null);
+      setConfirmDeleteOpen(false);
     }
   };
 
   const handleAddAnnualLeave = async () => {
-    if (!window.confirm('Are you sure you want to add 21 vacation days to ALL active users? This action cannot be undone.')) return;
+    setConfirmAnnualLeaveOpen(true);
+  };
 
+  const handleConfirmAnnualLeave = async (): Promise<void> => {
     try {
       const response = await distributeAnnualLeave(21);
       if (isApiSuccess(response)) {
@@ -112,6 +126,8 @@ const UsersPage: React.FC = () => {
       }
     } catch (err) {
       toast.error('An error occurred');
+    } finally {
+      setConfirmAnnualLeaveOpen(false);
     }
   };
 
@@ -151,7 +167,7 @@ const UsersPage: React.FC = () => {
           <Button
             variant="delete"
             size="sm"
-            onClick={() => handleDelete(row.id)}
+            onClick={() => handleDeleteClick(row.id)}
             disabled={!user || (user.role !== RoleEnum.Admin)}
           >
             Delete
@@ -218,6 +234,26 @@ const UsersPage: React.FC = () => {
           // Optionally refresh users list after invite
           fetchUsers();
         }}
+      />
+      <ConfirmDialog
+        isOpen={confirmDeleteOpen}
+        onOpenChange={setConfirmDeleteOpen}
+        title="Delete User"
+        message="Are you sure you want to remove this user? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        variant="danger"
+        onConfirm={handleConfirmDelete}
+      />
+      <ConfirmDialog
+        isOpen={confirmAnnualLeaveOpen}
+        onOpenChange={setConfirmAnnualLeaveOpen}
+        title="Add Annual Leave"
+        message="Are you sure you want to add 21 vacation days to ALL active users? This action cannot be undone."
+        confirmText="Add"
+        cancelText="Cancel"
+        variant="primary"
+        onConfirm={handleConfirmAnnualLeave}
       />
       {selectedUser && (
         <DialogEditVacationDays

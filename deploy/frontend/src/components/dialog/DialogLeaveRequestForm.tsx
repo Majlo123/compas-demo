@@ -9,7 +9,7 @@ import CustomDatePicker from '@/components/controls/CustomDatePicker';
 import Button from '@/components/controls/button/Button';
 import { LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
-import { CollectiveDayOff } from '@/api/collective-day-off/collectiveDayOff.types';
+import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
 import { isApiSuccess } from '@/api/shared.types';
 
 const leaveRequestSchema = z.object({
