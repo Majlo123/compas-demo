@@ -142,13 +142,6 @@ const UsersPage: React.FC = () => {
     },
     { accessor: 'email', header: 'Email' },
     {
-      accessor: 'teams',
-      header: 'Projects',
-      formatter: (_v: any, _row: any) => (
-        <span>-</span>
-      )
-    },
-    {
       accessor: 'vacationDaysLeft',
       header: 'Vacation Days',
       formatter: (_value: any, row: any) => (
