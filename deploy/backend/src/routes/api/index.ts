@@ -11,6 +11,7 @@ import createUserRoute from 'routes/api/user.route';
 import createUserInviteRoute from 'routes/api/userInvite.route';
 import createNotificationRoute from 'routes/api/notification.route';
 import createCollectiveDayOffRoute from 'routes/api/collectiveDayOff.route';
+import createWidgetRoute from 'routes/api/widget.route';
 
 const apiRouter = express.Router();
 
@@ -46,6 +47,10 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/collective-days-off',
     route: createCollectiveDayOffRoute('/collective-days-off'),
+  },
+  {
+    path: '/widgets',
+    route: createWidgetRoute('/widgets'),
   },
 ];
 
