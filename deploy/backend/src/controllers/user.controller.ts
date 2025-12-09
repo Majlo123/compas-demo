@@ -16,7 +16,8 @@ export const searchUsers = catchAsync(async (req: Request, res: Response) => {
 
 export const getAllUsers = catchAsync(async (req: Request, res: Response) => {
   const queryParams = req.queryParams as QueryParams;
-  const paginatedResult = await userService.findAll(queryParams);
+  const currentUserId = req.user?.id;
+  const paginatedResult = await userService.findAll(queryParams, currentUserId);
   res.status(httpStatus.OK).send({
     success: true,
     content: paginatedResult,

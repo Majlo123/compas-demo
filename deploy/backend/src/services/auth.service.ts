@@ -1,6 +1,6 @@
 import httpStatus from 'http-status';
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcrypt'
 import { authRepository, teamMemberRepository, userInviteRepository } from 'repos/index';
 import ApiError from 'shared/error/ApiError';
 import config from 'config/config';

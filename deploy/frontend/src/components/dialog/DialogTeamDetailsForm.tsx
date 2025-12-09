@@ -141,7 +141,7 @@ const DialogTeamDetailsForm: React.FC<DialogTeamDetailsFormProps> = ({
           onSuccess();
         }
       } else {
-        setError('Failed to add users to team');
+        setError('Failed to add users to project');
       }
     } catch (err: any) {
       setError(err.message || 'Failed to add users');
@@ -167,7 +167,7 @@ const DialogTeamDetailsForm: React.FC<DialogTeamDetailsFormProps> = ({
 
   return (
     <CustomDialog
-      title="Add Users to Team"
+      title="Add Users to Project"
       isOpen={isOpen}
       onOpenChange={onOpenChange}
     >

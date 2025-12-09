@@ -104,7 +104,10 @@ const Select: FC<SelectProps> = ({
         </div>
       </button>
       {error && (
-        <span className="flex flex-col justify-center text-p2 text-red h-8 w-full">
+        <span
+          className="flex flex-col justify-center text-p2 h-8 w-full text-red aria-live='polite'"
+          role={error ? 'alert' : undefined}
+        >
           {error}
         </span>
       )}

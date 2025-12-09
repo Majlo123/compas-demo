@@ -59,7 +59,7 @@ const TeamDetailsPage: React.FC = () => {
         setTeamName(teamResponse.content.name);
         setTeamDescription(teamResponse.content.description);
       } else {
-        toast.error('Failed to load team details');
+        toast.error('Failed to load project details');
         setHasError(true);
       }
 
@@ -73,10 +73,10 @@ const TeamDetailsPage: React.FC = () => {
         }));
         setMembers(formattedMembers);
       } else {
-        toast.error('Failed to load team members');
+        toast.error('Failed to load project members');
       }
     } catch (error) {
-      toast.error('An error occurred while loading team data');
+      toast.error('An error occurred while loading project data');
       setHasError(true);
     } finally {
       setIsLoading(false);
@@ -89,7 +89,7 @@ const TeamDetailsPage: React.FC = () => {
   };
 
   const handleAddUserSubmit = async (data: { userId: string; isManager: boolean }) => {
-    toast.success(`User added as ${data.isManager ? 'team manager' : 'team member'}`);
+    toast.success(`User added as ${data.isManager ? 'project manager' : 'project member'}`);
   };
 
   const handleAddUserSuccess = () => {
@@ -177,13 +177,13 @@ const TeamDetailsPage: React.FC = () => {
         setMembers(members.map(m => 
           selectedMembers.has(m.id) ? { ...m, isManager: true } : m
         ));
-        toast.success(`${selectedMembers.size} member(s) set as team manager successfully`);
+        toast.success(`${selectedMembers.size} member(s) set as project manager successfully`);
         setSelectedMembers(new Set());
       } else {
-        toast.error('Failed to set team manager');
+        toast.error('Failed to set project manager');
       }
     } catch (error) {
-      toast.error('An error occurred while setting team manager');
+      toast.error('An error occurred while setting project manager');
     }
   };
 
@@ -197,13 +197,13 @@ const TeamDetailsPage: React.FC = () => {
     try {
       const response = await deleteTeam(teamId);
       if (isApiSuccess(response)) {
-        toast.success('Team deleted successfully');
+        toast.success('Project deleted successfully');
         navigate('/teams-list');
       } else {
-        toast.error('Failed to delete team');
+        toast.error('Failed to delete project');
       }
     } catch (error) {
-      toast.error('An error occurred while deleting team');
+      toast.error('An error occurred while deleting project');
     }
   };
 
@@ -257,7 +257,7 @@ const TeamDetailsPage: React.FC = () => {
         action={
           <div className="flex gap-4">
             <Button variant='delete' className="text-lg font-medium" onClick={handleDeleteTeam}>
-              Delete Team
+              Delete Project
             </Button>
             <Button onClick={handleAddUser} className="text-lg font-medium">
               + Add User
@@ -265,8 +265,8 @@ const TeamDetailsPage: React.FC = () => {
           </div>
         }
         actionPosition="inline"
-        emptyMessage="No team members yet"
-        emptyDescription="Add members to this team to get started"
+        emptyMessage="No project members yet"
+        emptyDescription="Add members to this project to get started"
         isLoading={isLoading}
         hasError={hasError}
         isEmpty={members.length === 0}
@@ -302,8 +302,8 @@ const TeamDetailsPage: React.FC = () => {
       <ConfirmDialog
         isOpen={confirmDialogOpen}
         onOpenChange={setConfirmDialogOpen}
-        title="Remove Team Member"
-        message={`Are you sure you want to remove "${memberToRemove?.name}" from this team? This action cannot be undone.`}
+        title="Remove Project Member"
+        message={`Are you sure you want to remove "${memberToRemove?.name}" from this project? This action cannot be undone.`}
         confirmText="Remove"
         cancelText="Cancel"
         variant="danger"
@@ -324,8 +324,8 @@ const TeamDetailsPage: React.FC = () => {
       <ConfirmDialog
         isOpen={setManagerDialogOpen}
         onOpenChange={setSetManagerDialogOpen}
-        title="Set Team Manager"
-        message={`Are you sure you want to set the selected ${selectedMembers.size} member as team manager?`}
+        title="Set Project Manager"
+        message={`Are you sure you want to set the selected ${selectedMembers.size} member as project manager?`}
         confirmText="Confirm"
         cancelText="Cancel"
         variant="primary"
@@ -335,9 +335,9 @@ const TeamDetailsPage: React.FC = () => {
       <ConfirmDialog
         isOpen={deleteTeamDialogOpen}
         onOpenChange={setDeleteTeamDialogOpen}
-        title="Delete Team"
-        message={`Are you sure you want to delete "${teamName}"? This will remove all team members and cannot be undone.`}
-        confirmText="Delete Team"
+        title="Delete Project"
+        message={`Are you sure you want to delete "${teamName}"? This will remove all project members and cannot be undone.`}
+        confirmText="Delete Project"
         cancelText="Cancel"
         variant="danger"
         onConfirm={confirmDeleteTeam}

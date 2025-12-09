@@ -5,11 +5,14 @@ import { z } from 'zod';
 import { toast } from 'react-toastify';
 import CustomDialog from '@/components/dialog/dialog-props';
 import FormSelect from '@/components/controls/FormSelect';
-import DateInput from '@/components/controls/DateInput';
+import CustomDatePicker from '@/components/controls/CustomDatePicker';
 import Button from '@/components/controls/button/Button';
 import { LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
 import { getUserProfile } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
+import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
+
 
 const leaveRequestSchema = z.object({
   leaveType: z.object({
@@ -54,6 +57,8 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
 }) => {
   const [vacationDaysLeft, setVacationDaysLeft] = useState<number>(0);
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false);
+  const [collectiveDaysOff, setCollectiveDaysOff] = useState<CollectiveDayOff[]>([]);
+  const [collectiveDayOffError, setCollectiveDayOffError] = useState<string>('');
 
   const leaveTypeOptions = [
     { label: 'Vacation', value: 'vacation' },
@@ -69,6 +74,8 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
   });
 
   const selectedLeaveType = watch('leaveType');
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
 
   // Fetch user profile to get vacation days left
   useEffect(() => {
@@ -90,6 +97,58 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
     fetchVacationDays();
   }, [isOpen, mode]);
 
+  // Fetch collective days off
+  useEffect(() => {
+    const fetchCollectiveDaysOff = async () => {
+      if (isOpen) {
+        try {
+          const response = await getAllCollectiveDaysOff();
+          if (isApiSuccess(response)) {
+            setCollectiveDaysOff(response.content);
+          }
+        } catch (error) {
+          console.error('Failed to fetch collective days off:', error);
+        }
+      }
+    };
+    fetchCollectiveDaysOff();
+  }, [isOpen]);
+
+  // Check for collective days off overlap
+  useEffect(() => {
+    if (startDate && endDate && collectiveDaysOff.length > 0) {
+      const start = new Date(startDate);
+      const end = new Date(endDate);
+      
+      const hasOverlap = collectiveDaysOff.some(dayOff => {
+        const offStart = new Date(dayOff.startDate);
+        const offEnd = new Date(dayOff.endDate);
+        return (start <= offEnd && end >= offStart);
+      });
+
+      if (hasOverlap) {
+        setCollectiveDayOffError('Your selected dates overlap with collective days off. Please choose different dates.');
+      } else {
+        setCollectiveDayOffError('');
+      }
+    } else {
+      setCollectiveDayOffError('');
+    }
+  }, [startDate, endDate, collectiveDaysOff]);
+
+  // Get disabled dates (collective days off)
+  const getDisabledDates = () => {
+    const disabledDates: string[] = [];
+    collectiveDaysOff.forEach(dayOff => {
+      const start = new Date(dayOff.startDate);
+      const end = new Date(dayOff.endDate);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        disabledDates.push(d.toISOString().split('T')[0]);
+      }
+    });
+    return disabledDates;
+  };
+
   // Set initial values when editing
   useEffect(() => {
     if (initialData && isOpen) {
@@ -103,6 +162,12 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
   }, [initialData, isOpen]);
 
   const onSubmitHandler = async (data: LeaveRequestForm) => {
+    // Check for collective days off
+    if (collectiveDayOffError) {
+      toast.error(collectiveDayOffError);
+      return;
+    }
+
     try {
       if (onSubmit && data.leaveType) {
         await onSubmit({
@@ -173,23 +238,32 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
           )}
         </div>
         <div className="mb-lg">
-          <DateInput
+          <CustomDatePicker
             label="Start Date"
             required
             error={errors.startDate?.message}
             min={new Date().toISOString().split('T')[0]}
-            {...register('startDate')}
+            disabledDates={getDisabledDates()}
+            value={startDate}
+            onChange={(date) => setValue('startDate', date)}
           />
         </div>
         <div className="mb-lg">
-          <DateInput
+          <CustomDatePicker
             label="End Date"
             required
             error={errors.endDate?.message}
             min={new Date().toISOString().split('T')[0]}
-            {...register('endDate')}
+            disabledDates={getDisabledDates()}
+            value={endDate}
+            onChange={(date) => setValue('endDate', date)}
           />
         </div>
+        {collectiveDayOffError && (
+          <div className="mb-lg p-md bg-red-50 border border-red rounded-lg text-red text-p2">
+            {collectiveDayOffError}
+          </div>
+        )}
         <div className="flex justify-end gap-4">
           {mode === 'edit' && (
             <Button
@@ -201,7 +275,7 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
               Cancel Request
             </Button>
           )}
-          <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting}>
+          <Button type="submit" variant="primary" className="w-full" disabled={isSubmitting || !!collectiveDayOffError}>
             {isSubmitting ? (mode === 'edit' ? 'Updating...' : 'Submitting...') : (mode === 'edit' ? 'Update' : 'Submit')}
           </Button>
         </div>

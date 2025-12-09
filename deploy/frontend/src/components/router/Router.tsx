@@ -38,7 +38,9 @@ const Router: FC = () => {
 
         <Route element={<AuthenticatedRoutes />}>
           <Route element={<DashboardLayout />}>
-            <Route path="/dashboard" element={<DashboardPage />} />
+            <Route element={<TeamManagerGuard />}>
+              <Route path="/dashboard" element={<DashboardPage />} />
+            </Route>
             
             <Route element={<RoleGuard allowedRoles={[RoleEnum.Admin]} />}>
               <Route path="/teams-list" element={<TeamsListPage />} />

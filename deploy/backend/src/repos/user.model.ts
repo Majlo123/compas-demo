@@ -43,19 +43,23 @@ export const searchByNameOrEmail = async (searchQuery: string): Promise<any[]> =
   return result.rows;
 };
 
-export const findAllActivePaginated = async (page: number, pageSize: number): Promise<{ data: any[]; totalItems: number; totalPages: number; page: number; pageSize: number; }> => {
+export const findAllActivePaginated = async (page: number, pageSize: number, excludeUserId?: string): Promise<{ data: any[]; totalItems: number; totalPages: number; page: number; pageSize: number; }> => {
   const offset = (page - 1) * pageSize;
-  const countQuery = 'SELECT COUNT(*) FROM users WHERE is_activated = TRUE';
+  const excludeClause = excludeUserId ? 'AND id != $1' : '';
+  const countQuery = `SELECT COUNT(*) FROM users WHERE is_activated = TRUE ${excludeClause}`;
   const dataQuery = `
     SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft"
     FROM users
-    WHERE is_activated = TRUE
+    WHERE is_activated = TRUE ${excludeClause}
     ORDER BY created_at DESC
-    LIMIT $1 OFFSET $2`;
+    ${excludeUserId ? 'LIMIT $2 OFFSET $3' : 'LIMIT $1 OFFSET $2'}`;
+
+  const countParams = excludeUserId ? [excludeUserId] : [];
+  const dataParams = excludeUserId ? [excludeUserId, pageSize, offset] : [pageSize, offset];
 
   const [countResult, dataResult] = await Promise.all([
-    pool.query(countQuery),
-    pool.query(dataQuery, [pageSize, offset]),
+    pool.query(countQuery, countParams),
+    pool.query(dataQuery, dataParams),
   ]);
 
   const totalItems = parseInt(countResult.rows[0].count, 10);

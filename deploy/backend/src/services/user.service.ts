@@ -1,10 +1,9 @@
-import { userRepository } from 'repos/index';
+import { userRepository, teamMemberRepository, teamRepository } from 'repos/index';
 import { deactivateUser, findAllActivePaginated } from 'repos/user.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import { User as UserModel } from 'repos/user.model';
 import { createUserInvite } from './userInvite.service';
-import { teamMemberRepository } from 'repos/index';
 
 /**
  * Search users by name or email
@@ -15,10 +14,30 @@ export const searchUsers = async (searchQuery: string): Promise<any[]> => {
 
 export type UserPublic = Pick<UserModel, 'id' | 'fullName' | 'email' | 'vacationDaysInit' | 'vacationDaysLeft'>;
 
-export const findAll = async (query: QueryParams): Promise<PaginatedResult<UserPublic>> => {
+export const findAll = async (query: QueryParams, excludeUserId?: string): Promise<PaginatedResult<any>> => {
   const page = query.pagination?.page || 1;
   const pageSize = query.pagination?.pageSize || 10;
-  const activeResult = await findAllActivePaginated(page, pageSize);
+  const activeResult = await findAllActivePaginated(page, pageSize, excludeUserId);
+  
+  // Fetch teams for each user
+  const usersWithTeams = await Promise.all(
+    activeResult.data.map(async (u: any) => {
+      const teamMembers = await teamMemberRepository.findByUserId(u.id);
+      const teams = await Promise.all(
+        teamMembers.map(async (tm) => {
+          const team = await teamRepository.findById({ id: tm.teamId });
+          return team ? { id: team.id, name: team.name } : null;
+        })
+      );
+      return {
+        id: u.id,
+        fullName: u.fullName,
+        email: u.email,
+        teams: teams.filter(t => t !== null),
+      };
+    })
+  );
+  
   return {
     data: activeResult.data.map((u: any) => ({
       id: u.id,
@@ -31,7 +50,7 @@ export const findAll = async (query: QueryParams): Promise<PaginatedResult<UserP
     pageSize: activeResult.pageSize,
     totalItems: activeResult.totalItems,
     totalPages: activeResult.totalPages,
-  } as PaginatedResult<UserPublic>;
+  } as PaginatedResult<any>;
 };
 
 export const deactivate = async (userId: string): Promise<boolean> => {
