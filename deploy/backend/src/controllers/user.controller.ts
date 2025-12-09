@@ -96,9 +96,9 @@ export const updateEmailNotificationPreference = catchAsync(async (req: Request,
 export const updateUserVacationDays = catchAsync(async (req: Request, res: Response) => {
   const requesterId = req.user?.id;
   const { userId } = req.params;
-  const { vacationDaysInit, vacationDaysLeft } = req.body;
+  let { vacationDaysInit, vacationDaysLeft, isAnnualLeaveAddition } = req.body;
 
-  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}`);
+  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}, IsAnnual: ${isAnnualLeaveAddition}`);
   console.log(`Requester user object:`, req.user);
 
   if (!requesterId) {
@@ -111,6 +111,11 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
       error: { message: 'vacationDaysInit and vacationDaysLeft must be non-negative numbers' },
     });
     return;
+  }
+
+  // If adding annual leave (21+), set both init and left to the same value
+  if (isAnnualLeaveAddition && vacationDaysInit >= 21) {
+    vacationDaysLeft = vacationDaysInit;
   }
 
   // Check if requester has permission to update this user's vacation days

@@ -108,8 +108,8 @@ export const findByEmail = async (email: string): Promise<User | null> => {
 export const addVacationDaysToAllActiveUsers = async (days: number): Promise<number> => {
   const query = `
     UPDATE users
-    SET vacation_days_init = COALESCE(vacation_days_init, 0) + $1,
-        vacation_days_left = COALESCE(vacation_days_left, 0) + $1
+    SET vacation_days_left = COALESCE(vacation_days_left, 0) + $1,
+        vacation_days_init = COALESCE(vacation_days_left, 0) + $1
     WHERE is_activated = TRUE
   `;
   const result = await pool.query(query, [days]);
