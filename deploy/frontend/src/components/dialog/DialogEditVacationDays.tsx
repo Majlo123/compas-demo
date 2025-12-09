@@ -10,7 +10,8 @@ interface DialogEditVacationDaysProps {
   onOpenChange: (open: boolean) => void;
   userId: string;
   userName: string;
-  currentVacationDays: number;
+  currentVacationDaysInit: number;
+  currentVacationDaysLeft: number;
   onSuccess?: () => void;
 }
 
@@ -19,29 +20,45 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
   onOpenChange,
   userId,
   userName,
-  currentVacationDays,
+  currentVacationDaysInit,
+  currentVacationDaysLeft,
   onSuccess,
 }) => {
-  const [vacationDays, setVacationDays] = useState<number>(currentVacationDays);
+  const [vacationDaysInit, setVacationDaysInit] = useState<number>(currentVacationDaysInit);
+  const [vacationDaysLeft, setVacationDaysLeft] = useState<number>(currentVacationDaysLeft);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState('');
 
   useEffect(() => {
     if (isOpen) {
-      setVacationDays(currentVacationDays);
+      setVacationDaysInit(currentVacationDaysInit);
+      setVacationDaysLeft(currentVacationDaysLeft);
+      setError('');
     }
-  }, [isOpen, currentVacationDays]);
+  }, [isOpen, currentVacationDaysInit, currentVacationDaysLeft]);
+
+  // Validate inputs in real-time
+  useEffect(() => {
+    if (vacationDaysInit < 0 || vacationDaysLeft < 0) {
+      setError('Vacation days cannot be negative');
+    } else if (vacationDaysLeft > vacationDaysInit) {
+      setError('Remaining days cannot exceed initial days');
+    } else {
+      setError('');
+    }
+  }, [vacationDaysInit, vacationDaysLeft]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (vacationDays < 0) {
-      toast.error('Vacation days cannot be negative');
+    // Validation is handled by useEffect, but double-check before submitting
+    if (error) {
       return;
     }
 
     setIsSubmitting(true);
     try {
-      const response = await updateUserVacationDays(userId, vacationDays);
+      const response = await updateUserVacationDays(userId, vacationDaysInit, vacationDaysLeft);
 
       if (isApiSuccess(response)) {
         toast.success(`Vacation days updated successfully for ${userName}`);
@@ -53,11 +70,11 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
           return;
         }
         console.error('Error updating vacation days:', response.error);
-        toast.error(response.error?.message || 'Failed to update vacation days');
+        setError(response.error?.message || 'Failed to update vacation days');
       }
     } catch (error) {
       console.error('Exception updating vacation days:', error);
-      toast.error('An error occurred while updating vacation days');
+      setError('An error occurred while updating vacation days');
     } finally {
       setIsSubmitting(false);
     }
@@ -75,22 +92,41 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
             Set the annual vacation days for <strong>{userName}</strong>
           </p>
 
-          <label htmlFor="vacationDays" className="block text-sm font-medium text-gray-700 mb-2">
-            Vacation Days
+          <label htmlFor="vacationDaysInit" className="block text-sm font-medium text-gray-700 mb-2">
+            Initial Vacation Days (Annual Allocation)
           </label>
           <input
-            id="vacationDays"
+            id="vacationDaysInit"
             type="number"
             min="0"
-            value={vacationDays}
-            onChange={(e) => setVacationDays(parseInt(e.target.value) || 0)}
-            className="w-full border rounded-lg border-someGrey p-3 text-p2"
+            value={vacationDaysInit}
+            onChange={(e) => setVacationDaysInit(parseInt(e.target.value) || 0)}
+            className="w-full border rounded-lg border-someGrey p-3 text-p2 mb-4"
+            required
+            disabled={isSubmitting}
+          />
+
+          <label htmlFor="vacationDaysLeft" className="block text-sm font-medium text-gray-700 mb-2">
+            Remaining Vacation Days
+          </label>
+          <input
+            id="vacationDaysLeft"
+            type="number"
+            min="0"
+            max={vacationDaysInit}
+            value={vacationDaysLeft}
+            onChange={(e) => setVacationDaysLeft(parseInt(e.target.value) || 0)}
+            className={`w-full border rounded-lg p-3 text-p2 ${error ? 'border-red' : 'border-someGrey'}`}
             required
             disabled={isSubmitting}
           />
           <p className="text-xs text-gray-500 mt-1">
-            Current: {currentVacationDays} days
+            Current: {currentVacationDaysInit} initial, {currentVacationDaysLeft} remaining
           </p>
+        </div>
+
+        <div className="min-h-[20px]">
+          {error && <p className="text-red text-sm">{error}</p>}
         </div>
 
         <div className="flex justify-end gap-2 mt-6">
@@ -105,7 +141,7 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
           <Button
             type="submit"
             variant="primary"
-            disabled={isSubmitting}
+            disabled={isSubmitting || !!error}
           >
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>

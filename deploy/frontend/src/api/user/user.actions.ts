@@ -69,10 +69,11 @@ export const updateEmailNotificationPreference = async (emailNotificationsEnable
   }
 };
 
-export const updateUserVacationDays = async (userId: string, vacationDays: number): Promise<ApiResponse<{ vacationDays: number }>> => {
+export const updateUserVacationDays = async (userId: string, vacationDaysInit: number, vacationDaysLeft: number): Promise<ApiResponse<{ vacationDaysInit: number; vacationDaysLeft: number }>> => {
   try {
     const response = await axiosServer.put(`${endpoint}/${userId}/vacation-days`, {
-      vacationDays
+      vacationDaysInit,
+      vacationDaysLeft
     });
     return response.data;
   } catch (error) {

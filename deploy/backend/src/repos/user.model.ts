@@ -10,7 +10,8 @@ export type User = {
   role: Role;
   isActivated?: boolean;
   emailNotificationsEnabled?: boolean;
-  vacationDays?: number;
+  vacationDaysInit?: number;
+  vacationDaysLeft?: number;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -29,7 +30,7 @@ export const searchByNameOrEmail = async (searchQuery: string): Promise<any[]> =
   }
 
   const query = `
-    SELECT id, full_name as "fullName", email, vacation_days as "vacationDays"
+    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft"
     FROM users
     WHERE is_activated = TRUE
       AND (LOWER(full_name) LIKE LOWER($1) OR LOWER(email) LIKE LOWER($1))
@@ -46,7 +47,7 @@ export const findAllActivePaginated = async (page: number, pageSize: number): Pr
   const offset = (page - 1) * pageSize;
   const countQuery = 'SELECT COUNT(*) FROM users WHERE is_activated = TRUE';
   const dataQuery = `
-    SELECT id, full_name as "fullName", email, vacation_days as "vacationDays"
+    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft"
     FROM users
     WHERE is_activated = TRUE
     ORDER BY created_at DESC
@@ -96,7 +97,8 @@ export const findByEmail = async (email: string): Promise<User | null> => {
     role: row.role,
     isActivated: row.is_activated,
     emailNotificationsEnabled: row.email_notifications_enabled,
-    vacationDays: row.vacation_days ?? 0,
+    vacationDaysInit: row.vacation_days_init ?? 0,
+    vacationDaysLeft: row.vacation_days_left ?? 0,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -106,11 +108,22 @@ export const findByEmail = async (email: string): Promise<User | null> => {
 export const addVacationDaysToAllActiveUsers = async (days: number): Promise<number> => {
   const query = `
     UPDATE users
-    SET vacation_days = COALESCE(vacation_days, 0) + $1
+    SET vacation_days_init = COALESCE(vacation_days_init, 0) + $1,
+        vacation_days_left = COALESCE(vacation_days_left, 0) + $1
     WHERE is_activated = TRUE
   `;
   const result = await pool.query(query, [days]);
   return result.rowCount || 0;
+};
+
+export const deductVacationDays = async (userId: string, days: number): Promise<boolean> => {
+  const query = `
+    UPDATE users
+    SET vacation_days_left = GREATEST(COALESCE(vacation_days_left, 0) - $1, 0)
+    WHERE id = $2
+  `;
+  const result = await pool.query(query, [days, userId]);
+  return (result.rowCount || 0) > 0;
 };
 
 export { create, findById, findByField, findAll, updateById, deleteById };

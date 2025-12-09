@@ -96,19 +96,19 @@ export const updateEmailNotificationPreference = catchAsync(async (req: Request,
 export const updateUserVacationDays = catchAsync(async (req: Request, res: Response) => {
   const requesterId = req.user?.id;
   const { userId } = req.params;
-  const { vacationDays } = req.body;
+  const { vacationDaysInit, vacationDaysLeft } = req.body;
 
-  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Days: ${vacationDays}`);
+  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}`);
   console.log(`Requester user object:`, req.user);
 
   if (!requesterId) {
     throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
   }
 
-  if (typeof vacationDays !== 'number' || vacationDays < 0) {
+  if (typeof vacationDaysInit !== 'number' || vacationDaysInit < 0 || typeof vacationDaysLeft !== 'number' || vacationDaysLeft < 0) {
     res.status(httpStatus.BAD_REQUEST).send({
       success: false,
-      error: { message: 'vacationDays must be a non-negative number' },
+      error: { message: 'vacationDaysInit and vacationDaysLeft must be non-negative numbers' },
     });
     return;
   }
@@ -132,7 +132,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
     );
   }
 
-  const updated = await userService.updateUserVacationDays(userId, vacationDays);
+  const updated = await userService.updateUserVacationDays(userId, vacationDaysInit, vacationDaysLeft);
 
   if (!updated) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
@@ -141,7 +141,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
   res.status(httpStatus.OK).send({
     success: true,
     message: 'Vacation days updated successfully',
-    content: { vacationDays },
+    content: { vacationDaysInit, vacationDaysLeft },
   });
 });
 
