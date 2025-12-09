@@ -109,13 +109,15 @@ const handleUnauthorizedResponse = async (error: any): Promise<any> => {
 
   // Don't redirect for vacation days endpoints - let the component handle the error
   const isVacationDaysEndpoint = error.config.url?.includes('/vacation-days');
-  
+
   if (error.config.url !== '/user/me' && !isVacationDaysEndpoint) {
     window.location.href = '/login/';
   }
 
+  const errorMessage = error.response?.data?.message || error.response?.data?.error?.message || 'Error';
+
   return {
-    data: { success: false, error: { message: 'Error', removeUser: true } },
+    data: { success: false, error: { message: errorMessage, removeUser: true } },
   };
 };
 
