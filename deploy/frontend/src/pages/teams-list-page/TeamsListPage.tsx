@@ -43,14 +43,14 @@ const TeamsListPage: React.FC = () => {
         setTeams(formattedData);
       } else {
         setHasError(true);
-        toast.error(response.error?.message || 'Failed to load teams.');
+        toast.error(response.error?.message || 'Failed to load projects.');
       }
 
       setIsLoading(false);
     } catch (error) {
-      console.error('Error fetching teams:', error);
+      console.error('Error fetching projects:', error);
       setHasError(true);
-      toast.error('Failed to load teams. Please try again.');
+      toast.error('Failed to load projects. Please try again.');
       setIsLoading(false);
     }
   };
@@ -64,14 +64,14 @@ const TeamsListPage: React.FC = () => {
       const response = await createTeam({ name: data.name, description: (data as any).description });
 
       if (isApiSuccess(response)) {
-        toast.success(response.message || `Team "${data.name}" created successfully`);
+        toast.success(response.message || `Project "${data.name}" created successfully`);
         setDialogOpen(false);
         fetchTeams();
       } else {
-        throw new Error(response.error?.message || 'Failed to create team');
+        throw new Error(response.error?.message || 'Failed to create project');
       }
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to create team');
+      toast.error(error?.message || 'Failed to create project');
       throw error;
     }
   };
@@ -83,14 +83,14 @@ const TeamsListPage: React.FC = () => {
       const response = await deleteTeam(teamToDelete.id);
 
       if (isApiSuccess(response)) {
-        toast.success(response.message || `Team "${teamToDelete.name}" deleted successfully`);
+        toast.success(response.message || `Project "${teamToDelete.name}" deleted successfully`);
         fetchTeams();
       } else {
-        toast.error(response.error?.message || 'Failed to delete team.');
+        toast.error(response.error?.message || 'Failed to delete project.');
       }
     } catch (error) {
-      console.error('Error deleting team:', error);
-      toast.error('Failed to delete team. Please try again.');
+      console.error('Error deleting project:', error);
+      toast.error('Failed to delete project. Please try again.');
     } finally {
       setTeamToDelete(null);
     }
@@ -99,7 +99,7 @@ const TeamsListPage: React.FC = () => {
   const columns: Column[] = [
     {
       accessor: 'name',
-      header: 'Team Name',
+      header: 'Project Name',
     },
     {
       accessor: 'memberCount',
@@ -127,15 +127,15 @@ const TeamsListPage: React.FC = () => {
   return (
     <>
       <PageLayout
-        title="Teams"
+        title="Projects"
         action={
           <Button onClick={handleNewTeam} className="text-lg font-medium">
-            + New Team
+            + New Project
           </Button>
         }
         actionPosition="inline"
-        emptyMessage="No teams yet"
-        emptyDescription="Click 'New Team' to create your first team"
+        emptyMessage="No projects yet"
+        emptyDescription="Click 'New Project' to create your first project"
         isLoading={isLoading}
         hasError={hasError}
         isEmpty={teams.length === 0}
@@ -157,8 +157,8 @@ const TeamsListPage: React.FC = () => {
         <ConfirmDialog
           isOpen={confirmDialogOpen}
           onOpenChange={setConfirmDialogOpen}
-          title="Delete Team"
-          message={`Are you sure you want to delete team "${teamToDelete?.name}"? This action cannot be undone.`}
+          title="Delete Project"
+          message={`Are you sure you want to delete project "${teamToDelete?.name}"? This action cannot be undone.`}
           confirmText="Delete"
           cancelText="Cancel"
           variant="danger"

@@ -237,7 +237,7 @@ const ProfilePage: React.FC = () => {
 
           {/* Teams Section - Only for non-admin users */}
           {profile.role !== RoleEnum.Admin && (
-            <Card title="My Teams" className="mt-6">
+            <Card title="My Projects" className="mt-6">
                 {teams.length > 0 ? (
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {teams.map((team) => (
@@ -251,8 +251,8 @@ const ProfilePage: React.FC = () => {
                   </div>
                 ) : (
                   <div className="bg-gray-50 rounded-lg p-6 text-center">
-                    <p className="text-gray-600">You are not currently assigned to any teams.</p>
-                    <p className="text-sm text-gray-500 mt-1">Contact your administrator to be added to a team.</p>
+                    <p className="text-gray-600">You are not currently assigned to any projects.</p>
+                    <p className="text-sm text-gray-500 mt-1">Contact your administrator to be added to a project.</p>
                   </div>
                 )}
             </Card>
