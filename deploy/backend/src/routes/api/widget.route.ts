@@ -3,6 +3,7 @@ import { EndpointMeta } from 'docs/swagger';
 import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
+import { z } from 'zod';
 
 enum WidgetFunctions {
   createWidget = 'createWidget',
@@ -14,6 +15,35 @@ enum WidgetFunctions {
 }
 
 const createWidgetRoute = (basePath: string): Router => {
+  const CreateWidgetSchema = z.object({
+    x: z.number().int(),
+    y: z.number().int(),
+    width: z.number().int().positive(),
+    height: z.number().int().positive(),
+    userId: z.string(),
+    type: z.string(),
+  });
+
+  const UpdateWidgetSchema = z.object({
+    x: z.number().int().optional(),
+    y: z.number().int().optional(),
+    width: z.number().int().positive().optional(),
+    height: z.number().int().positive().optional(),
+    type: z.string().optional(),
+  });
+
+  const SaveWidgetsLayoutSchema = z.object({
+    widgets: z.array(
+      z.object({
+        id: z.string(),
+        x: z.number().int(),
+        y: z.number().int(),
+        width: z.number().int().positive(),
+        height: z.number().int().positive(),
+      })
+    ),
+  });
+
   const endpointsMeta: EndpointMeta[] = [
     {
       name: 'Create Widget',
@@ -21,6 +51,7 @@ const createWidgetRoute = (basePath: string): Router => {
       path: '/',
       method: 'post',
       authorize: true,
+      requestBodySchema: CreateWidgetSchema,
       responses: [
         { code: httpStatus.CREATED, desc: 'Widget created' },
       ],
@@ -63,6 +94,7 @@ const createWidgetRoute = (basePath: string): Router => {
       responses: [
         { code: httpStatus.OK, desc: 'Widget updated' },
       ],
+      requestBodySchema: UpdateWidgetSchema,
       functionName: WidgetFunctions.updateWidget,
       basePath,
     },
@@ -86,6 +118,7 @@ const createWidgetRoute = (basePath: string): Router => {
       method: 'post',
       authorize: true,
       params: [{ name: 'userId', in: 'path', type: 'string', required: true }],
+      requestBodySchema: SaveWidgetsLayoutSchema,
       responses: [
         { code: httpStatus.OK, desc: 'Layout saved' },
       ],
