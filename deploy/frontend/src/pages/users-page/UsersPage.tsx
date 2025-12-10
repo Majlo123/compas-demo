@@ -19,7 +19,8 @@ interface UserRow extends Row {
   id: string;
   fullName: string;
   email: string;
-  vacationDays?: number;
+  vacationDaysInit?: number;
+  vacationDaysLeft?: number;
 }
 
 const UsersPage: React.FC = () => {
@@ -34,7 +35,7 @@ const UsersPage: React.FC = () => {
   const [confirmDeleteOpen, setConfirmDeleteOpen] = useState(false);
   const [userToDelete, setUserToDelete] = useState<string | null>(null);
   const [editVacationDaysOpen, setEditVacationDaysOpen] = useState(false);
-  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; vacationDays: number } | null>(null);
+  const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; vacationDaysInit: number; vacationDaysLeft: number } | null>(null);
   const [confirmAnnualLeaveOpen, setConfirmAnnualLeaveOpen] = useState(false);
   const user = useAuthStore((s) => s.user);
 
@@ -51,14 +52,15 @@ const UsersPage: React.FC = () => {
       if (debouncedSearch && debouncedSearch.trim() !== '') {
         const response = await searchUsers(debouncedSearch);
         if (isApiSuccess(response)) {
-          const formatted = response.content.map((u: any) => ({
+          const userRows: UserRow[] = response.content.map((u: any) => ({
             _id: u.id,
             id: u.id,
             fullName: u.fullName,
             email: u.email,
-            vacationDays: u.vacationDays ?? 0
+            vacationDaysInit: u.vacationDaysInit ?? 0,
+            vacationDaysLeft: u.vacationDaysLeft ?? 0
           }));
-          setUsers(formatted);
+          setUsers(userRows);
           setTotalPages(1);
         } else {
           setHasError(true);
@@ -67,13 +69,15 @@ const UsersPage: React.FC = () => {
       } else {
         const response = await getUsers(page, pageSize);
         if (isApiSuccess(response)) {
-          setUsers(response.content.data.map((u: any) => ({
+          const userRows: UserRow[] = response.content.data.map((u: any) => ({
             _id: u.id,
             id: u.id,
             fullName: u.fullName,
             email: u.email,
-            vacationDays: u.vacationDays ?? 0
-          })));
+            vacationDaysInit: u.vacationDaysInit ?? 0,
+            vacationDaysLeft: u.vacationDaysLeft ?? 0
+          }));
+          setUsers(userRows);
           setTotalPages(response.content.totalPages);
         } else {
           setHasError(true);
@@ -138,17 +142,12 @@ const UsersPage: React.FC = () => {
     },
     { accessor: 'email', header: 'Email' },
     {
-      accessor: 'teams',
-      header: 'Projects',
-      formatter: (_v: any, _row: any) => (
-        <span>-</span>
-      )
-    },
-    {
-      accessor: 'vacationDays',
+      accessor: 'vacationDaysLeft',
       header: 'Vacation Days',
-      formatter: (value: any) => (
-        <span className="font-medium">{value ?? 0}</span>
+      formatter: (_value: any, row: any) => (
+        <span className="font-medium">
+          {row.vacationDaysLeft ?? 0} / {row.vacationDaysInit ?? 0}
+        </span>
       ),
     },
     {
@@ -163,7 +162,8 @@ const UsersPage: React.FC = () => {
               setSelectedUser({
                 id: row.id,
                 name: row.fullName,
-                vacationDays: row.vacationDays ?? 0
+                vacationDaysInit: row.vacationDaysInit ?? 0,
+                vacationDaysLeft: row.vacationDaysLeft ?? 0
               });
               setEditVacationDaysOpen(true);
             }}
@@ -268,7 +268,8 @@ const UsersPage: React.FC = () => {
           onOpenChange={setEditVacationDaysOpen}
           userId={selectedUser.id}
           userName={selectedUser.name}
-          currentVacationDays={selectedUser.vacationDays}
+          currentVacationDaysInit={selectedUser.vacationDaysInit}
+          currentVacationDaysLeft={selectedUser.vacationDaysLeft}
           onSuccess={() => {
             fetchUsers();
           }}

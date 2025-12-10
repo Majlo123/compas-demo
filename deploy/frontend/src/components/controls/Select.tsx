@@ -7,6 +7,7 @@ import classNameBuilder from '@/utils/classNameBuilder';
 export type SelectOption = {
   label: string;
   value: string;
+  disabled?: boolean;
 };
 
 type SelectProps = {
@@ -125,10 +126,18 @@ const Select: FC<SelectProps> = ({
             <div
               key={option.value}
               onClick={() => {
-                onChange?.(option);
-                setIsOpen(false);
+                if (!option.disabled) {
+                  onChange?.(option);
+                  setIsOpen(false);
+                }
               }}
-              className="py-sm px-md cursor-pointer hover:bg-lightGrey transition"
+              className={classNameBuilder(
+                'py-sm px-md transition',
+                option.disabled 
+                  ? 'cursor-not-allowed opacity-50 bg-gray-100 text-gray-400' 
+                  : 'cursor-pointer hover:bg-lightGrey'
+              )}
+              title={option.disabled ? 'This option is not available' : ''}
             >
               {option.label}
             </div>
