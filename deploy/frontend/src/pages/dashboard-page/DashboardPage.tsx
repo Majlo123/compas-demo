@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { Layout } from 'react-grid-layout';
 import PageLayout from '@/components/layout/PageLayout';
-import { Plus, BarChart3, PieChart, Calendar, Users, TrendingUp } from 'lucide-react';
+import { BarChart3, PieChart, Calendar, Users, TrendingUp, UserX } from 'lucide-react';
 import DashboardGrid, { GridLayoutItem, WidgetRegistry } from '@/components/dashboard/DashboardGrid';
 import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import DialogAddWidget, { WidgetType } from '@/components/dialog/DialogAddWidget';
 import Button from '@/components/controls/button/Button';
+import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 
 // Widget type definitions
 
@@ -48,6 +49,14 @@ const widgetTypes: WidgetType[] = [
     description: 'Summary of team members and their leave status',
     icon: <Users className="w-8 h-8 text-purple-500" />,
     defaultSize: { w: 3, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'absent',
+    name: 'People Absent Today',
+    description: 'View who is on approved leave today',
+    icon: <UserX className="w-8 h-8 text-orange-500" />,
+    defaultSize: { w: 2, h: 2 },
     minSize: { w: 2, h: 2 },
   },
 ];
@@ -191,6 +200,7 @@ const DashboardPage: React.FC = () => {
     heatmap: HeatmapWidget,
     upcoming: UpcomingLeavesWidget,
     team: TeamOverviewWidget,
+    absent: AbsentTodayWidget,
   };
 
   const [layouts, setLayouts] = useState<GridLayoutItem[]>([
