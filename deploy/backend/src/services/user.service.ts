@@ -67,7 +67,6 @@ export const getUserProfile = async (userId: string): Promise<any> => {
     email: user.email,
     role: user.role,
     emailNotificationsEnabled: user.emailNotificationsEnabled ?? true,
-    vacationDays: user.vacationDays ?? 0,
     // Include profile image blob if present (convert Buffer to string)
     profileImageBlob: user.profileImageBlob
       ? Buffer.isBuffer(user.profileImageBlob)
