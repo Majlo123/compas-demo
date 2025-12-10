@@ -39,9 +39,17 @@ const ProfilePage: React.FC = () => {
     x: 0,
     y: 0,
   });
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isHoveringProfilePic, setIsHoveringProfilePic] = useState(false);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchProfile();
+    // Load profile image from localStorage on mount
+    const savedImage = localStorage.getItem('profileImage');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
   }, []);
 
   const fetchProfile = async () => {
@@ -101,6 +109,48 @@ const ProfilePage: React.FC = () => {
     return fullName[0]?.toUpperCase() || 'U';
   };
 
+  const handleProfileImageClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      // Validate file type
+      if (!file.type.startsWith('image/')) {
+        toast.error('Please select an image file');
+        return;
+      }
+
+      // Validate file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error('Image size must be less than 5MB');
+        return;
+      }
+
+      // Create preview
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result;
+        if (typeof result === 'string') {
+          setProfileImage(result);
+          // Save to localStorage so HeaderNav can access it
+          localStorage.setItem('profileImage', result);
+          // Dispatch custom event for immediate header update (same tab)
+          window.dispatchEvent(
+            new CustomEvent('profileImageUpdated', {
+              detail: { profileImage: result },
+            })
+          );
+          toast.success('Image selected. Save changes to apply.');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+    // Reset input
+    event.target.value = '';
+  };
+
   const prepareHeatmapData = () => {
     const heatmapData: Array<{ date: string; count: number; type: string }> = [];
     
@@ -147,10 +197,73 @@ const ProfilePage: React.FC = () => {
           <Card>
             {/* Profile Picture and Basic Info */}
             <div className="flex items-start gap-6 mb-6 pb-6 border-b border-gray-200">
-              <div className="flex-shrink-0">
-                <div className="w-24 h-24 rounded-full bg-primary text-white flex items-center justify-center text-2xl font-bold border-2 border-primary">
-                  {getUserInitials(profile.fullName)}
-                </div>
+              <div className="flex-shrink-0 relative group">
+                {/* Hidden file input */}
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="hidden"
+                  aria-label="Upload profile picture"
+                />
+
+                {/* Profile Picture Container */}
+                <button
+                  onClick={handleProfileImageClick}
+                  onMouseEnter={() => setIsHoveringProfilePic(true)}
+                  onMouseLeave={() => setIsHoveringProfilePic(false)}
+                  className={`
+                    relative w-24 h-24 rounded-full flex items-center justify-center text-2xl font-bold
+                    border-2 transition-all duration-200 cursor-pointer
+                    ${profileImage 
+                      ? 'border-primary bg-gray-100' 
+                      : 'bg-primary border-primary text-white'
+                    }
+                    ${isHoveringProfilePic 
+                      ? 'ring-4 ring-primary ring-offset-2 scale-105 shadow-lg' 
+                      : 'shadow'
+                    }
+                  `}
+                  title="Click to change profile picture"
+                >
+                  {profileImage ? (
+                    <img
+                      src={profileImage}
+                      alt="Profile"
+                      className="w-full h-full rounded-full object-cover"
+                    />
+                  ) : (
+                    <span className={isHoveringProfilePic ? 'text-primary' : ''}>
+                      {getUserInitials(profile.fullName)}
+                    </span>
+                  )}
+
+                  {/* Hover overlay with camera icon */}
+                  {isHoveringProfilePic && (
+                    <div className="absolute inset-0 rounded-full bg-black/30 flex items-center justify-center">
+                      <svg
+                        className="w-8 h-8 text-white"
+                        fill="none"
+                        stroke="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"
+                        />
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"
+                        />
+                      </svg>
+                    </div>
+                  )}
+                </button>
               </div>
               
               <div className="flex-1">

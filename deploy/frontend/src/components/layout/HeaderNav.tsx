@@ -20,6 +20,7 @@ const HeaderNav: React.FC = () => {
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -42,6 +43,38 @@ const HeaderNav: React.FC = () => {
     };
 
     loadNotifications();
+  }, []);
+
+  // Listen for profileImage changes in localStorage
+  useEffect(() => {
+    // Load initial profile image from localStorage
+    const savedImage = localStorage.getItem('profileImage');
+    if (savedImage) {
+      setProfileImage(savedImage);
+    }
+
+    // Listen for storage changes from other tabs or same tab
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'profileImage') {
+        setProfileImage(e.newValue);
+      }
+    };
+
+    // Listen for custom events from same tab
+    const handleProfileImageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.profileImage) {
+        setProfileImage(customEvent.detail.profileImage);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
+    };
   }, []);
 
   // Initialize socket and listen for new notifications
@@ -219,8 +252,16 @@ const HeaderNav: React.FC = () => {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
-              {getUserInitials()}
+            <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium overflow-hidden">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getUserInitials()
+              )}
             </div>
           </button>
           
