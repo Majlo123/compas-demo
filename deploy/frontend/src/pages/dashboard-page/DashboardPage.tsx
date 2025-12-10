@@ -1,13 +1,59 @@
 import React, { useState } from 'react';
-import { Layout, Responsive, WidthProvider } from 'react-grid-layout';
-import 'react-grid-layout/css/styles.css';
-import 'react-resizable/css/styles.css';
+import { Layout } from 'react-grid-layout';
 import PageLayout from '@/components/layout/PageLayout';
+import { Plus, BarChart3, PieChart, Calendar, Users, TrendingUp } from 'lucide-react';
+import DashboardGrid, { GridLayoutItem, WidgetRegistry } from '@/components/dashboard/DashboardGrid';
+import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
+import DialogAddWidget, { WidgetType } from '@/components/dialog/DialogAddWidget';
+import Button from '@/components/controls/button/Button';
 
-const ResponsiveGridLayout = WidthProvider(Responsive);
+// Widget type definitions
+
+const widgetTypes: WidgetType[] = [
+  {
+    id: 'stats',
+    name: 'Quick Stats',
+    description: 'View your vacation days summary at a glance',
+    icon: <BarChart3 className="w-8 h-8 text-primary" />,
+    defaultSize: { w: 2, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'piechart',
+    name: 'Leave Types Distribution',
+    description: 'Visual breakdown of different leave types',
+    icon: <PieChart className="w-8 h-8 text-blue-500" />,
+    defaultSize: { w: 2, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'heatmap',
+    name: 'Leave Request Heatmap',
+    description: 'Calendar view showing leave patterns',
+    icon: <Calendar className="w-8 h-8 text-green-500" />,
+    defaultSize: { w: 2, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'upcoming',
+    name: 'Upcoming Leaves',
+    description: 'List of upcoming team member leaves',
+    icon: <TrendingUp className="w-8 h-8 text-yellow-500" />,
+    defaultSize: { w: 3, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'team',
+    name: 'Team Overview',
+    description: 'Summary of team members and their leave status',
+    icon: <Users className="w-8 h-8 text-purple-500" />,
+    defaultSize: { w: 3, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+];
 
 // Sample widget components
-const HeatmapWidget: React.FC = () => (
+const HeatmapWidget: React.FC<WidgetComponentProps> = () => (
   <div className="h-full flex flex-col">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">Leave Request Heatmap</h3>
     <div className="flex-1 bg-gray-50 rounded flex items-center justify-center">
@@ -29,7 +75,7 @@ const HeatmapWidget: React.FC = () => (
   </div>
 );
 
-const PieChartWidget: React.FC = () => (
+const PieChartWidget: React.FC<WidgetComponentProps> = () => (
   <div className="h-full flex flex-col">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">Leave Types Distribution</h3>
     <div className="flex-1 flex items-center justify-center">
@@ -51,7 +97,7 @@ const PieChartWidget: React.FC = () => (
   </div>
 );
 
-const StatsWidget: React.FC = () => (
+const StatsWidget: React.FC<WidgetComponentProps> = () => (
   <div className="h-full flex flex-col">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">Quick Stats</h3>
     <div className="flex-1 grid grid-cols-2 gap-2">
@@ -75,7 +121,7 @@ const StatsWidget: React.FC = () => (
   </div>
 );
 
-const UpcomingLeavesWidget: React.FC = () => (
+const UpcomingLeavesWidget: React.FC<WidgetComponentProps> = () => (
   <div className="h-full flex flex-col">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">Upcoming Leaves</h3>
     <div className="flex-1 overflow-auto">
@@ -102,7 +148,7 @@ const UpcomingLeavesWidget: React.FC = () => (
   </div>
 );
 
-const TeamOverviewWidget: React.FC = () => (
+const TeamOverviewWidget: React.FC<WidgetComponentProps> = () => (
   <div className="h-full flex flex-col">
     <h3 className="text-sm font-semibold text-gray-700 mb-2">Team Overview</h3>
     <div className="flex-1 overflow-auto">
@@ -138,15 +184,8 @@ const TeamOverviewWidget: React.FC = () => (
 );
 
 const DashboardPage: React.FC = () => {
-  const [layout, setLayout] = useState<Layout[]>([
-    { i: 'stats', x: 0, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'piechart', x: 2, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'heatmap', x: 4, y: 0, w: 2, h: 2, minW: 2, minH: 2 },
-    { i: 'upcoming', x: 0, y: 2, w: 3, h: 2, minW: 2, minH: 2 },
-    { i: 'team', x: 3, y: 2, w: 3, h: 2, minW: 2, minH: 2 },
-  ]);
-
-  const widgetComponents: Record<string, React.FC> = {
+  // Widget Registry - Maps widget types to their components
+  const widgetRegistry: WidgetRegistry = {
     stats: StatsWidget,
     piechart: PieChartWidget,
     heatmap: HeatmapWidget,
@@ -154,52 +193,140 @@ const DashboardPage: React.FC = () => {
     team: TeamOverviewWidget,
   };
 
+  const [layouts, setLayouts] = useState<GridLayoutItem[]>([
+    {
+      i: 'stats',
+      x: 0,
+      y: 0,
+      w: 2,
+      h: 2,
+      minW: 2,
+      minH: 2,
+      widgetConfig: { id: 'stats', type: 'stats' },
+    },
+    {
+      i: 'piechart',
+      x: 2,
+      y: 0,
+      w: 2,
+      h: 2,
+      minW: 2,
+      minH: 2,
+      widgetConfig: { id: 'piechart', type: 'piechart' },
+    },
+    {
+      i: 'heatmap',
+      x: 4,
+      y: 0,
+      w: 2,
+      h: 2,
+      minW: 2,
+      minH: 2,
+      widgetConfig: { id: 'heatmap', type: 'heatmap' },
+    },
+    {
+      i: 'upcoming',
+      x: 0,
+      y: 2,
+      w: 3,
+      h: 2,
+      minW: 2,
+      minH: 2,
+      widgetConfig: { id: 'upcoming', type: 'upcoming' },
+    },
+    {
+      i: 'team',
+      x: 3,
+      y: 2,
+      w: 3,
+      h: 2,
+      minW: 2,
+      minH: 2,
+      widgetConfig: { id: 'team', type: 'team' },
+    },
+  ]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleLayoutChange = (newLayout: Layout[]) => {
-    setLayout(newLayout);
+    // Merge new layout positions with existing widget configs
+    const updatedLayouts = newLayout.map((layoutItem) => {
+      const existingItem = layouts.find((item) => item.i === layoutItem.i);
+      return {
+        ...layoutItem,
+        widgetConfig: existingItem?.widgetConfig || { id: layoutItem.i, type: layoutItem.i },
+      } as GridLayoutItem;
+    });
+    setLayouts(updatedLayouts);
+  };
+
+  const handleAddWidget = (widgetType: WidgetType) => {
+    // Find the bottom-most position in the layout
+    const maxY = layouts.length > 0 ? Math.max(...layouts.map((item) => item.y + item.h)) : 0;
+
+    // Generate unique ID for this widget instance
+    const existingCount = layouts.filter((item) => item.i.startsWith(widgetType.id)).length;
+    const newId = existingCount > 0 ? `${widgetType.id}-${existingCount + 1}` : widgetType.id;
+
+    const newWidget: GridLayoutItem = {
+      i: newId,
+      x: 0,
+      y: maxY,
+      w: widgetType.defaultSize.w,
+      h: widgetType.defaultSize.h,
+      minW: widgetType.minSize.w,
+      minH: widgetType.minSize.h,
+      widgetConfig: {
+        id: newId,
+        type: widgetType.id,
+      },
+    };
+
+    setLayouts([...layouts, newWidget]);
+  };
+
+  const handleRemoveWidget = (widgetId: string) => {
+    setLayouts(layouts.filter((item) => item.i !== widgetId));
   };
 
   return (
     <PageLayout
       title="Dashboard"
       description="Drag widgets to rearrange"
+      action={
+        <Button
+          onClick={() => setIsModalOpen(true)}
+          className="text-lg font-medium"
+        >
+          + Add Widget
+        </Button>
+      }
+      actionPosition="inline"
       isLoading={false}
       hasError={false}
       isEmpty={false}
     >
-      {/* Grid Layout */}
-      <div className="bg-gray-100 rounded-lg p-4 min-h-[500px]">
-        <ResponsiveGridLayout
-          className="layout"
-          layouts={{ lg: layout }}
-          breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-          cols={{ lg: 6, md: 4, sm: 3, xs: 2, xxs: 1 }}
-          rowHeight={100}
-          onLayoutChange={handleLayoutChange}
-          draggableHandle=".widget-drag-handle"
-          isResizable={true}
-          resizeHandles={['se']}
-        >
-          {layout.map((item) => {
-            const WidgetComponent = widgetComponents[item.i];
-            return (
-              <div
-                key={item.i}
-                className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden"
-              >
-                <div className="widget-drag-handle bg-gray-50 px-3 py-2 border-b border-gray-200 cursor-move flex items-center">
-                  <svg className="w-4 h-4 text-gray-400 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-                  </svg>
-                  <span className="text-xs text-gray-500 uppercase tracking-wider">Drag to move</span>
-                </div>
-                <div className="p-3 h-[calc(100%-36px)]">
-                  {WidgetComponent && <WidgetComponent />}
-                </div>
-              </div>
-            );
-          })}
-        </ResponsiveGridLayout>
-      </div>
+      {/* Dashboard Grid */}
+      <DashboardGrid
+        layouts={layouts}
+        widgetRegistry={widgetRegistry}
+        onLayoutChange={handleLayoutChange}
+        onRemoveWidget={handleRemoveWidget}
+        enableRemove={true}
+        enableDrag={true}
+        enableResize={true}
+        rowHeight={100}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: 6, md: 4, sm: 3, xs: 2, xxs: 1 }}
+      />
+
+      {/* Add Widget Dialog */}
+      <DialogAddWidget
+        isOpen={isModalOpen}
+        onOpenChange={setIsModalOpen}
+        onAddWidget={handleAddWidget}
+        existingWidgets={layouts.map((item) => item.i.split('-')[0])}
+        widgetTypes={widgetTypes}
+      />
     </PageLayout>
   );
 };
