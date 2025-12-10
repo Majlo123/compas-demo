@@ -34,6 +34,15 @@ const DashboardPage: React.FC = () => {
     team: TeamOverviewWidget,
   };
 
+  // Lookup for widget config (default/min sizes)
+  const widgetTypeById = useMemo(() => {
+    const map: Record<string, WidgetType> = {};
+    widgetTypes.forEach((type) => {
+      map[type.id] = type;
+    });
+    return map;
+  }, []);
+
   // Quick lookup from widget id to widget object
   const widgetById = useMemo(() => {
     const map: Record<string, Widget> = {};
@@ -56,8 +65,8 @@ const DashboardPage: React.FC = () => {
         y: w.y,
         w: w.width,
         h: w.height,
-        minW: 2,
-        minH: 2,
+        minW: widgetTypeById[w.type]?.minSize.w ?? 1,
+        minH: widgetTypeById[w.type]?.minSize.h ?? 1,
       }));
       setLayout(mapped);
       lastLayoutSignature.current = JSON.stringify(mapped);

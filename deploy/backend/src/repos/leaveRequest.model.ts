@@ -57,37 +57,56 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
 };
 
 /**
- * Aggregate approved leave days for the current month by type for a user
- * Counts the overlap of each request with the current month (inclusive of boundaries)
+ * Aggregate approved leave days for a specific month by type for a user
+ * Counts the overlap of each request with the specified month (inclusive of boundaries)
+ * @param userId - User ID (null for all users - admin view)
+ * @param year - Optional year (defaults to current year)
+ * @param month - Optional month (1-12, defaults to current month)
  */
-export const findApprovedMonthSummaryByUser = async (userId: string): Promise<LeaveMonthlySummary> => {
+export const findApprovedMonthSummaryByUser = async (
+  userId: string | null,
+  year?: number,
+  month?: number
+): Promise<LeaveMonthlySummary> => {
   const query = {
     text: `
       WITH month_bounds AS (
-        SELECT date_trunc('month', CURRENT_DATE) AS start_month,
-               (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day') AS end_month
+        SELECT 
+          CASE 
+            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
+              make_date($2::int, $3::int, 1)
+            ELSE
+              DATE_TRUNC('month', NOW()::DATE)::DATE
+          END AS start_month,
+          CASE 
+            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
+              (make_date($2::int, $3::int, 1) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
+            ELSE
+              (DATE_TRUNC('month', NOW()::DATE) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
+          END AS end_month
       ),
-      requests AS (
+      filtered_requests AS (
         SELECT
           lr.type,
-          GREATEST(lr.start_date, mb.start_month) AS overlap_start,
-          LEAST(lr.end_date, mb.end_month) AS overlap_end
+          GREATEST(lr.start_date, mb.start_month)::DATE AS overlap_start,
+          LEAST(lr.end_date, mb.end_month)::DATE AS overlap_end
         FROM leave_requests lr
         CROSS JOIN month_bounds mb
-        WHERE lr.user_id = $1
+        WHERE ($1::uuid IS NULL OR lr.user_id = $1)
           AND lr.status = 'approved'
           AND lr.start_date <= mb.end_month
           AND lr.end_date >= mb.start_month
       ),
       per_type AS (
-        SELECT type,
-               SUM((DATE_PART('day', overlap_end - overlap_start) + 1))::int AS days
-        FROM requests
+        SELECT 
+          type,
+          SUM((overlap_end::DATE - overlap_start::DATE + 1))::int AS days
+        FROM filtered_requests
         GROUP BY type
       )
       SELECT type, days FROM per_type;
     `,
-    values: [userId],
+    values: [userId, year || null, month || null],
   };
 
   const result = await pool.query(query);

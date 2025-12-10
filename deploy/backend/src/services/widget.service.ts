@@ -98,9 +98,15 @@ export const saveWidgetsLayout = async (userId: string, widgets: Array<Pick<Widg
 };
 
 /**
- * Compute time-off summary for the current month for the authenticated user
+ * Compute time-off summary for a specific month for the authenticated user
+ * For admin users, returns aggregated data for all users
+ * @param userId - User ID
+ * @param userRole - User role (admin or employee)
+ * @param year - Optional year (defaults to current year)
+ * @param month - Optional month (1-12, defaults to current month)
  */
-export const getTimeOffSummary = async (userId: string): Promise<LeaveMonthlySummary> => {
-  const summary = await findApprovedMonthSummaryByUser(userId);
+export const getTimeOffSummary = async (userId: string, userRole?: string, year?: number, month?: number): Promise<LeaveMonthlySummary> => {
+  const isAdmin = userRole === 'admin';
+  const summary = await findApprovedMonthSummaryByUser(isAdmin ? null : userId, year, month);
   return summary;
 };

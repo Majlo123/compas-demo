@@ -8,7 +8,7 @@ export const widgetTypes: WidgetType[] = [
     description: 'Total approved leave days and breakdown by leave type',
     icon: <BarChart3 className="w-8 h-8 text-primary" />,
     defaultSize: { w: 2, h: 2 },
-    minSize: { w: 2, h: 2 },
+    minSize: { w: 1, h: 2 },
   },
   {
     id: 'piechart',

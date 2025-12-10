@@ -68,9 +68,10 @@ export const saveWidgetsLayout = async (widgets: WidgetLayoutItem[]): Promise<Ap
   }
 };
 
-export const getMyTimeOffSummary = async (): Promise<ApiResponse<TimeOffSummary>> => {
+export const getMyTimeOffSummary = async (year?: number, month?: number): Promise<ApiResponse<TimeOffSummary>> => {
   try {
-    const response = await axiosServer.get(`${endpoint}/time-off/summary`);
+    const params = year && month ? { year, month } : {};
+    const response = await axiosServer.get(`${endpoint}/time-off/summary`, { params });
     return response.data;
   } catch (error) {
     return formatError(error);

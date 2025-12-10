@@ -125,11 +125,15 @@ const createWidgetRoute = (basePath: string): Router => {
       basePath,
     },
     {
-      name: 'Time-off Summary (current month)',
-      desc: 'Total approved leave days this month plus breakdown by leave type for the authenticated user',
+      name: 'Time-off Summary',
+      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month.',
       path: '/time-off/summary',
       method: 'get',
       authorize: true,
+      querySchema: z.object({
+        year: z.coerce.number().int().min(2000).max(2100).optional().openapi({ example: 2025 }),
+        month: z.coerce.number().int().min(1).max(12).optional().openapi({ example: 12 }),
+      }),
       responses: [
         { code: httpStatus.OK, desc: 'Time-off summary', schema: TimeOffSummarySchema },
       ],
