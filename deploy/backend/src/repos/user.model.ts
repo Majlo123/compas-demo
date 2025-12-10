@@ -11,6 +11,7 @@ export type User = {
   isActivated?: boolean;
   emailNotificationsEnabled?: boolean;
   vacationDays?: number;
+  profileImageBlob?: Buffer;
   createdAt?: Date;
   updatedAt?: Date;
 };

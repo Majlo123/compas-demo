@@ -12,6 +12,7 @@ export interface UserProfile {
   role: string;
   emailNotificationsEnabled?: boolean;
   vacationDays?: number;
+  profileImageBlob?: string;
 }
 
 export interface UserWithVacationDays {

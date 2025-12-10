@@ -100,3 +100,14 @@ export const distributeAnnualLeave = async (days: number): Promise<ApiResponse<{
     return formatError(error);
   }
 };
+
+export const uploadProfileImage = async (imageBlob: string): Promise<ApiResponse<{ profileImageBlob: string }>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/profile-image`, {
+      profileImageBlob: imageBlob
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};

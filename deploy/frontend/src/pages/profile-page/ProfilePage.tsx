@@ -4,7 +4,7 @@ import { format } from 'date-fns';
 import CalendarHeatmap from 'react-calendar-heatmap';
 import 'react-calendar-heatmap/dist/styles.css';
 import PageLayout from '@/components/layout/PageLayout';
-import { getUserProfile, updateEmailNotificationPreference } from '@/api/user/user.actions';
+import { getUserProfile, updateEmailNotificationPreference, uploadProfileImage } from '@/api/user/user.actions';
 import Card from '@/components/layout/Card';
 import { getTeamsByUserId } from '@/api/team/team.actions';
 import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
@@ -45,12 +45,17 @@ const ProfilePage: React.FC = () => {
 
   useEffect(() => {
     fetchProfile();
-    // Load profile image from localStorage on mount
-    const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) {
-      setProfileImage(savedImage);
-    }
   }, []);
+
+  // When profile is available, load any per-user cached profile image
+  useEffect(() => {
+    if (profile && profile.id) {
+      const savedImage = localStorage.getItem(`profileImage:${profile.id}`);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    }
+  }, [profile]);
 
   const fetchProfile = async () => {
     setIsLoading(true);
@@ -59,6 +64,20 @@ const ProfilePage: React.FC = () => {
       const response = await getUserProfile();
       if (isApiSuccess(response)) {
         setProfile(response.content);
+        
+        // Load profile image from database if available
+        if (response.content.profileImageBlob) {
+          setProfileImage(response.content.profileImageBlob);
+          // Save under per-user key
+          const key = `profileImage:${response.content.id}`;
+          localStorage.setItem(key, response.content.profileImageBlob);
+          // Dispatch event to update header for this user only
+          window.dispatchEvent(
+            new CustomEvent('profileImageUpdated', {
+              detail: { profileImage: response.content.profileImageBlob, userId: response.content.id },
+            })
+          );
+        }
         
         // Fetch teams and leave requests for non-admin users
         if (response.content.role !== RoleEnum.Admin) {
@@ -128,21 +147,34 @@ const ProfilePage: React.FC = () => {
         return;
       }
 
-      // Create preview
+      // Create preview and save to database
       const reader = new FileReader();
-      reader.onload = (e) => {
+      reader.onload = async (e) => {
         const result = e.target?.result;
-        if (typeof result === 'string') {
+          if (typeof result === 'string') {
           setProfileImage(result);
-          // Save to localStorage so HeaderNav can access it
-          localStorage.setItem('profileImage', result);
-          // Dispatch custom event for immediate header update (same tab)
-          window.dispatchEvent(
-            new CustomEvent('profileImageUpdated', {
-              detail: { profileImage: result },
-            })
-          );
-          toast.success('Image selected. Save changes to apply.');
+
+          // Ensure we have the current user's id
+          const userId = profile?.id;
+          if (userId) {
+            // Save to localStorage under per-user key for immediate display
+            const key = `profileImage:${userId}`;
+            localStorage.setItem(key, result);
+          }
+
+          // Upload to database
+          const response = await uploadProfileImage(result);
+          if (isApiSuccess(response)) {
+            // Dispatch custom event for immediate header update (include userId)
+            window.dispatchEvent(
+              new CustomEvent('profileImageUpdated', {
+                detail: { profileImage: result, userId: profile?.id },
+              })
+            );
+            toast.success('Profile picture saved successfully!');
+          } else {
+            toast.error(response.error?.message || 'Failed to save profile picture');
+          }
         }
       };
       reader.readAsDataURL(file);

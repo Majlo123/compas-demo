@@ -45,17 +45,32 @@ const HeaderNav: React.FC = () => {
     loadNotifications();
   }, []);
 
-  // Listen for profileImage changes in localStorage
+  // Listen for profileImage changes in localStorage (per-user)
   useEffect(() => {
-    // Load initial profile image from localStorage
-    const savedImage = localStorage.getItem('profileImage');
-    if (savedImage) {
-      setProfileImage(savedImage);
+    // Determine current user id from local storage
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
     }
 
-    // Listen for storage changes from other tabs or same tab
+    // Load initial profile image for current user
+    if (currentUserId) {
+      const savedImage = localStorage.getItem(`profileImage:${currentUserId}`);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    }
+
+    // Listen for storage changes from other tabs
     const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'profileImage') {
+      if (!currentUserId) return;
+      if (e.key === `profileImage:${currentUserId}`) {
         setProfileImage(e.newValue);
       }
     };
@@ -63,8 +78,10 @@ const HeaderNav: React.FC = () => {
     // Listen for custom events from same tab
     const handleProfileImageUpdate = (e: Event) => {
       const customEvent = e as CustomEvent;
-      if (customEvent.detail && customEvent.detail.profileImage) {
-        setProfileImage(customEvent.detail.profileImage);
+      if (customEvent.detail && customEvent.detail.profileImage && customEvent.detail.userId) {
+        if (customEvent.detail.userId === currentUserId) {
+          setProfileImage(customEvent.detail.profileImage);
+        }
       }
     };
 

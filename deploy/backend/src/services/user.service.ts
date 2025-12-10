@@ -67,6 +67,12 @@ export const getUserProfile = async (userId: string): Promise<any> => {
     role: user.role,
     emailNotificationsEnabled: user.emailNotificationsEnabled ?? true,
     vacationDays: user.vacationDays ?? 0,
+    // Include profile image blob if present (convert Buffer to string)
+    profileImageBlob: user.profileImageBlob
+      ? Buffer.isBuffer(user.profileImageBlob)
+        ? user.profileImageBlob.toString()
+        : (user.profileImageBlob as any)
+      : undefined,
   };
 };
 
@@ -189,4 +195,15 @@ export const getUserWithVacationDays = async (userId: string): Promise<any> => {
  */
 export const distributeAnnualLeave = async (days: number): Promise<number> => {
   return userRepository.addVacationDaysToAllActiveUsers(days);
+};
+
+/**
+ * Update user profile image
+ */
+export const updateProfileImage = async (userId: string, profileImageBlob: string): Promise<UserModel> => {
+  const updated = await userRepository.updateById(userId, { profileImageBlob });
+  if (!updated) {
+    throw new Error('Failed to update profile image');
+  }
+  return updated;
 };
