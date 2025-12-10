@@ -165,19 +165,6 @@ const createWidgetRoute = (basePath: string): Router => {
       functionName: WidgetFunctions.deleteWidget,
       basePath,
     },
-    {
-      name: 'Save Widgets Layout',
-      desc: 'Save layout for all widgets of the authenticated user',
-      path: '/layout',
-      method: 'post',
-      authorize: true,
-      requestBodySchema: SaveWidgetsLayoutSchema,
-      responses: [
-        { code: httpStatus.OK, desc: 'Layout saved' },
-      ],
-      functionName: WidgetFunctions.saveWidgetsLayout,
-      basePath,
-    },
   ];
 
   const widgetControllerFunctions: Record<WidgetFunctions, RequestHandler> = {
