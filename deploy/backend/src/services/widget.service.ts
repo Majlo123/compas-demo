@@ -1,12 +1,27 @@
 import httpStatus from 'http-status';
 import { CreateWidget, Widget } from 'repos/widget.model';
 import ApiError from 'shared/error/ApiError';
-import { widgetRepository } from 'repos';
+import { widgetRepository, userRepository } from 'repos';
+import { findApprovedMonthSummaryByUser, LeaveMonthlySummary } from 'repos/leaveRequest.model';
 
 
 export const createWidget = async (entity: CreateWidget): Promise<Widget> => {
-  const created = await widgetRepository.create(entity);
-  return created;
+  // Defensive: ensure the user exists before inserting to avoid FK violations
+  const user = await userRepository.findById({ id: entity.userId as unknown as string });
+  if (!user) {
+    throw new ApiError('User not found for widget creation', httpStatus.NOT_FOUND);
+  }
+
+  try {
+    const created = await widgetRepository.create(entity);
+    return created;
+  } catch (err: any) {
+    // Handle unique constraint on (user_id, type) to avoid generic 500s
+    if (err?.code === '23505') {
+      throw new ApiError('Widget of this type already exists for this user', httpStatus.CONFLICT);
+    }
+    throw err;
+  }
 };
 
 
@@ -80,4 +95,12 @@ export const saveWidgetsLayout = async (userId: string, widgets: Array<Pick<Widg
   );
 
   return updated;
+};
+
+/**
+ * Compute time-off summary for the current month for the authenticated user
+ */
+export const getTimeOffSummary = async (userId: string): Promise<LeaveMonthlySummary> => {
+  const summary = await findApprovedMonthSummaryByUser(userId);
+  return summary;
 };

@@ -23,6 +23,11 @@ export type LeaveRequestWithEmployee = LeaveRequest & {
   employeeName?: string;
 };
 
+export type LeaveMonthlySummary = {
+  totalDays: number;
+  breakdown: Array<{ type: LeaveRequestType; days: number }>;
+};
+
 export type CreateLeaveRequest = Omit<LeaveRequest, 'id' | 'createdAt' | 'updatedAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
@@ -49,6 +54,46 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
+};
+
+/**
+ * Aggregate approved leave days for the current month by type for a user
+ * Counts the overlap of each request with the current month (inclusive of boundaries)
+ */
+export const findApprovedMonthSummaryByUser = async (userId: string): Promise<LeaveMonthlySummary> => {
+  const query = {
+    text: `
+      WITH month_bounds AS (
+        SELECT date_trunc('month', CURRENT_DATE) AS start_month,
+               (date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' - INTERVAL '1 day') AS end_month
+      ),
+      requests AS (
+        SELECT
+          lr.type,
+          GREATEST(lr.start_date, mb.start_month) AS overlap_start,
+          LEAST(lr.end_date, mb.end_month) AS overlap_end
+        FROM leave_requests lr
+        CROSS JOIN month_bounds mb
+        WHERE lr.user_id = $1
+          AND lr.status = 'approved'
+          AND lr.start_date <= mb.end_month
+          AND lr.end_date >= mb.start_month
+      ),
+      per_type AS (
+        SELECT type,
+               SUM((DATE_PART('day', overlap_end - overlap_start) + 1))::int AS days
+        FROM requests
+        GROUP BY type
+      )
+      SELECT type, days FROM per_type;
+    `,
+    values: [userId],
+  };
+
+  const result = await pool.query(query);
+  const breakdown = result.rows.map((row) => ({ type: row.type as LeaveRequestType, days: Number(row.days) }));
+  const totalDays = breakdown.reduce((sum, b) => sum + b.days, 0);
+  return { totalDays, breakdown };
 };
 
 /**

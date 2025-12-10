@@ -85,3 +85,17 @@ export const saveWidgetsLayout = catchAsync(async (req: Request, res: Response) 
     content: { data: updated },
   });
 });
+
+export const timeOffSummary = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const summary = await widgetService.getTimeOffSummary(userId);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: summary,
+  });
+});

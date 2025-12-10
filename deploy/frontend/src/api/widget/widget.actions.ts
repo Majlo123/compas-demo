@@ -5,6 +5,7 @@ import {
   WidgetListResponse,
   WidgetLayoutItem,
   SaveWidgetsLayoutRequest,
+  TimeOffSummary,
 } from '@/api/widget/widget.types';
 import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
@@ -61,6 +62,15 @@ export const saveWidgetsLayout = async (widgets: WidgetLayoutItem[]): Promise<Ap
   try {
     const payload: SaveWidgetsLayoutRequest = { widgets };
     const response = await axiosServer.post(`${endpoint}/layout`, payload);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const getMyTimeOffSummary = async (): Promise<ApiResponse<TimeOffSummary>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/time-off/summary`);
     return response.data;
   } catch (error) {
     return formatError(error);
