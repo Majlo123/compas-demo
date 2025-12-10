@@ -68,14 +68,35 @@ export const updateTeamMemberManager = async (
   userId: string,
   isManager: boolean
 ): Promise<TeamMember | null> => {
-  const members = await findByTeamId(teamId);
-  const member = members.find((m) => m.userId === userId);
+  const query = {
+    text: `
+      UPDATE team_members
+      SET is_manager = $1, updated_at = CURRENT_TIMESTAMP
+      WHERE team_id = $2 AND user_id = $3
+      RETURNING 
+        id,
+        team_id,
+        user_id,
+        is_manager,
+        joined_at
+    `,
+    values: [isManager, teamId, userId],
+  };
+
+  const result = await pool.query(query);
   
-  if (!member || !member.id) {
+  if (result.rows.length === 0) {
     return null;
   }
 
-  return updateById(member.id, { isManager });
+  const row = result.rows[0];
+  return {
+    id: row.id,
+    teamId: row.team_id,
+    userId: row.user_id,
+    isManager: row.is_manager,
+    joinedAt: row.joined_at,
+  };
 };
 
 /**
