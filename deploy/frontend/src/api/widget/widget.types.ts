@@ -10,7 +10,8 @@ export type Widget = {
   updatedAt?: string;
 };
 
-export type CreateWidgetData = Omit<Widget, 'id' | 'createdAt' | 'updatedAt'>;
+// When creating a widget the `userId` is supplied via the URL path, not the body
+export type CreateWidgetData = Omit<Widget, 'id' | 'createdAt' | 'updatedAt' | 'userId'>;
 
 export type WidgetLayoutItem = {
   id: string;

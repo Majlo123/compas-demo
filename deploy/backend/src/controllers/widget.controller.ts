@@ -5,7 +5,13 @@ import catchAsync from 'shared/utils/CatchAsync';
 import ApiError from 'shared/error/ApiError';
 
 export const createWidget = catchAsync(async (req: Request, res: Response) => {
-  const payload = req.body;
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  // Ensure user cannot set `userId` in the body — take it from token
+  const payload = { ...(req.body || {}), userId };
   const created = await widgetService.createWidget(payload);
 
   res.status(httpStatus.CREATED).send({
@@ -26,7 +32,10 @@ export const getWidget = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const listWidgetsByUser = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
   const type = (req.query.type as string) || undefined;
   const widgets = await widgetService.getWidgetsByUserIdAndType(userId, type);
 
@@ -59,7 +68,10 @@ export const deleteWidget = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const saveWidgetsLayout = catchAsync(async (req: Request, res: Response) => {
-  const { userId } = req.params;
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
   const { widgets } = req.body;
 
   if (!widgets || !Array.isArray(widgets) || widgets.length === 0) {

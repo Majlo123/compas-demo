@@ -20,10 +20,10 @@ export const getWidget = async (id: string): Promise<ApiResponse<Widget>> => {
   }
 };
 
-export const getWidgetsByUser = async (userId: string, type?: string): Promise<ApiResponse<WidgetListResponse>> => {
+export const getMyWidgets = async (type?: string): Promise<ApiResponse<WidgetListResponse>> => {
   try {
     const query = type ? `?type=${encodeURIComponent(type)}` : '';
-    const response = await axiosServer.get(`${endpoint}/user/${userId}${query}`);
+    const response = await axiosServer.get(`${endpoint}/my${query}`);
     return response.data;
   } catch (error) {
     return formatError(error);
@@ -32,7 +32,7 @@ export const getWidgetsByUser = async (userId: string, type?: string): Promise<A
 
 export const createWidget = async (data: CreateWidgetData): Promise<ApiResponse<Widget>> => {
   try {
-    const response = await axiosServer.post(endpoint, data);
+    const response = await axiosServer.post(`${endpoint}`, data);
     return response.data;
   } catch (error) {
     return formatError(error);
@@ -57,10 +57,10 @@ export const deleteWidget = async (id: string): Promise<ApiResponse<null>> => {
   }
 };
 
-export const saveWidgetsLayout = async (userId: string, widgets: WidgetLayoutItem[]): Promise<ApiResponse<Widget[]>> => {
+export const saveWidgetsLayout = async (widgets: WidgetLayoutItem[]): Promise<ApiResponse<Widget[]>> => {
   try {
     const payload: SaveWidgetsLayoutRequest = { widgets };
-    const response = await axiosServer.post(`${endpoint}/user/${userId}/layout`, payload);
+    const response = await axiosServer.post(`${endpoint}/layout`, payload);
     return response.data;
   } catch (error) {
     return formatError(error);

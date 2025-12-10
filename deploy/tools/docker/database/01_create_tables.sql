@@ -97,3 +97,31 @@ CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_user_id ON leave_requ
 CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_leave_request_id ON leave_request_notifications(leave_request_id);
 CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_is_read ON leave_request_notifications(is_read);
 CREATE INDEX IF NOT EXISTS idx_leave_request_notifications_created_at ON leave_request_notifications(created_at DESC);
+
+-- Create collective_days_off table for company holidays
+CREATE TABLE IF NOT EXISTS collective_days_off (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    start_date DATE NOT NULL,
+    end_date DATE NOT NULL,
+    description TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT valid_date_range CHECK (end_date >= start_date)
+);
+
+-- Create widgets table (dashboard widgets per user)
+CREATE TABLE IF NOT EXISTS widgets (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    x INT NOT NULL,
+    y INT NOT NULL,
+    width INT NOT NULL,
+    height INT NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    type VARCHAR(50) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT uq_widget_user_type UNIQUE (user_id, type)
+);
+
+CREATE INDEX IF NOT EXISTS idx_widgets_user_id ON widgets(user_id);
+CREATE INDEX IF NOT EXISTS idx_widgets_type ON widgets(type);

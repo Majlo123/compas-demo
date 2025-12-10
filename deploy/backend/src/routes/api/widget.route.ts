@@ -3,7 +3,10 @@ import { EndpointMeta } from 'docs/swagger';
 import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
+import { registerSwaggerSchema } from 'docs/swagger';
+import { extendZodWithOpenApi } from '@anatine/zod-openapi';
 import { z } from 'zod';
+extendZodWithOpenApi(z);
 
 enum WidgetFunctions {
   createWidget = 'createWidget',
@@ -15,47 +18,111 @@ enum WidgetFunctions {
 }
 
 const createWidgetRoute = (basePath: string): Router => {
-  const CreateWidgetSchema = z.object({
+  // Create schema does not accept `userId` in the body — it's taken from the path param
+  const CreateWidgetSchema = z
+    .object({
+      x: z.number().int(),
+      y: z.number().int(),
+      width: z.number().int().positive(),
+      height: z.number().int().positive(),
+      type: z.string(),
+    })
+    .openapi({
+      description: 'Create a widget for the given user. `userId` is provided via the path parameter.',
+      example: {
+        x: 0,
+        y: 0,
+        width: 3,
+        height: 2,
+        type: 'team-calendar',
+      },
+    });
+  registerSwaggerSchema('CreateWidget', CreateWidgetSchema);
+
+  const WidgetSchema = z.object({
+    id: z.string(),
     x: z.number().int(),
     y: z.number().int(),
-    width: z.number().int().positive(),
-    height: z.number().int().positive(),
+    width: z.number().int(),
+    height: z.number().int(),
     userId: z.string(),
     type: z.string(),
-  });
+    createdAt: z.string().optional(),
+    updatedAt: z.string().optional(),
+  }).openapi({ description: 'Widget entity returned by the API' });
+  registerSwaggerSchema('Widget', WidgetSchema);
 
-  const UpdateWidgetSchema = z.object({
-    x: z.number().int().optional(),
-    y: z.number().int().optional(),
-    width: z.number().int().positive().optional(),
-    height: z.number().int().positive().optional(),
-    type: z.string().optional(),
-  });
+  const UpdateWidgetSchema = z
+    .object({
+      x: z.number().int().optional(),
+      y: z.number().int().optional(),
+      width: z.number().int().positive().optional(),
+      height: z.number().int().positive().optional(),
+      type: z.string().optional(),
+    })
+    .openapi({
+      description: 'Partial widget fields to update (position, size, or type).',
+      example: { x: 1, y: 2 },
+    });
+  registerSwaggerSchema('UpdateWidget', UpdateWidgetSchema);
 
-  const SaveWidgetsLayoutSchema = z.object({
-    widgets: z.array(
-      z.object({
-        id: z.string(),
-        x: z.number().int(),
-        y: z.number().int(),
-        width: z.number().int().positive(),
-        height: z.number().int().positive(),
-      })
-    ),
-  });
+  const SaveWidgetsLayoutSchema = z
+    .object({
+      widgets: z.array(
+        z
+          .object({
+            id: z.string(),
+            x: z.number().int(),
+            y: z.number().int(),
+            width: z.number().int().positive(),
+            height: z.number().int().positive(),
+          })
+          .openapi({ example: { id: 'w_abc123', x: 0, y: 0, width: 3, height: 2 } })
+      ),
+    })
+    .openapi({
+      description: 'Bulk update of widget positions and sizes for a given user.',
+      example: { widgets: [{ id: 'w_abc123', x: 0, y: 0, width: 3, height: 2 }] },
+    });
+  registerSwaggerSchema('SaveWidgetsLayout', SaveWidgetsLayoutSchema);
 
   const endpointsMeta: EndpointMeta[] = [
     {
       name: 'Create Widget',
-      desc: 'Create a new widget for user dashboard',
+      desc: 'Create a new widget for the authenticated user (userId taken from token)',
       path: '/',
       method: 'post',
       authorize: true,
       requestBodySchema: CreateWidgetSchema,
       responses: [
-        { code: httpStatus.CREATED, desc: 'Widget created' },
+        { code: httpStatus.CREATED, desc: 'Widget created', schema: WidgetSchema },
       ],
       functionName: WidgetFunctions.createWidget,
+      basePath,
+    },
+    {
+      name: 'List My Widgets',
+      desc: 'List widgets for the authenticated user (optionally filter by type)',
+      path: '/my',
+      method: 'get',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'Widgets list', schema: z.array(WidgetSchema) },
+      ],
+      functionName: WidgetFunctions.listWidgetsByUser,
+      basePath,
+    },
+    {
+      name: 'Save Widgets Layout',
+      desc: 'Save layout for all widgets of the authenticated user',
+      path: '/layout',
+      method: 'post',
+      authorize: true,
+      requestBodySchema: SaveWidgetsLayoutSchema,
+      responses: [
+        { code: httpStatus.OK, desc: 'Layout saved' },
+      ],
+      functionName: WidgetFunctions.saveWidgetsLayout,
       basePath,
     },
     {
@@ -66,22 +133,9 @@ const createWidgetRoute = (basePath: string): Router => {
       authorize: true,
       params: [{ name: 'id', in: 'path', type: 'string', required: true }],
       responses: [
-        { code: httpStatus.OK, desc: 'Widget' },
+        { code: httpStatus.OK, desc: 'Widget', schema: WidgetSchema },
       ],
       functionName: WidgetFunctions.getWidget,
-      basePath,
-    },
-    {
-      name: 'List Widgets By User',
-      desc: 'List widgets for a given user (optionally filter by type)',
-      path: '/user/:userId',
-      method: 'get',
-      authorize: true,
-      params: [{ name: 'userId', in: 'path', type: 'string', required: true }],
-      responses: [
-        { code: httpStatus.OK, desc: 'Widgets list' },
-      ],
-      functionName: WidgetFunctions.listWidgetsByUser,
       basePath,
     },
     {
@@ -113,11 +167,10 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Save Widgets Layout',
-      desc: 'Save layout for all widgets of a user',
-      path: '/user/:userId/layout',
+      desc: 'Save layout for all widgets of the authenticated user',
+      path: '/layout',
       method: 'post',
       authorize: true,
-      params: [{ name: 'userId', in: 'path', type: 'string', required: true }],
       requestBodySchema: SaveWidgetsLayoutSchema,
       responses: [
         { code: httpStatus.OK, desc: 'Layout saved' },
