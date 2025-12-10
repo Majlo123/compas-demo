@@ -1,5 +1,8 @@
 import createBaseRepository from 'repos/utils/baseRepository';
 import pool from 'config/database';
+import { WidgetType } from '../../../shared/enums';
+
+
 
 export type Widget = {
 	id?: string;
@@ -8,12 +11,13 @@ export type Widget = {
 	width: number;
 	height: number;
   userId: string;
-  type: string;
+  type: WidgetType;
 	createdAt?: Date;
 	updatedAt?: Date;
 };
 
-export type CreateWidget = Omit<Widget, 'id' | 'createdAt' | 'updatedAt'>;
+export type CreateWidget = Omit<Widget, 'id' | 'userId'| 'createdAt' | 'updatedAt'>;
+
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
 	createBaseRepository<Widget>('widgets');
