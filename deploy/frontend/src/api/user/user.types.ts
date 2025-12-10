@@ -2,7 +2,8 @@ export interface User {
   id: string;
   fullName: string;
   email: string;
-  vacationDays?: number;
+  vacationDaysInit?: number;
+  vacationDaysLeft?: number;
 }
 
 export interface UserProfile {
@@ -13,6 +14,8 @@ export interface UserProfile {
   emailNotificationsEnabled?: boolean;
   vacationDays?: number;
   profileImageBlob?: string;
+  vacationDaysInit?: number;
+  vacationDaysLeft?: number;
 }
 
 export interface UserWithVacationDays {
@@ -20,7 +23,8 @@ export interface UserWithVacationDays {
   fullName: string;
   email: string;
   role: string;
-  vacationDays: number;
+  vacationDaysInit: number;
+  vacationDaysLeft: number;
 }
 
 export interface SearchUsersResponse {

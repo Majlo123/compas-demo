@@ -115,3 +115,17 @@ export const bulkUpdateTeamMembersManager = async (
     return formatError(error);
   }
 };
+
+export const removeManagerRole = async (
+  teamId: string,
+  members: Array<{ userId: string }>
+): Promise<ApiResponse<any[]>> => {
+  try {
+    const membersWithIsManager = members.map(m => ({ ...m, isManager: false }));
+    const response = await axiosServer.delete(`${endpoint}/${teamId}/members/manager`, { data: { members: membersWithIsManager } });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+

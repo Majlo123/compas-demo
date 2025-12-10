@@ -22,6 +22,8 @@ interface UserProfile {
   email: string;
   role: string;
   emailNotificationsEnabled?: boolean;
+  vacationDaysInit?: number;
+  vacationDaysLeft?: number;
 }
 
 const ProfilePage: React.FC = () => {
@@ -209,9 +211,9 @@ const ProfilePage: React.FC = () => {
   };
 
   // Sample data - will be replaced with real calculation later
-  const sampleVacationData = {
-    totalVacationDays: 20,
-    vacationDaysRemaining: 15,
+  const vacationData = {
+    totalVacationDays: profile?.vacationDaysInit ?? 0,
+    vacationDaysRemaining: profile?.vacationDaysLeft ?? 0,
   };
 
   return (
@@ -352,27 +354,29 @@ const ProfilePage: React.FC = () => {
             <div>
               <h3 className="text-lg font-semibold text-gray-800 mb-4">Vacation Days</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="bg-gray-50 rounded-lg p-4">
-                  <div className="text-sm text-gray-600 mb-1">Total Vacation Days</div>
-                  <div className="text-3xl font-bold text-gray-800">{sampleVacationData.totalVacationDays}</div>
-                </div>
                 <div className="bg-primary/5 rounded-lg p-4">
                   <div className="text-sm text-gray-600 mb-1">Days Remaining</div>
-                  <div className="text-3xl font-bold text-primary">{sampleVacationData.vacationDaysRemaining}</div>
+                  <div className="text-3xl font-bold text-primary">{vacationData.vacationDaysRemaining}</div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4">
+                  <div className="text-sm text-gray-600 mb-1">Total Vacation Days</div>
+                  <div className="text-3xl font-bold text-gray-800">{vacationData.totalVacationDays}</div>
                 </div>
               </div>
               
               {/* Progress Bar */}
               <div className="mt-4">
                 <div className="flex justify-between text-sm text-gray-600 mb-2">
-                  <span>Remaining: {sampleVacationData.vacationDaysRemaining} days</span>
-                  <span>Used: {sampleVacationData.totalVacationDays - sampleVacationData.vacationDaysRemaining} days</span>
+                  <span>Remaining: {vacationData.vacationDaysRemaining} days</span>
+                  <span>Used: {vacationData.totalVacationDays - vacationData.vacationDaysRemaining} days</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-3">
                   <div
                     className="bg-primary h-3 rounded-full transition-all duration-300"
                     style={{
-                      width: `${(sampleVacationData.vacationDaysRemaining / sampleVacationData.totalVacationDays) * 100}%`,
+                      width: vacationData.totalVacationDays > 0 
+                        ? `${(vacationData.vacationDaysRemaining / vacationData.totalVacationDays) * 100}%`
+                        : '0%',
                     }}
                   ></div>
                 </div>
