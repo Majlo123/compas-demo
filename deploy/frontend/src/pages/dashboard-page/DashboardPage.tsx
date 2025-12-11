@@ -12,7 +12,7 @@ import { X } from 'lucide-react';
 import TimeOffWidget from '@/components/dashboard/TimeOffWidget';
 import HeatmapWidget from '@/components/dashboard/HeatmapWidget';
 import PieChartWidget from '@/components/dashboard/PieChartWidget';
-import UpcomingLeavesWidget from '@/components/dashboard/UpcomingLeavesWidget';
+import UpcomingVacationsWidget from '@/components/dashboard/widgets/UpcomingVacationsWidget';
 import TeamOverviewWidget from '@/components/dashboard/TeamOverviewWidget';
 import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 import { widgetTypes } from '@/components/dashboard/widgetTypes';
@@ -29,7 +29,7 @@ const DashboardPage: React.FC = () => {
     time_off: TimeOffWidget,
     piechart: PieChartWidget,
     heatmap: HeatmapWidget,
-    upcoming: UpcomingLeavesWidget,
+    upcoming: UpcomingVacationsWidget,
     team: TeamOverviewWidget,
     absent: AbsentTodayWidget,
   };

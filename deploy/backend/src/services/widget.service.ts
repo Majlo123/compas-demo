@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import { CreateWidget, Widget } from 'repos/widget.model';
 import ApiError from 'shared/error/ApiError';
-import { widgetRepository, userRepository } from 'repos';
+import { widgetRepository, userRepository, leaveRequestRepository } from 'repos';
 import { findApprovedMonthSummaryByUser, LeaveMonthlySummary } from 'repos/leaveRequest.model';
 
 
@@ -109,4 +109,47 @@ export const getTimeOffSummary = async (userId: string, userRole?: string, year?
   const isAdmin = userRole === 'admin';
   const summary = await findApprovedMonthSummaryByUser(isAdmin ? null : userId, year, month);
   return summary;
+};
+
+interface UpcomingLeave {
+  id: string;
+  employeeName: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+}
+
+interface UpcomingVacationsResult {
+  total: number;
+  leaves: UpcomingLeave[];
+}
+
+/**
+ * Get upcoming approved leave requests within a date range
+ * @param userId - User ID
+ * @param days - Number of days from today (default: 7)
+ */
+export const getUpcomingVacations = async (userId: string, days: number = 7): Promise<UpcomingVacationsResult> => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const endDate = new Date(today);
+  endDate.setDate(today.getDate() + days);
+
+  const leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
+
+  const formattedLeaves: UpcomingLeave[] = leaves.map((leave: any) => ({
+    id: leave.id,
+    employeeName: leave.employeeName || 'Unknown',
+    type: leave.type,
+    startDate: leave.startDate,
+    endDate: leave.endDate,
+    days: Math.ceil((new Date(leave.endDate).getTime() - new Date(leave.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
+  }));
+
+  return {
+    total: formattedLeaves.length,
+    leaves: formattedLeaves,
+  };
 };

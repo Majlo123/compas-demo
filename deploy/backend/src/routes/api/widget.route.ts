@@ -16,6 +16,7 @@ enum WidgetFunctions {
   deleteWidget = 'deleteWidget',
   saveWidgetsLayout = 'saveWidgetsLayout',
   timeOffSummary = 'timeOffSummary',
+  upcomingVacations = 'upcomingVacations',
 }
 
 const createWidgetRoute = (basePath: string): Router => {
@@ -75,6 +76,38 @@ const createWidgetRoute = (basePath: string): Router => {
       },
     });
   registerSwaggerSchema('TimeOffSummary', TimeOffSummarySchema);
+
+  const UpcomingVacationsSchema = z
+    .object({
+      total: z.number().int().nonnegative(),
+      leaves: z.array(
+        z.object({
+          id: z.string(),
+          employeeName: z.string(),
+          type: z.string(),
+          startDate: z.string(),
+          endDate: z.string(),
+          days: z.number().int().positive(),
+        }),
+      ),
+    })
+    .openapi({
+      description: 'Upcoming approved vacations within specified date range',
+      example: {
+        total: 3,
+        leaves: [
+          {
+            id: '123',
+            employeeName: 'John Doe',
+            type: 'vacation',
+            startDate: '2025-12-20',
+            endDate: '2025-12-24',
+            days: 5,
+          },
+        ],
+      },
+    });
+  registerSwaggerSchema('UpcomingVacations', UpcomingVacationsSchema);
 
   const UpdateWidgetSchema = z
     .object({
@@ -138,6 +171,21 @@ const createWidgetRoute = (basePath: string): Router => {
         { code: httpStatus.OK, desc: 'Time-off summary', schema: TimeOffSummarySchema },
       ],
       functionName: WidgetFunctions.timeOffSummary,
+      basePath,
+    },
+    {
+      name: 'Upcoming Vacations',
+      desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today)',
+      path: '/upcoming-vacations',
+      method: 'get',
+      authorize: true,
+      querySchema: z.object({
+        days: z.coerce.number().int().min(1).max(365).optional().openapi({ example: 7, description: 'Number of days from today (default: 7)' }),
+      }),
+      responses: [
+        { code: httpStatus.OK, desc: 'Upcoming vacations list', schema: UpcomingVacationsSchema },
+      ],
+      functionName: WidgetFunctions.upcomingVacations,
       basePath,
     },
     {
@@ -215,6 +263,7 @@ const createWidgetRoute = (basePath: string): Router => {
     deleteWidget: widgetController.deleteWidget as RequestHandler,
     saveWidgetsLayout: widgetController.saveWidgetsLayout as RequestHandler,
     timeOffSummary: widgetController.timeOffSummary as RequestHandler,
+    upcomingVacations: widgetController.upcomingVacations as RequestHandler,
   };
 
   const router = Router();

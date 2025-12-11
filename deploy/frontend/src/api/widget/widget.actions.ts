@@ -6,6 +6,7 @@ import {
   WidgetLayoutItem,
   SaveWidgetsLayoutRequest,
   TimeOffSummary,
+  UpcomingVacations,
 } from '@/api/widget/widget.types';
 import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
@@ -72,6 +73,16 @@ export const getMyTimeOffSummary = async (year?: number, month?: number): Promis
   try {
     const params = year && month ? { year, month } : {};
     const response = await axiosServer.get(`${endpoint}/time-off/summary`, { params });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const getUpcomingVacations = async (days?: number): Promise<ApiResponse<UpcomingVacations>> => {
+  try {
+    const params = days ? { days } : {};
+    const response = await axiosServer.get(`${endpoint}/upcoming-vacations`, { params });
     return response.data;
   } catch (error) {
     return formatError(error);

@@ -326,4 +326,36 @@ export const updateStatus = async (id: string, status: LeaveRequestStatus): Prom
   };
 };
 
+/**
+ * Find approved leave requests within a date range
+ */
+export const findApprovedInDateRange = async (startDate: Date, endDate: Date): Promise<LeaveRequestWithEmployee[]> => {
+  const query = {
+    text: `
+      SELECT lr.*, u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      WHERE lr.status = 'approved'
+        AND lr.start_date <= $2
+        AND lr.end_date >= $1
+      ORDER BY lr.start_date ASC
+    `,
+    values: [startDate, endDate],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    employeeName: row.employee_name,
+  }));
+};
+
 export { create, findById, findByField, findAll, updateById, deleteById };
