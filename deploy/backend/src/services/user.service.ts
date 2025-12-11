@@ -12,7 +12,7 @@ export const searchUsers = async (searchQuery: string): Promise<any[]> => {
   return userRepository.searchByNameOrEmail(searchQuery);
 };
 
-export type UserPublic = Pick<UserModel, 'id' | 'fullName' | 'email' | 'vacationDays'>;
+export type UserPublic = Pick<UserModel, 'id' | 'fullName' | 'email' | 'vacationDaysInit' | 'vacationDaysLeft'>;
 
 export const findAll = async (query: QueryParams, excludeUserId?: string): Promise<PaginatedResult<any>> => {
   const page = query.pagination?.page || 1;
@@ -43,7 +43,8 @@ export const findAll = async (query: QueryParams, excludeUserId?: string): Promi
       id: u.id,
       fullName: u.fullName,
       email: u.email,
-      vacationDays: u.vacationDays ?? 0
+      vacationDaysInit: u.vacationDaysInit ?? 0,
+      vacationDaysLeft: u.vacationDaysLeft ?? 0
     })),
     page: activeResult.page,
     pageSize: activeResult.pageSize,
@@ -66,13 +67,14 @@ export const getUserProfile = async (userId: string): Promise<any> => {
     email: user.email,
     role: user.role,
     emailNotificationsEnabled: user.emailNotificationsEnabled ?? true,
-    vacationDays: user.vacationDays ?? 0,
     // Include profile image blob if present (convert Buffer to string)
     profileImageBlob: user.profileImageBlob
       ? Buffer.isBuffer(user.profileImageBlob)
         ? user.profileImageBlob.toString()
         : (user.profileImageBlob as any)
       : undefined,
+    vacationDaysInit: user.vacationDaysInit ?? 0,
+    vacationDaysLeft: user.vacationDaysLeft ?? 0,
   };
 };
 
@@ -164,13 +166,14 @@ export const canManageUserVacationDays = async (
  */
 export const updateUserVacationDays = async (
   userId: string,
-  vacationDays: number
+  vacationDaysInit: number,
+  vacationDaysLeft: number
 ): Promise<boolean> => {
-  if (vacationDays < 0) {
+  if (vacationDaysInit < 0 || vacationDaysLeft < 0) {
     throw new Error('Vacation days cannot be negative');
   }
 
-  const updated = await userRepository.updateById(userId, { vacationDays });
+  const updated = await userRepository.updateById(userId, { vacationDaysInit, vacationDaysLeft });
   return !!updated;
 };
 
@@ -186,7 +189,8 @@ export const getUserWithVacationDays = async (userId: string): Promise<any> => {
     fullName: user.fullName,
     email: user.email,
     role: user.role,
-    vacationDays: user.vacationDays ?? 0,
+    vacationDaysInit: user.vacationDaysInit ?? 0,
+    vacationDaysLeft: user.vacationDaysLeft ?? 0,
   };
 };
 
