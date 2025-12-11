@@ -10,6 +10,7 @@ export type User = {
   role: Role;
   isActivated?: boolean;
   emailNotificationsEnabled?: boolean;
+  profileImageBlob?: Buffer;
   vacationDaysInit?: number;
   vacationDaysLeft?: number;
   createdAt?: Date;
