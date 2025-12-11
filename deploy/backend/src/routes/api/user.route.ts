@@ -17,6 +17,7 @@ enum UserFunctions {
   updateUserVacationDays = 'updateUserVacationDays',
   getUserVacationDays = 'getUserVacationDays',
   distributeAnnualLeave = 'distributeAnnualLeave',
+  uploadProfileImage = 'uploadProfileImage',
 }
 
 const createUserRoute = (basePath: string): Router => {
@@ -140,6 +141,18 @@ const createUserRoute = (basePath: string): Router => {
       functionName: UserFunctions.getUserVacationDays,
       basePath,
     },
+    {
+      name: 'Upload Profile Image',
+      desc: 'Upload and save profile image for the authenticated user',
+      path: '/profile-image',
+      method: 'post',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'Profile image uploaded successfully' },
+      ],
+      functionName: UserFunctions.uploadProfileImage,
+      basePath,
+    },
   ];
 
   console.log('Available userController functions:', Object.keys(userController));
@@ -154,6 +167,7 @@ const createUserRoute = (basePath: string): Router => {
     updateUserVacationDays: userController.updateUserVacationDays as RequestHandler,
     getUserVacationDays: userController.getUserVacationDays as RequestHandler,
     distributeAnnualLeave: userController.distributeAnnualLeave as RequestHandler,
+    uploadProfileImage: userController.uploadProfileImage as RequestHandler,
   };
 
   const router = Router();
