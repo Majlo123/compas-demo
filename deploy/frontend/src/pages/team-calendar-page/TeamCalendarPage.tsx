@@ -51,6 +51,8 @@ const TeamCalendarPage: React.FC = () => {
       const response = await getAllCollectiveDaysOff();
       if (isApiSuccess(response)) {
         setCollectiveDaysOff(response.content);
+        console.log('TeamCalendar: fetched', response.content.length, 'collective days off');
+        console.log('Collective days off data:', response.content);
       } else {
         console.error('Failed to load collective days off', response);
       }
@@ -87,6 +89,7 @@ const TeamCalendarPage: React.FC = () => {
             };
           });
 
+          console.debug('TeamCalendar: fetched', mapped.length, 'events');
           setAllEvents(mapped);
         } else {
           console.error('Failed to load calendar leave requests', response);
@@ -173,7 +176,7 @@ const TeamCalendarPage: React.FC = () => {
         <div className="flex items-center gap-3">
           <Select 
             className="text-p1 w-64" 
-            placeholder="Filter by Team" 
+            placeholder="Filter by Project" 
             options={teams.map(team => ({ label: team.name, value: team.id }))} 
             value={selectedTeam} 
             onChange={setSelectedTeam}
