@@ -12,14 +12,17 @@ import {
   type LeaveRequestNotification,
 } from '@/api/notification.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import { getUserProfile } from '@/api/user/user.actions';
+import { set } from 'lodash';
 
 const HeaderNav: React.FC = () => {
   const navigate = useNavigate();
-  const { logout } = useAuthStore();
+  const { logout, user } = useAuthStore();
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
   const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
   const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const notificationsRef = useRef<HTMLDivElement>(null);
 
@@ -43,6 +46,107 @@ const HeaderNav: React.FC = () => {
 
     loadNotifications();
   }, []);
+
+  // Initial load: set profile image for the current user (if cached)
+  useEffect(() => {
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
+    }
+
+    if (currentUserId) {
+      const savedImage = localStorage.getItem(`profileImage:${currentUserId}`);
+      if (savedImage) {
+        setProfileImage(savedImage);
+      }
+    }
+  }, []);
+
+  // Cross-tab sync: update profile image when localStorage changes for this user
+  useEffect(() => {
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
+    }
+
+    const handleStorageChange = (e: StorageEvent) => {
+      if (!currentUserId) return;
+      if (e.key === `profileImage:${currentUserId}`) {
+        setProfileImage(e.newValue);
+      }
+    };
+
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Same-tab updates: listen for custom `profileImageUpdated` events and apply if for current user
+  useEffect(() => {
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
+    }
+
+    const handleProfileImageUpdate = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      if (customEvent.detail && customEvent.detail.profileImage && customEvent.detail.userId) {
+        if (customEvent.detail.userId === currentUserId) {
+          setProfileImage(customEvent.detail.profileImage);
+        }
+      }
+    };
+
+    window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
+    return () => {
+      window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
+    };
+  }, []);
+
+  // Fallback: if no profileImage is available in localStorage/state, try fetching from API
+  useEffect(() => {
+    const currentUserId = user?.id;
+    if (!currentUserId) return;
+
+    const key = `profileImage:${currentUserId}`;
+    const saved = localStorage.getItem(key);
+    if (profileImage || saved) return; // already have image
+
+    const loadFromApi = async () => {
+      try {
+        const response = await getUserProfile();
+        if (isApiSuccess(response) && response.content?.profileImageBlob) {
+          const blob = response.content.profileImageBlob;
+          localStorage.setItem(key, blob);
+          setProfileImage(blob);
+        }
+      } catch (err) {
+        // ignore - fallback to initials
+        console.debug('Failed to fetch profile image for header fallback', err);
+      }
+    };
+
+    loadFromApi();
+  }, [user?.id, profileImage]);
 
   // Initialize socket and listen for new notifications
   useEffect(() => {
@@ -135,36 +239,36 @@ const HeaderNav: React.FC = () => {
   };
 
   const getUserInitials = (): string => {
-    const userString = getFromLocalStorage('user');
-    if (userString) {
-      try {
-        const user = JSON.parse(userString);
-        const names = user.fullName?.split(' ') || [];
-        if (names.length >= 2) {
-          return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
-        }
-        return user.fullName?.[0]?.toUpperCase() || 'U';
-      } catch {
-        return 'U';
+    // Prefer auth store user, fall back to localStorage
+    const currentUser = user || (() => {
+      const userString = getFromLocalStorage('user');
+      if (!userString) return null;
+      try { return JSON.parse(userString); } catch { return null; }
+    })();
+
+    if (currentUser && currentUser.fullName) {
+      const names = currentUser.fullName.split(' ');
+      if (names.length >= 2) {
+        return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
       }
+      return currentUser.fullName[0]?.toUpperCase() || 'U';
     }
+
     return 'U';
   };
 
   const getUserInfo = (): { fullName: string; email: string } | null => {
-    const userString = getFromLocalStorage('user');
-    if (userString) {
-      try {
-        const user = JSON.parse(userString);
-        return {
-          fullName: user.fullName || 'User',
-          email: user.email || '',
-        };
-      } catch {
-        return null;
-      }
-    }
-    return null;
+    const currentUser = user || (() => {
+      const userString = getFromLocalStorage('user');
+      if (!userString) return null;
+      try { return JSON.parse(userString); } catch { return null; }
+    })();
+
+    if (!currentUser) return null;
+    return {
+      fullName: currentUser.fullName || 'User',
+      email: currentUser.email || '',
+    };
   };
 
   const userInfo = getUserInfo();
@@ -219,8 +323,16 @@ const HeaderNav: React.FC = () => {
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
           >
-            <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium">
-              {getUserInitials()}
+            <div className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium overflow-hidden">
+              {profileImage ? (
+                <img
+                  src={profileImage}
+                  alt="Profile"
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                getUserInitials()
+              )}
             </div>
           </button>
           
