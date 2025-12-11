@@ -15,6 +15,7 @@ enum WidgetFunctions {
   updateWidget = 'updateWidget',
   deleteWidget = 'deleteWidget',
   saveWidgetsLayout = 'saveWidgetsLayout',
+  timeOffSummary = 'timeOffSummary',
 }
 
 const createWidgetRoute = (basePath: string): Router => {
@@ -51,6 +52,29 @@ const createWidgetRoute = (basePath: string): Router => {
     updatedAt: z.string().optional(),
   }).openapi({ description: 'Widget entity returned by the API' });
   registerSwaggerSchema('Widget', WidgetSchema);
+
+  const TimeOffSummarySchema = z
+    .object({
+      totalDays: z.number().int().nonnegative(),
+      breakdown: z.array(
+        z.object({
+          type: z.string(),
+          days: z.number().int().nonnegative(),
+        }),
+      ),
+    })
+    .openapi({
+      description: 'Approved leave days taken in the current month with per-type breakdown',
+      example: {
+        totalDays: 6,
+        breakdown: [
+          { type: 'vacation', days: 4 },
+          { type: 'sick', days: 1 },
+          { type: 'personal', days: 1 },
+        ],
+      },
+    });
+  registerSwaggerSchema('TimeOffSummary', TimeOffSummarySchema);
 
   const UpdateWidgetSchema = z
     .object({
@@ -98,6 +122,22 @@ const createWidgetRoute = (basePath: string): Router => {
         { code: httpStatus.CREATED, desc: 'Widget created', schema: WidgetSchema },
       ],
       functionName: WidgetFunctions.createWidget,
+      basePath,
+    },
+    {
+      name: 'Time-off Summary',
+      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month.',
+      path: '/time-off/summary',
+      method: 'get',
+      authorize: true,
+      querySchema: z.object({
+        year: z.coerce.number().int().min(2000).max(2100).optional().openapi({ example: 2025 }),
+        month: z.coerce.number().int().min(1).max(12).optional().openapi({ example: 12 }),
+      }),
+      responses: [
+        { code: httpStatus.OK, desc: 'Time-off summary', schema: TimeOffSummarySchema },
+      ],
+      functionName: WidgetFunctions.timeOffSummary,
       basePath,
     },
     {
@@ -174,6 +214,7 @@ const createWidgetRoute = (basePath: string): Router => {
     updateWidget: widgetController.updateWidget as RequestHandler,
     deleteWidget: widgetController.deleteWidget as RequestHandler,
     saveWidgetsLayout: widgetController.saveWidgetsLayout as RequestHandler,
+    timeOffSummary: widgetController.timeOffSummary as RequestHandler,
   };
 
   const router = Router();

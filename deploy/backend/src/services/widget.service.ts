@@ -1,12 +1,27 @@
 import httpStatus from 'http-status';
 import { CreateWidget, Widget } from 'repos/widget.model';
 import ApiError from 'shared/error/ApiError';
-import { widgetRepository } from 'repos';
+import { widgetRepository, userRepository } from 'repos';
+import { findApprovedMonthSummaryByUser, LeaveMonthlySummary } from 'repos/leaveRequest.model';
 
 
 export const createWidget = async (entity: CreateWidget): Promise<Widget> => {
-  const created = await widgetRepository.create(entity);
-  return created;
+  // Defensive: ensure the user exists before inserting to avoid FK violations
+  const user = await userRepository.findById({ id: entity.userId as unknown as string });
+  if (!user) {
+    throw new ApiError('User not found for widget creation', httpStatus.NOT_FOUND);
+  }
+
+  try {
+    const created = await widgetRepository.create(entity);
+    return created;
+  } catch (err: any) {
+    // Handle unique constraint on (user_id, type) to avoid generic 500s
+    if (err?.code === '23505') {
+      throw new ApiError('Widget of this type already exists for this user', httpStatus.CONFLICT);
+    }
+    throw err;
+  }
 };
 
 
@@ -80,4 +95,18 @@ export const saveWidgetsLayout = async (userId: string, widgets: Array<Pick<Widg
   );
 
   return updated;
+};
+
+/**
+ * Compute time-off summary for a specific month for the authenticated user
+ * For admin users, returns aggregated data for all users
+ * @param userId - User ID
+ * @param userRole - User role (admin or employee)
+ * @param year - Optional year (defaults to current year)
+ * @param month - Optional month (1-12, defaults to current month)
+ */
+export const getTimeOffSummary = async (userId: string, userRole?: string, year?: number, month?: number): Promise<LeaveMonthlySummary> => {
+  const isAdmin = userRole === 'admin';
+  const summary = await findApprovedMonthSummaryByUser(isAdmin ? null : userId, year, month);
+  return summary;
 };
