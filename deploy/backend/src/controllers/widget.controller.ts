@@ -4,6 +4,21 @@ import { widgetService } from 'services';
 import catchAsync from 'shared/utils/CatchAsync';
 import ApiError from 'shared/error/ApiError';
 
+// Helper function to authorize dashboard access (managers and admins only)
+const authorizeDashboardAccess = async (userId: string, userRole: string, isTeamManager: boolean): Promise<void> => {
+  // Admins always have access
+  if (userRole === 'admin') {
+    return;
+  }
+
+  // For employees, check if they are a team manager
+  if (userRole === 'employee') {
+    if (!isTeamManager) {
+      throw new ApiError('Forbidden: only managers and admins can access dashboard', httpStatus.FORBIDDEN);
+    }
+  }
+};
+
 export const createWidget = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   if (!userId) {
@@ -89,9 +104,13 @@ export const saveWidgetsLayout = catchAsync(async (req: Request, res: Response) 
 export const timeOffSummary = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const userRole = req.user?.role;
+  const isTeamManager = req.user?.isTeamManager || false;
   if (!userId) {
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
+
+  // Authorize dashboard access
+  await authorizeDashboardAccess(userId, userRole, isTeamManager);
 
   const year = req.query.year ? parseInt(req.query.year as string, 10) : undefined;
   const month = req.query.month ? parseInt(req.query.month as string, 10) : undefined;
@@ -106,9 +125,14 @@ export const timeOffSummary = catchAsync(async (req: Request, res: Response) => 
 
 export const upcomingLeaveRequests = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
+  const userRole = req.user?.role;
+  const isTeamManager = req.user?.isTeamManager || false;
   if (!userId) {
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
+
+  // Authorize dashboard access
+  await authorizeDashboardAccess(userId, userRole, isTeamManager);
 
   const days = req.query.days ? parseInt(req.query.days as string, 10) : 7;
 
@@ -123,9 +147,13 @@ export const upcomingLeaveRequests = catchAsync(async (req: Request, res: Respon
 export const getHotSpots = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const userRole = req.user?.role;
+  const isTeamManager = req.user?.isTeamManager || false;
   if (!userId) {
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
+
+  // Authorize dashboard access
+  await authorizeDashboardAccess(userId, userRole, isTeamManager);
 
   const hotSpots = await widgetService.getHotSpots(userId, userRole);
 
@@ -138,9 +166,13 @@ export const getHotSpots = catchAsync(async (req: Request, res: Response) => {
 export const usersApproachingLeaveLimit = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
   const userRole = req.user?.role;
+  const isTeamManager = req.user?.isTeamManager || false;
   if (!userId) {
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
+
+  // Authorize dashboard access
+  await authorizeDashboardAccess(userId, userRole, isTeamManager);
 
   const threshold = req.query.threshold ? parseInt(req.query.threshold as string, 10) : 5;
   const data = await widgetService.getUsersApproachingLeaveLimit(userId, userRole, threshold);

@@ -15,10 +15,11 @@ type NavItem = {
   path: string;
   Icon: React.ComponentType<{ className?: string }>;
   allowedRoles?: Role[];
+  requiresTeamManager?: boolean;
 };
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
+  { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon, requiresTeamManager: true },
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
   { label: 'Projects', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
@@ -33,6 +34,12 @@ const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
 
   const visibleNavItems = navItems.filter((item) => {
+    // Dashboard: show only to Admins OR team managers
+    if (item.requiresTeamManager) {
+      if (!user) return false;
+      return user.role === RoleEnum.Admin || user.isTeamManager === true;
+    }
+
     // Special case for Team Requests: show to Admins OR team managers
     if (item.path === '/team-requests') {
       if (!user) return false;

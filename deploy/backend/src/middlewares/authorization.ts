@@ -4,6 +4,7 @@ import httpStatus from 'http-status';
 import { authService } from 'services';
 import ApiError from 'shared/error/ApiError';
 import { Role } from '../../../shared/auth.types';
+import { teamMemberRepository } from 'repos';
 
 export const authorize = (allowedRoles?: Role[]) => {
   return async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
@@ -24,6 +25,7 @@ export const authorize = (allowedRoles?: Role[]) => {
         id: decoded.sub,
         email: decoded.email,
         role: decoded.role,
+        isTeamManager: decoded.isTeamManager || false,
       };
 
       // Check roles if provided
@@ -39,6 +41,33 @@ export const authorize = (allowedRoles?: Role[]) => {
       next(error);
     }
   };
+};
+
+export const authorizeDashboard = async (req: Request, _res: Response, next: NextFunction): Promise<void> => {
+  try {
+    const user = (req as any).user;
+
+    if (!user) {
+      throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+    }
+
+    // Admins always have access
+    if (user.role === 'admin') {
+      return next();
+    }
+
+    // For employees, check if they are a team manager
+    if (user.role === 'employee') {
+      const isManager = await teamMemberRepository.isUserManagerOfAnyTeam(user.id);
+      if (!isManager) {
+        throw new ApiError('Forbidden: only managers and admins can access dashboard', httpStatus.FORBIDDEN);
+      }
+    }
+
+    next();
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const checkJobApiKey = (req: Request, res: Response, next: NextFunction): void => {
