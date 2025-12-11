@@ -45,9 +45,8 @@ const HeaderNav: React.FC = () => {
     loadNotifications();
   }, []);
 
-  // Listen for profileImage changes in localStorage (per-user)
+  // Initial load: set profile image for the current user (if cached)
   useEffect(() => {
-    // Determine current user id from local storage
     const userString = getFromLocalStorage('user');
     let currentUserId: string | null = null;
     if (userString) {
@@ -59,15 +58,27 @@ const HeaderNav: React.FC = () => {
       }
     }
 
-    // Load initial profile image for current user
     if (currentUserId) {
       const savedImage = localStorage.getItem(`profileImage:${currentUserId}`);
       if (savedImage) {
         setProfileImage(savedImage);
       }
     }
+  }, []);
 
-    // Listen for storage changes from other tabs
+  // Cross-tab sync: update profile image when localStorage changes for this user
+  useEffect(() => {
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
+    }
+
     const handleStorageChange = (e: StorageEvent) => {
       if (!currentUserId) return;
       if (e.key === `profileImage:${currentUserId}`) {
@@ -75,7 +86,25 @@ const HeaderNav: React.FC = () => {
       }
     };
 
-    // Listen for custom events from same tab
+    window.addEventListener('storage', handleStorageChange);
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+    };
+  }, []);
+
+  // Same-tab updates: listen for custom `profileImageUpdated` events and apply if for current user
+  useEffect(() => {
+    const userString = getFromLocalStorage('user');
+    let currentUserId: string | null = null;
+    if (userString) {
+      try {
+        const user = JSON.parse(userString);
+        currentUserId = user?.id || null;
+      } catch {
+        currentUserId = null;
+      }
+    }
+
     const handleProfileImageUpdate = (e: Event) => {
       const customEvent = e as CustomEvent;
       if (customEvent.detail && customEvent.detail.profileImage && customEvent.detail.userId) {
@@ -85,11 +114,8 @@ const HeaderNav: React.FC = () => {
       }
     };
 
-    window.addEventListener('storage', handleStorageChange);
     window.addEventListener('profileImageUpdated', handleProfileImageUpdate);
-
     return () => {
-      window.removeEventListener('storage', handleStorageChange);
       window.removeEventListener('profileImageUpdated', handleProfileImageUpdate);
     };
   }, []);
