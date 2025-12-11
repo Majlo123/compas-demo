@@ -23,6 +23,11 @@ export type LeaveRequestWithEmployee = LeaveRequest & {
   employeeName?: string;
 };
 
+export type LeaveMonthlySummary = {
+  totalDays: number;
+  breakdown: Array<{ type: LeaveRequestType; days: number }>;
+};
+
 export type CreateLeaveRequest = Omit<LeaveRequest, 'id' | 'createdAt' | 'updatedAt'>;
 
 const { create, findById, findByField, findAll, updateById, deleteById } =
@@ -49,6 +54,65 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   }));
+};
+
+/**
+ * Aggregate approved leave days for a specific month by type for a user
+ * Counts the overlap of each request with the specified month (inclusive of boundaries)
+ * @param userId - User ID (null for all users - admin view)
+ * @param year - Optional year (defaults to current year)
+ * @param month - Optional month (1-12, defaults to current month)
+ */
+export const findApprovedMonthSummaryByUser = async (
+  userId: string | null,
+  year?: number,
+  month?: number
+): Promise<LeaveMonthlySummary> => {
+  const query = {
+    text: `
+      WITH month_bounds AS (
+        SELECT 
+          CASE 
+            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
+              make_date($2::int, $3::int, 1)
+            ELSE
+              DATE_TRUNC('month', NOW()::DATE)::DATE
+          END AS start_month,
+          CASE 
+            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
+              (make_date($2::int, $3::int, 1) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
+            ELSE
+              (DATE_TRUNC('month', NOW()::DATE) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
+          END AS end_month
+      ),
+      filtered_requests AS (
+        SELECT
+          lr.type,
+          GREATEST(lr.start_date, mb.start_month)::DATE AS overlap_start,
+          LEAST(lr.end_date, mb.end_month)::DATE AS overlap_end
+        FROM leave_requests lr
+        CROSS JOIN month_bounds mb
+        WHERE ($1::uuid IS NULL OR lr.user_id = $1)
+          AND lr.status = 'approved'
+          AND lr.start_date <= mb.end_month
+          AND lr.end_date >= mb.start_month
+      ),
+      per_type AS (
+        SELECT 
+          type,
+          SUM((overlap_end::DATE - overlap_start::DATE + 1))::int AS days
+        FROM filtered_requests
+        GROUP BY type
+      )
+      SELECT type, days FROM per_type;
+    `,
+    values: [userId, year || null, month || null],
+  };
+
+  const result = await pool.query(query);
+  const breakdown = result.rows.map((row) => ({ type: row.type as LeaveRequestType, days: Number(row.days) }));
+  const totalDays = breakdown.reduce((sum, b) => sum + b.days, 0);
+  return { totalDays, breakdown };
 };
 
 /**

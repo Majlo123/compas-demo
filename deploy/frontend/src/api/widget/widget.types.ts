@@ -21,8 +21,20 @@ export type WidgetLayoutItem = {
   height: number;
 };
 
-export type WidgetListResponse = Widget[];
+export type WidgetListResponse = {
+  data: Widget[];
+};
 
 export type SaveWidgetsLayoutRequest = {
   widgets: WidgetLayoutItem[];
+};
+
+export type TimeOffBreakdown = {
+  type: string;
+  days: number;
+};
+
+export type TimeOffSummary = {
+  totalDays: number;
+  breakdown: TimeOffBreakdown[];
 };
