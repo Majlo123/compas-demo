@@ -1,7 +1,7 @@
 import httpStatus from 'http-status';
 import { CreateWidget, Widget } from 'repos/widget.model';
 import ApiError from 'shared/error/ApiError';
-import { widgetRepository, userRepository, leaveRequestRepository } from 'repos';
+import { widgetRepository, userRepository, leaveRequestRepository, teamMemberRepository } from 'repos';
 import { findApprovedMonthSummaryByUser, LeaveMonthlySummary } from 'repos/leaveRequest.model';
 import { findByDateRange as findCollectiveDaysOffByDateRange } from 'repos/collectiveDayOff.model';
 
@@ -330,5 +330,104 @@ export const getHotSpots = async (userId: string, userRole?: string): Promise<{ 
   }
 
   return { months };
+};
+
+type ApproachingLeaveUser = {
+  id: string;
+  fullName: string;
+  email: string;
+  remainingDays: number;
+  initialDays: number;
+  teams: Array<{ teamId: string; teamName: string }>;
+};
+
+/**
+ * Return users whose remaining vacation days are at or below the provided threshold.
+ * - Admins see all active users.
+ * - Managers see members of teams they manage.
+ * - Employees only see themselves.
+ */
+export const getUsersApproachingLeaveLimit = async (
+  userId: string,
+  userRole?: string,
+  threshold: number = 5,
+): Promise<{ total: number; users: ApproachingLeaveUser[] }> => {
+  const isAdmin = userRole === 'admin';
+  const managerTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
+
+  const addOrMergeUser = (
+    map: Map<string, ApproachingLeaveUser>,
+    data: { id: string; fullName: string; email: string; remainingDays: number; initialDays: number; teamId?: string; teamName?: string },
+  ) => {
+    const existing = map.get(data.id);
+    const teamsToMerge = data.teamId && data.teamName ? [{ teamId: data.teamId, teamName: data.teamName }] : [];
+
+    if (existing) {
+      const mergedTeams = [...existing.teams];
+      teamsToMerge.forEach((team) => {
+        if (!mergedTeams.some((t) => t.teamId === team.teamId)) {
+          mergedTeams.push(team);
+        }
+      });
+      map.set(data.id, { ...existing, teams: mergedTeams });
+    } else {
+      map.set(data.id, {
+        id: data.id,
+        fullName: data.fullName,
+        email: data.email,
+        remainingDays: data.remainingDays,
+        initialDays: data.initialDays,
+        teams: teamsToMerge,
+      });
+    }
+  };
+
+  const resultMap = new Map<string, ApproachingLeaveUser>();
+
+  if (isAdmin) {
+    const users = await userRepository.findAllActiveWithBalances();
+    users.forEach((u) =>
+      addOrMergeUser(resultMap, {
+        id: u.id!,
+        fullName: u.fullName,
+        email: u.email,
+        remainingDays: u.vacationDaysLeft ?? 0,
+        initialDays: u.vacationDaysInit ?? 0,
+      })
+    );
+  } else if (managerTeamIds.length > 0) {
+    const members = await teamMemberRepository.findUsersByTeamIdsWithTeam(managerTeamIds);
+    members.forEach((m) =>
+      addOrMergeUser(resultMap, {
+        id: m.userId,
+        fullName: m.fullName,
+        email: m.email,
+        remainingDays: m.vacationDaysLeft ?? 0,
+        initialDays: m.vacationDaysInit ?? 0,
+        teamId: m.teamId,
+        teamName: m.teamName,
+      })
+    );
+  } else {
+    const self = await userRepository.findById({ id: userId });
+    if (self) {
+      addOrMergeUser(resultMap, {
+        id: self.id!,
+        fullName: self.fullName,
+        email: self.email,
+        remainingDays: self.vacationDaysLeft ?? 0,
+        initialDays: self.vacationDaysInit ?? 0,
+      });
+    }
+  }
+
+  const filtered = Array.from(resultMap.values()).filter((u) => u.remainingDays <= threshold);
+
+  filtered.sort((a, b) => a.remainingDays - b.remainingDays || a.fullName.localeCompare(b.fullName));
+
+  return {
+    total: filtered.length,
+    users: filtered,
+  };
 };
 

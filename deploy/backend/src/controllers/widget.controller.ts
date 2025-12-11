@@ -134,3 +134,19 @@ export const getHotSpots = catchAsync(async (req: Request, res: Response) => {
     content: hotSpots,
   });
 });
+
+export const usersApproachingLeaveLimit = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const threshold = req.query.threshold ? parseInt(req.query.threshold as string, 10) : 5;
+  const data = await widgetService.getUsersApproachingLeaveLimit(userId, userRole, threshold);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: data,
+  });
+});
