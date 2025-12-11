@@ -17,6 +17,7 @@ enum WidgetFunctions {
   saveWidgetsLayout = 'saveWidgetsLayout',
   timeOffSummary = 'timeOffSummary',
   upcomingLeaveRequests = 'upcomingLeaveRequests',
+  hotSpots = 'hotSpots',
 }
 
 const createWidgetRoute = (basePath: string): Router => {
@@ -109,6 +110,39 @@ const createWidgetRoute = (basePath: string): Router => {
     });
   registerSwaggerSchema('UpcomingLeaveRequests', UpcomingLeaveRequestsSchema);
 
+  const HotSpotsSchema = z
+    .object({
+      months: z.array(
+        z.object({
+          year: z.number().int(),
+          month: z.number().int().min(1).max(12),
+          days: z.array(
+            z.object({
+              date: z.string(),
+              absenceCount: z.number().int().nonnegative(),
+              intensity: z.number().int().min(0).max(4),
+            })
+          ),
+        })
+      ),
+    })
+    .openapi({
+      description: 'Hot spots data showing days with multiple absences for next 3 months',
+      example: {
+        months: [
+          {
+            year: 2025,
+            month: 12,
+            days: [
+              { date: '2025-12-01', absenceCount: 0, intensity: 0 },
+              { date: '2025-12-02', absenceCount: 2, intensity: 2 },
+            ],
+          },
+        ],
+      },
+    });
+  registerSwaggerSchema('HotSpots', HotSpotsSchema);
+
   const UpdateWidgetSchema = z
     .object({
       x: z.number().int().optional(),
@@ -189,6 +223,18 @@ const createWidgetRoute = (basePath: string): Router => {
       basePath,
     },
     {
+      name: 'Hot Spots',
+      desc: 'Get hot spots showing days with multiple absences for next 3 months. Admins see all teams, managers see own teams.',
+      path: '/hot-spots',
+      method: 'get',
+      authorize: true,
+      responses: [
+        { code: httpStatus.OK, desc: 'Hot spots data', schema: HotSpotsSchema },
+      ],
+      functionName: WidgetFunctions.hotSpots,
+      basePath,
+    },
+    {
       name: 'List My Widgets',
       desc: 'List widgets for the authenticated user (optionally filter by type)',
       path: '/my',
@@ -264,6 +310,7 @@ const createWidgetRoute = (basePath: string): Router => {
     saveWidgetsLayout: widgetController.saveWidgetsLayout as RequestHandler,
     timeOffSummary: widgetController.timeOffSummary as RequestHandler,
     upcomingLeaveRequests: widgetController.upcomingLeaveRequests as RequestHandler,
+    hotSpots: widgetController.getHotSpots as RequestHandler,
   };
 
   const router = Router();

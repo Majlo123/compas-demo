@@ -119,3 +119,18 @@ export const upcomingLeaveRequests = catchAsync(async (req: Request, res: Respon
     content: vacations,
   });
 });
+
+export const getHotSpots = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  const userRole = req.user?.role;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const hotSpots = await widgetService.getHotSpots(userId, userRole);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: hotSpots,
+  });
+});

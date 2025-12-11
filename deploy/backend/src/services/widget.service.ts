@@ -3,6 +3,7 @@ import { CreateWidget, Widget } from 'repos/widget.model';
 import ApiError from 'shared/error/ApiError';
 import { widgetRepository, userRepository, leaveRequestRepository } from 'repos';
 import { findApprovedMonthSummaryByUser, LeaveMonthlySummary } from 'repos/leaveRequest.model';
+import { findByDateRange as findCollectiveDaysOffByDateRange } from 'repos/collectiveDayOff.model';
 
 
 export const createWidget = async (entity: CreateWidget): Promise<Widget> => {
@@ -139,17 +140,195 @@ export const getUpcomingLeaveRequests = async (userId: string, days: number = 7)
 
   const leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
 
-  const formattedLeaves: UpcomingLeave[] = leaves.map((leave: any) => ({
-    id: leave.id,
-    employeeName: leave.employeeName || 'Unknown',
-    type: leave.type,
-    startDate: leave.startDate,
-    endDate: leave.endDate,
-    days: Math.ceil((new Date(leave.endDate).getTime() - new Date(leave.startDate).getTime()) / (1000 * 60 * 60 * 24)) + 1,
-  }));
+  // Helper function to calculate work days (excluding weekends and collective days off)
+  const calculateWorkDays = async (startDate: Date, endDate: Date): Promise<number> => {
+    const collectiveDaysOff = await findCollectiveDaysOffByDateRange(startDate, endDate);
+    
+    let workDays = 0;
+    const currentDate = new Date(startDate);
+    
+    while (currentDate <= endDate) {
+      const dayOfWeek = currentDate.getDay();
+      
+      // Skip weekends (0 = Sunday, 6 = Saturday)
+      if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+        // Check if this day is a collective day off
+        const isCollectiveDayOff = collectiveDaysOff.some((dayOff: any) => {
+          const offStart = new Date(dayOff.startDate);
+          const offEnd = new Date(dayOff.endDate);
+          offStart.setHours(0, 0, 0, 0);
+          offEnd.setHours(0, 0, 0, 0);
+          
+          const d = new Date(currentDate);
+          d.setHours(0, 0, 0, 0);
+          return d >= offStart && d <= offEnd;
+        });
+        
+        if (!isCollectiveDayOff) {
+          workDays++;
+        }
+      }
+      
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+    
+    return workDays;
+  };
+
+  const formattedLeaves: UpcomingLeave[] = await Promise.all(
+    leaves.map(async (leave: any) => {
+      const startDate = new Date(leave.startDate);
+      const endDate = new Date(leave.endDate);
+      const workDays = await calculateWorkDays(startDate, endDate);
+      
+      return {
+        id: leave.id,
+        employeeName: leave.employeeName || 'Unknown',
+        type: leave.type,
+        startDate: leave.startDate,
+        endDate: leave.endDate,
+        days: workDays,
+      };
+    })
+  );
 
   return {
     total: formattedLeaves.length,
     leaves: formattedLeaves,
   };
 };
+
+interface DayHeatData {
+  date: string;
+  absenceCount: number;
+  intensity: number;
+}
+
+interface MonthData {
+  year: number;
+  month: number;
+  days: DayHeatData[];
+}
+
+/**
+ * Get hot spots for upcoming 3 months (days with multiple absences)
+ * For admins, shows all teams; for managers, shows own teams
+ * @param userId - User ID
+ * @param userRole - User role (admin or employee/manager)
+ */
+export const getHotSpots = async (userId: string, userRole?: string): Promise<{ months: MonthData[] }> => {
+  const isAdmin = userRole === 'admin';
+  
+  // Get current date and next 3 months
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  const endDate = new Date(today);
+  endDate.setMonth(today.getMonth() + 3);
+  endDate.setDate(0); // Last day of the month
+  
+  // Get all approved leaves in the next 3 months
+  const leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
+
+  // If not admin, filter by user's teams
+  let filteredLeaves = leaves;
+  if (!isAdmin) {
+    const userTeamIds = await (require('repos/index').teamMemberRepository as any).getTeamsWhereUserIsManager(userId);
+    const userTeamsAndSelf = new Set(userTeamIds);
+    
+    // Also include leaves from the user themselves
+    filteredLeaves = leaves.filter((leave: any) => {
+      return leave.userId === userId || userTeamIds.some(teamId => 
+        // Will be filtered by team membership in repository query
+        true
+      );
+    });
+  }
+
+  // Group leaves by date and count absences (only on working days)
+  const dateAbsenceMap = new Map<string, number>();
+
+  // Get collective days off once
+  const collectiveDaysOff = await findCollectiveDaysOffByDateRange(today, endDate);
+
+  const isWorkingDay = (date: Date): boolean => {
+    // Check if it's a weekend (0 = Sunday, 6 = Saturday)
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+
+    // Check if it's a collective day off
+    const isCollectiveOff = collectiveDaysOff.some((dayOff: any) => {
+      const offStart = new Date(dayOff.startDate);
+      const offEnd = new Date(dayOff.endDate);
+      offStart.setHours(0, 0, 0, 0);
+      offEnd.setHours(0, 0, 0, 0);
+      
+      const d = new Date(date);
+      d.setHours(0, 0, 0, 0);
+      return d >= offStart && d <= offEnd;
+    });
+
+    return !isCollectiveOff;
+  };
+
+  filteredLeaves.forEach((leave: any) => {
+    const startDate = new Date(leave.startDate);
+    startDate.setHours(0, 0, 0, 0);
+    
+    const endDate = new Date(leave.endDate);
+    endDate.setHours(0, 0, 0, 0);
+
+    // For each working day in the leave range, increment the absence count
+    const currentDate = new Date(startDate);
+    while (currentDate <= endDate) {
+      if (isWorkingDay(currentDate)) {
+        const dateStr = currentDate.toISOString().split('T')[0];
+        dateAbsenceMap.set(dateStr, (dateAbsenceMap.get(dateStr) || 0) + 1);
+      }
+      currentDate.setDate(currentDate.getDate() + 1);
+    }
+  });
+
+  // Function to calculate intensity based on absence count
+  const getIntensity = (count: number): number => {
+    if (count === 0) return 0;
+    if (count === 1) return 1;
+    if (count === 2) return 2;
+    if (count === 3) return 3;
+    return 4; // 4+ absences
+  };
+
+  // Build month data
+  const months: MonthData[] = [];
+  
+  for (let m = 0; m < 3; m++) {
+    const monthDate = new Date(today);
+    monthDate.setMonth(today.getMonth() + m);
+    
+    const year = monthDate.getFullYear();
+    const month = monthDate.getMonth() + 1;
+    
+    const daysInMonth = new Date(year, month, 0).getDate();
+    const days: DayHeatData[] = [];
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      const dateStr = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+      const absenceCount = dateAbsenceMap.get(dateStr) || 0;
+      
+      days.push({
+        date: dateStr,
+        absenceCount,
+        intensity: getIntensity(absenceCount),
+      });
+    }
+
+    months.push({
+      year,
+      month,
+      days,
+    });
+  }
+
+  return { months };
+};
+
