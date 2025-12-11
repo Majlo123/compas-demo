@@ -52,6 +52,12 @@ const DashboardPage: React.FC = () => {
     return map;
   }, [widgets]);
 
+  // Get friendly widget name for display
+  const getWidgetDisplayName = (type: string): string => {
+    const typeConfig = widgetTypes.find((t) => t.id === type);
+    return typeConfig ? typeConfig.name : type.replace('_', ' ');
+  };
+
   // Fetch widgets from DB on mount
   const loadWidgets = async () => {
     const res = await getMyWidgets();
@@ -178,7 +184,7 @@ const DashboardPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
                     </svg>
                     <span className="text-xs text-gray-500 uppercase tracking-wider">
-                      {widget?.type.replace('_', ' ') || 'Widget'}
+                      {getWidgetDisplayName(widget?.type || '')}
                     </span>
                   </div>
                   <button
