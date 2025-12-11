@@ -100,6 +100,27 @@ export const bulkUpdateMembersManager = catchAsync(async (req: Request, res: Res
   });
 });
 
+export const removeManagerRole = catchAsync(async (req: Request, res: Response) => {
+  const { teamId } = req.params;
+  const { members } = req.body;
+  const requesterId = req.user?.id;
+
+  if (!requesterId) {
+    throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
+  }
+
+  if (!members || !Array.isArray(members) || members.length === 0) {
+    throw new ApiError('members array is required', httpStatus.BAD_REQUEST);
+  }
+
+  const results = await teamService.removeManagerRole(teamId, requesterId, members);
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: `Manager role removed from ${results.length} member(s)`,
+    content: results,
+  });
+});
+
 export const deleteTeam = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
   const deleted = await teamService.deleteTeam(id);
