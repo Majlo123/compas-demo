@@ -113,7 +113,11 @@ CREATE TABLE IF NOT EXISTS collective_days_off (
     CONSTRAINT valid_date_range CHECK (end_date >= start_date)
 );
 
--- Create collective_days_off table for company holidays
+-- Create indexes for collective_days_off
+CREATE INDEX IF NOT EXISTS idx_collective_days_off_start_date ON collective_days_off(start_date DESC);
+CREATE INDEX IF NOT EXISTS idx_collective_days_off_end_date ON collective_days_off(end_date DESC);
+
+-- Create widgets table (dashboard widgets per user)
 CREATE TABLE IF NOT EXISTS widgets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     x INT NOT NULL,
@@ -127,6 +131,6 @@ CREATE TABLE IF NOT EXISTS widgets (
     CONSTRAINT uq_widget_user_type UNIQUE (user_id, type)
 );
 
--- Create indexes for collective_days_off
-CREATE INDEX IF NOT EXISTS idx_collective_days_off_start_date ON collective_days_off(start_date DESC);
-CREATE INDEX IF NOT EXISTS idx_collective_days_off_end_date ON collective_days_off(end_date DESC);
+-- Create indexes for widgets
+CREATE INDEX IF NOT EXISTS idx_widgets_user_id ON widgets(user_id);
+CREATE INDEX IF NOT EXISTS idx_widgets_type ON widgets(type);

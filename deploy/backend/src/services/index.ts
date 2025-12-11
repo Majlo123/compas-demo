@@ -7,3 +7,4 @@ export * as userInviteService from 'services/userInvite.service';
 export * as emailService from 'services/email.service';
 export * as notificationService from 'services/notification.service';
 export * as collectiveDayOffService from 'services/collectiveDayOff.service';
+export * as widgetService from 'services/widget.service';
