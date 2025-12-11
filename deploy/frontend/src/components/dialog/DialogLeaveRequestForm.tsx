@@ -12,6 +12,7 @@ import { getUserProfile } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
+import { getMyLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 
 
 const leaveRequestSchema = z.object({
@@ -59,6 +60,7 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
   const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false);
   const [collectiveDaysOff, setCollectiveDaysOff] = useState<CollectiveDayOff[]>([]);
   const [collectiveDayOffError, setCollectiveDayOffError] = useState<string>('');
+  const [existingLeaveDates, setExistingLeaveDates] = useState<string[]>([]);
 
   const leaveTypeOptions = [
     { label: 'Vacation', value: 'vacation' },
@@ -67,7 +69,7 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
     { label: 'Other', value: 'other' },
   ];
 
-  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<LeaveRequestForm>({
+  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<LeaveRequestForm>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: { leaveType: null, startDate: '', endDate: '' },
     mode: 'onChange',
@@ -96,6 +98,37 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
     };
     fetchVacationDays();
   }, [isOpen, mode]);
+
+  // Fetch current user's leave requests to disable already-requested days
+  useEffect(() => {
+    const fetchExistingRequests = async () => {
+      if (!isOpen) {
+        return;
+      }
+      try {
+        const response = await getMyLeaveRequests();
+        if (isApiSuccess(response)) {
+          // Build a flat list of dates that are already requested (pending or approved)
+          const dates: string[] = [];
+          response.content
+            .filter((req) => req.status !== 'declined')
+            .filter((req) => !initialData || req.id !== initialData.id)
+            .forEach((req) => {
+              const start = new Date(req.startDate);
+              const end = new Date(req.endDate);
+              for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+                dates.push(d.toISOString().split('T')[0]);
+              }
+            });
+          setExistingLeaveDates(Array.from(new Set(dates)));
+        }
+      } catch (error) {
+        console.error('Failed to fetch existing leave requests:', error);
+      }
+    };
+
+    fetchExistingRequests();
+  }, [isOpen, initialData]);
 
   // Fetch collective days off
   useEffect(() => {
@@ -146,7 +179,11 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
         disabledDates.push(d.toISOString().split('T')[0]);
       }
     });
-    return disabledDates;
+
+    // Add existing leave request dates (pending/approved) so user cannot request overlapping days
+    disabledDates.push(...existingLeaveDates);
+
+    return Array.from(new Set(disabledDates));
   };
 
   // Set initial values when editing
@@ -166,6 +203,21 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
     if (collectiveDayOffError) {
       toast.error(collectiveDayOffError);
       return;
+    }
+
+    // Prevent overlap with existing leave requests
+    if (data.startDate && data.endDate) {
+      const start = new Date(data.startDate);
+      const end = new Date(data.endDate);
+      const overlap = existingLeaveDates.some((dateStr) => {
+        const d = new Date(dateStr + 'T00:00:00');
+        return d >= start && d <= end;
+      });
+
+      if (overlap) {
+        toast.error('Selected dates overlap with an existing leave request. Please choose different dates.');
+        return;
+      }
     }
 
     try {
