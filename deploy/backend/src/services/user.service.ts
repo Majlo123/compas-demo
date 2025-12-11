@@ -200,7 +200,7 @@ export const distributeAnnualLeave = async (days: number): Promise<number> => {
 /**
  * Update user profile image
  */
-export const updateProfileImage = async (userId: string, profileImageBlob: string): Promise<UserModel> => {
+export const updateProfileImage = async (userId: string, profileImageBlob: Buffer): Promise<UserModel> => {
   const updated = await userRepository.updateById(userId, { profileImageBlob });
   if (!updated) {
     throw new Error('Failed to update profile image');

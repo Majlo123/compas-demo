@@ -189,7 +189,7 @@ export const uploadProfileImage = catchAsync(async (req: Request, res: Response)
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
 
-  if (!profileImageBlob || typeof profileImageBlob !== 'string') {
+  if (!profileImageBlob) {
     throw new ApiError('profileImageBlob is required and must be a string', httpStatus.BAD_REQUEST);
   }
 
