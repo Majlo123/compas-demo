@@ -69,10 +69,12 @@ export const updateEmailNotificationPreference = async (emailNotificationsEnable
   }
 };
 
-export const updateUserVacationDays = async (userId: string, vacationDays: number): Promise<ApiResponse<{ vacationDays: number }>> => {
+export const updateUserVacationDays = async (userId: string, vacationDaysInit: number, vacationDaysLeft: number, isAnnualLeaveAddition?: boolean): Promise<ApiResponse<{ vacationDaysInit: number; vacationDaysLeft: number }>> => {
   try {
     const response = await axiosServer.put(`${endpoint}/${userId}/vacation-days`, {
-      vacationDays
+      vacationDaysInit,
+      vacationDaysLeft,
+      isAnnualLeaveAddition
     });
     return response.data;
   } catch (error) {
@@ -94,6 +96,17 @@ export const distributeAnnualLeave = async (days: number): Promise<ApiResponse<{
   try {
     const response = await axiosServer.post(`${endpoint}/distribute-vacation-days`, {
       days
+    });
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const uploadProfileImage = async (imageBlob: string): Promise<ApiResponse<{ profileImageBlob: string }>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/profile-image`, {
+      profileImageBlob: imageBlob
     });
     return response.data;
   } catch (error) {

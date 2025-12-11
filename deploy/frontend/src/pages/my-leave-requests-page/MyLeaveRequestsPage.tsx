@@ -121,8 +121,9 @@ const MyLeaveRequestsPage: React.FC = () => {
         setEditingRequest(null);
         fetchLeaveRequests();
       } else {
-        toast.error(response.message || 'Failed to update leave request. Please try again.');
-        throw new Error(response.message);
+        const errorMessage = response.error?.message || 'Failed to update leave request. Please try again.';
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
     } else {
       const response = await createLeaveRequest(data);
@@ -132,8 +133,9 @@ const MyLeaveRequestsPage: React.FC = () => {
         setDialogOpen(false);
         fetchLeaveRequests();
       } else {
-        toast.error(response.message || 'Failed to submit leave request. Please try again.');
-        throw new Error(response.message);
+        const errorMessage = response.error?.message || 'Failed to submit leave request. Please try again.';
+        toast.error(errorMessage);
+        throw new Error(errorMessage);
       }
     }
   };

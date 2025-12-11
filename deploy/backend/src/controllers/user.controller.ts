@@ -97,21 +97,26 @@ export const updateEmailNotificationPreference = catchAsync(async (req: Request,
 export const updateUserVacationDays = catchAsync(async (req: Request, res: Response) => {
   const requesterId = req.user?.id;
   const { userId } = req.params;
-  const { vacationDays } = req.body;
+  let { vacationDaysInit, vacationDaysLeft, isAnnualLeaveAddition } = req.body;
 
-  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Days: ${vacationDays}`);
+  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}, IsAnnual: ${isAnnualLeaveAddition}`);
   console.log(`Requester user object:`, req.user);
 
   if (!requesterId) {
     throw new ApiError('Unauthorized', httpStatus.UNAUTHORIZED);
   }
 
-  if (typeof vacationDays !== 'number' || vacationDays < 0) {
+  if (typeof vacationDaysInit !== 'number' || vacationDaysInit < 0 || typeof vacationDaysLeft !== 'number' || vacationDaysLeft < 0) {
     res.status(httpStatus.BAD_REQUEST).send({
       success: false,
-      error: { message: 'vacationDays must be a non-negative number' },
+      error: { message: 'vacationDaysInit and vacationDaysLeft must be non-negative numbers' },
     });
     return;
+  }
+
+  // If adding annual leave (21+), set both init and left to the same value
+  if (isAnnualLeaveAddition && vacationDaysInit >= 21) {
+    vacationDaysLeft = vacationDaysInit;
   }
 
   // Check if requester has permission to update this user's vacation days
@@ -133,7 +138,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
     );
   }
 
-  const updated = await userService.updateUserVacationDays(userId, vacationDays);
+  const updated = await userService.updateUserVacationDays(userId, vacationDaysInit, vacationDaysLeft);
 
   if (!updated) {
     throw new ApiError('User not found', httpStatus.NOT_FOUND);
@@ -142,7 +147,7 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
   res.status(httpStatus.OK).send({
     success: true,
     message: 'Vacation days updated successfully',
-    content: { vacationDays },
+    content: { vacationDaysInit, vacationDaysLeft },
   });
 });
 
@@ -178,6 +183,30 @@ export const distributeAnnualLeave = catchAsync(async (req: Request, res: Respon
     success: true,
     message: `Successfully added ${days} vacation days to ${updatedCount} users`,
     content: { updatedCount },
+  });
+});
+
+export const uploadProfileImage = catchAsync(async (req: Request, res: Response) => {
+  const { profileImageBlob } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  if (!profileImageBlob || typeof profileImageBlob !== 'string') {
+    throw new ApiError('profileImageBlob is required and must be a string (data URL)', httpStatus.BAD_REQUEST);
+  }
+
+  // Convert data URL string to Buffer
+  const buffer = Buffer.from(profileImageBlob, 'base64');
+
+  const updated = await userService.updateProfileImage(userId, buffer);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Profile image updated successfully',
+    content: { profileImageBlob: updated.profileImageBlob },
   });
 });
 

@@ -32,6 +32,7 @@ enum TeamFunctions {
   bulkAddMembers = 'bulkAddMembers',
   bulkRemoveMembers = 'bulkRemoveMembers',
   bulkUpdateMembersManager = 'bulkUpdateMembersManager',
+  removeManagerRole = 'removeManagerRole',
 }
 
 const createTeamRoute = (basePath: string): Router => {
@@ -178,6 +179,23 @@ const createTeamRoute = (basePath: string): Router => {
       functionName: TeamFunctions.bulkUpdateMembersManager,
       basePath,
     },
+    {
+      name: 'Remove Manager Role from Members',
+      desc: 'Remove manager role from members (Admin or Team Manager only)',
+      path: '/:teamId/members/manager',
+      params: [{ name: 'teamId' }],
+      method: 'delete',
+      requestBodySchema: BulkUpdateTeamMembersManagerSchema,
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin, RoleEnum.Employee],
+      responses: [
+        { code: httpStatus.OK, desc: 'Manager role removed', schema: CreateTeamMemberSuccessSchema },
+        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
+        { code: httpStatus.FORBIDDEN, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
+      ],
+      functionName: TeamFunctions.removeManagerRole,
+      basePath,
+    },
   ];
 
   const teamControllerFunctions: Record<TeamFunctions, RequestHandler> = {
@@ -190,6 +208,7 @@ const createTeamRoute = (basePath: string): Router => {
     bulkAddMembers: teamController.bulkAddMembers as RequestHandler,
     bulkRemoveMembers: teamController.bulkRemoveMembers as RequestHandler,
     bulkUpdateMembersManager: teamController.bulkUpdateMembersManager as RequestHandler,
+    removeManagerRole: teamController.removeManagerRole as RequestHandler,
   };
 
   const router = Router();
