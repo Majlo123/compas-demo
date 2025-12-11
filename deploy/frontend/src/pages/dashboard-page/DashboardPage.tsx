@@ -9,7 +9,7 @@ import { Widget, WidgetLayoutItem } from '@/api/widget/widget.types';
 import DialogAddWidget, { WidgetType } from '@/components/dialog/DialogAddWidget';
 import Button from '@/components/controls/button/Button';
 import { X } from 'lucide-react';
-import TimeOffWidget from '@/components/dashboard/TimeOffWidget';
+import TimeOffWidget from '@/components/dashboard/widgets/TimeOffWidget';
 import UpcomingLeaveRequestsWidget from '@/components/dashboard/widgets/UpcomingVacationsWidget';
 import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 import HotSpotsWidget from '@/components/dashboard/widgets/HotSpotsWidget';
