@@ -28,8 +28,8 @@ export const widgetTypes: WidgetType[] = [
   },
   {
     id: 'upcoming',
-    name: 'Upcoming Vacations',
-    description: 'Upcoming approved vacations for next week or month',
+    name: 'Upcoming Leave Requests',
+    description: 'Upcoming approved leave requests for next week or month',
     icon: <TrendingUp className="w-8 h-8 text-yellow-500" />,
     defaultSize: { w: 3, h: 2 },
     minSize: { w: 2, h: 2 },

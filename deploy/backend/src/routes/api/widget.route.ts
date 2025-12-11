@@ -16,7 +16,7 @@ enum WidgetFunctions {
   deleteWidget = 'deleteWidget',
   saveWidgetsLayout = 'saveWidgetsLayout',
   timeOffSummary = 'timeOffSummary',
-  upcomingVacations = 'upcomingVacations',
+  upcomingLeaveRequests = 'upcomingLeaveRequests',
 }
 
 const createWidgetRoute = (basePath: string): Router => {
@@ -77,7 +77,7 @@ const createWidgetRoute = (basePath: string): Router => {
     });
   registerSwaggerSchema('TimeOffSummary', TimeOffSummarySchema);
 
-  const UpcomingVacationsSchema = z
+  const UpcomingLeaveRequestsSchema = z
     .object({
       total: z.number().int().nonnegative(),
       leaves: z.array(
@@ -107,7 +107,7 @@ const createWidgetRoute = (basePath: string): Router => {
         ],
       },
     });
-  registerSwaggerSchema('UpcomingVacations', UpcomingVacationsSchema);
+  registerSwaggerSchema('UpcomingLeaveRequests', UpcomingLeaveRequestsSchema);
 
   const UpdateWidgetSchema = z
     .object({
@@ -174,18 +174,18 @@ const createWidgetRoute = (basePath: string): Router => {
       basePath,
     },
     {
-      name: 'Upcoming Vacations',
+      name: 'Upcoming Leave Requests',
       desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today)',
-      path: '/upcoming-vacations',
+      path: '/upcoming-leave-requests',
       method: 'get',
       authorize: true,
       querySchema: z.object({
         days: z.coerce.number().int().min(1).max(365).optional().openapi({ example: 7, description: 'Number of days from today (default: 7)' }),
       }),
       responses: [
-        { code: httpStatus.OK, desc: 'Upcoming vacations list', schema: UpcomingVacationsSchema },
+        { code: httpStatus.OK, desc: 'Upcoming leave requests list', schema: UpcomingLeaveRequestsSchema },
       ],
-      functionName: WidgetFunctions.upcomingVacations,
+      functionName: WidgetFunctions.upcomingLeaveRequests,
       basePath,
     },
     {
@@ -263,7 +263,7 @@ const createWidgetRoute = (basePath: string): Router => {
     deleteWidget: widgetController.deleteWidget as RequestHandler,
     saveWidgetsLayout: widgetController.saveWidgetsLayout as RequestHandler,
     timeOffSummary: widgetController.timeOffSummary as RequestHandler,
-    upcomingVacations: widgetController.upcomingVacations as RequestHandler,
+    upcomingLeaveRequests: widgetController.upcomingLeaveRequests as RequestHandler,
   };
 
   const router = Router();

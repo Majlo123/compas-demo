@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { getUpcomingVacations } from '@/api/widget/widget.actions';
+import { getUpcomingLeaveRequests } from '@/api/widget/widget.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { UpcomingVacations } from '@/api/widget/widget.types';
 
@@ -16,7 +16,7 @@ const COLORS: Record<string, string> = {
 
 type TimeRange = 'week' | 'month';
 
-const UpcomingVacationsWidget: React.FC = () => {
+const UpcomingLeaveRequestsWidget: React.FC = () => {
   const [vacations, setVacations] = useState<UpcomingVacations | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +25,7 @@ const UpcomingVacationsWidget: React.FC = () => {
   const fetchVacations = async (days: number) => {
     setLoading(true);
     setError(null);
-    const res = await getUpcomingVacations(days);
+    const res = await getUpcomingLeaveRequests(days);
     if (isApiSuccess(res)) {
       setVacations(res.content);
     } else if ('message' in res) {
@@ -126,7 +126,7 @@ const UpcomingVacationsWidget: React.FC = () => {
       <div className="flex-1 overflow-y-auto overflow-x-hidden pr-1">
         {vacations?.leaves.length === 0 ? (
           <div className="flex items-center justify-center h-full text-gray-500 text-sm">
-            <p>🎉 No upcoming vacations</p>
+            <p>🎉 No upcoming leave requests</p>
           </div>
         ) : (
           <div className="space-y-2">
@@ -160,4 +160,4 @@ const UpcomingVacationsWidget: React.FC = () => {
   );
 };
 
-export default UpcomingVacationsWidget;
+export default UpcomingLeaveRequestsWidget;

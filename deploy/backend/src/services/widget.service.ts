@@ -130,7 +130,7 @@ interface UpcomingVacationsResult {
  * @param userId - User ID
  * @param days - Number of days from today (default: 7)
  */
-export const getUpcomingVacations = async (userId: string, days: number = 7): Promise<UpcomingVacationsResult> => {
+export const getUpcomingLeaveRequests = async (userId: string, days: number = 7): Promise<UpcomingVacationsResult> => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   

@@ -79,10 +79,10 @@ export const getMyTimeOffSummary = async (year?: number, month?: number): Promis
   }
 };
 
-export const getUpcomingVacations = async (days?: number): Promise<ApiResponse<UpcomingVacations>> => {
+export const getUpcomingLeaveRequests = async (days?: number): Promise<ApiResponse<UpcomingVacations>> => {
   try {
     const params = days ? { days } : {};
-    const response = await axiosServer.get(`${endpoint}/upcoming-vacations`, { params });
+    const response = await axiosServer.get(`${endpoint}/upcoming-leave-requests`, { params });
     return response.data;
   } catch (error) {
     return formatError(error);
