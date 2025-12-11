@@ -189,3 +189,27 @@ export const distributeAnnualLeave = catchAsync(async (req: Request, res: Respon
   });
 });
 
+export const uploadProfileImage = catchAsync(async (req: Request, res: Response) => {
+  const { profileImageBlob } = req.body;
+  const userId = req.user?.id;
+
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  if (!profileImageBlob || typeof profileImageBlob !== 'string') {
+    throw new ApiError('profileImageBlob is required and must be a string (data URL)', httpStatus.BAD_REQUEST);
+  }
+
+  // Convert data URL string to Buffer
+  const buffer = Buffer.from(profileImageBlob, 'base64');
+
+  const updated = await userService.updateProfileImage(userId, buffer);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    message: 'Profile image updated successfully',
+    content: { profileImageBlob: updated.profileImageBlob },
+  });
+});
+
