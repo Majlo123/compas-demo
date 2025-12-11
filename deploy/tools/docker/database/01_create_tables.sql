@@ -6,6 +6,10 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL DEFAULT 'employee' CHECK (role IN ('employee', 'admin')),
     is_activated BOOLEAN NOT NULL DEFAULT TRUE,
+    email_notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    vacation_days_init INTEGER NOT NULL DEFAULT 0 CHECK (vacation_days_init >= 0),
+    vacation_days_left INTEGER NOT NULL DEFAULT 0 CHECK (vacation_days_left >= 0),
+    profile_image_blob BYTEA,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -109,6 +113,10 @@ CREATE TABLE IF NOT EXISTS collective_days_off (
     CONSTRAINT valid_date_range CHECK (end_date >= start_date)
 );
 
+-- Create indexes for collective_days_off
+CREATE INDEX IF NOT EXISTS idx_collective_days_off_start_date ON collective_days_off(start_date DESC);
+CREATE INDEX IF NOT EXISTS idx_collective_days_off_end_date ON collective_days_off(end_date DESC);
+
 -- Create widgets table (dashboard widgets per user)
 CREATE TABLE IF NOT EXISTS widgets (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -123,5 +131,6 @@ CREATE TABLE IF NOT EXISTS widgets (
     CONSTRAINT uq_widget_user_type UNIQUE (user_id, type)
 );
 
+-- Create indexes for widgets
 CREATE INDEX IF NOT EXISTS idx_widgets_user_id ON widgets(user_id);
 CREATE INDEX IF NOT EXISTS idx_widgets_type ON widgets(type);

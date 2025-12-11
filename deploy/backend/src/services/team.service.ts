@@ -2,6 +2,7 @@ import httpStatus from 'http-status';
 import { teamRepository } from 'repos/index';
 import { teamMemberRepository } from 'repos/index';
 import { authRepository } from 'repos/index';
+import { userRepository } from 'repos/index';
 import { CreateTeam, Team } from 'repos/team.model';
 import { CreateTeamMember, TeamMember } from 'repos/teamMember.model';
 import QueryParams from 'repos/utils/query/QueryParams';
@@ -159,6 +160,57 @@ export const bulkUpdateMembersManager = async (
       teamId,
       member.userId,
       member.isManager
+    );
+    if (updated) {
+      results.push(updated);
+    }
+  }
+
+  return results;
+};
+
+/**
+ * Remove manager role from members (only Admin or existing Team Manager can do this)
+ */
+export const removeManagerRole = async (
+  teamId: string,
+  requesterId: string,
+  members: Array<{ userId: string }>
+): Promise<TeamMember[]> => {
+  const team = await teamRepository.findById({ id: teamId });
+  if (!team) {
+    throw new ApiError('Team not found', httpStatus.NOT_FOUND);
+  }
+
+  // Check if requester is Admin or a Team Manager of this team
+  const requester = await userRepository.findById({ id: requesterId });
+  if (!requester) {
+    throw new ApiError('User not found', httpStatus.NOT_FOUND);
+  }
+
+  // If not Admin, check if they are a manager of this team
+  if (requester.role !== 'admin') {
+    const isManagerOfTeam = await teamMemberRepository.findOne({
+      team_id: teamId,
+      user_id: requesterId,
+      is_manager: true,
+    });
+
+    if (!isManagerOfTeam) {
+      throw new ApiError(
+        'Only team managers or admins can remove manager roles',
+        httpStatus.FORBIDDEN
+      );
+    }
+  }
+
+  const results: TeamMember[] = [];
+
+  for (const member of members) {
+    const updated = await teamMemberRepository.updateTeamMemberManager(
+      teamId,
+      member.userId,
+      false
     );
     if (updated) {
       results.push(updated);

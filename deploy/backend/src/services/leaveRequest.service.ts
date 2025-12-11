@@ -1,6 +1,7 @@
 import httpStatus from 'http-status';
 import { leaveRequestRepository, teamMemberRepository, userRepository } from 'repos/index';
 import { LeaveRequest, LeaveRequestWithEmployee, CreateLeaveRequest, LeaveRequestType } from 'repos/leaveRequest.model';
+import { findByDateRange as findCollectiveDaysOffByDateRange } from 'repos/collectiveDayOff.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
@@ -25,6 +26,41 @@ export type CreateLeaveRequestInput = {
   startDate: string;
   endDate: string;
   reason?: string;
+};
+
+/**
+ * Calculate work days between two dates, excluding weekends and collective days off
+ */
+const calculateWorkDays = async (startDate: Date, endDate: Date): Promise<number> => {
+  // Get all collective days off in the date range
+  const collectiveDaysOff = await findCollectiveDaysOffByDateRange(startDate, endDate);
+  
+  let workDays = 0;
+  const currentDate = new Date(startDate);
+  
+  while (currentDate <= endDate) {
+    const dayOfWeek = currentDate.getDay();
+    
+    // Skip weekends (0 = Sunday, 6 = Saturday)
+    if (dayOfWeek !== 0 && dayOfWeek !== 6) {
+      // Check if this day is a collective day off
+      const isCollectiveDayOff = collectiveDaysOff.some(dayOff => {
+        const offStart = new Date(dayOff.startDate);
+        const offEnd = new Date(dayOff.endDate);
+        offStart.setHours(0, 0, 0, 0);
+        offEnd.setHours(0, 0, 0, 0);
+        return currentDate >= offStart && currentDate <= offEnd;
+      });
+      
+      if (!isCollectiveDayOff) {
+        workDays++;
+      }
+    }
+    
+    currentDate.setDate(currentDate.getDate() + 1);
+  }
+  
+  return workDays;
 };
 
 /**
@@ -59,9 +95,32 @@ export const createLeaveRequest = async (
     throw new ApiError('User ID is required', httpStatus.BAD_REQUEST);
   }
 
-  // Validate dates
+  // Validate dates first
   const startDate = new Date(data.startDate);
   const endDate = new Date(data.endDate);
+  
+  // Check if it's a vacation request and validate remaining days
+  if (data.type === 'vacation') {
+    const user = await userRepository.findById({ id: userId });
+    if (!user) {
+      throw new ApiError('User not found', httpStatus.NOT_FOUND);
+    }
+
+    const vacationDaysLeft = user.vacationDaysLeft ?? 0;
+    if (vacationDaysLeft <= 0) {
+      throw new ApiError('You have no vacation days left. Please select a different leave type.', httpStatus.BAD_REQUEST);
+    }
+    
+    // Calculate work days for the requested period
+    const requestedWorkDays = await calculateWorkDays(startDate, endDate);
+    
+    if (requestedWorkDays > vacationDaysLeft) {
+      throw new ApiError(
+        `You are requesting ${requestedWorkDays} work days but only have ${vacationDaysLeft} vacation days remaining.`,
+        httpStatus.BAD_REQUEST
+      );
+    }
+  }
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -264,6 +323,18 @@ export const updateLeaveRequestStatus = async (
 
   if (!updatedRequest) {
     throw new ApiError('Failed to update leave request', httpStatus.INTERNAL_SERVER_ERROR);
+  }
+
+  // If approved and it's a vacation request, deduct vacation days
+  if (status === 'approved' && updatedRequest.type === 'vacation') {
+    try {
+      const workDays = await calculateWorkDays(updatedRequest.startDate, updatedRequest.endDate);
+      await userRepository.deductVacationDays(updatedRequest.userId, workDays);
+      logger.info(`Deducted ${workDays} vacation days from user ${updatedRequest.userId}`);
+    } catch (err) {
+      logger.error(new Error(`Failed to deduct vacation days: ${String(err)}`));
+      // Don't throw error here - the approval already happened
+    }
   }
 
   // Notify requester of status change (synchronous for real-time socket emission)

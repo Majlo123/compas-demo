@@ -16,8 +16,8 @@ if (config.env !== 'test') {
   app.use(errorHandler);
 }
 
-// Parse request body as json and set a limit of 1MB
-app.use(express.json({ limit: '1mb' }));
+// Parse request body as json and set a limit of 10MB (to accommodate base64 encoded images)
+app.use(express.json({ limit: '10mb' }));
 // Parse urlencoded body and set a limit of 1MB
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // Allow Node to get real IP address even if behind proxy

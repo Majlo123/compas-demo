@@ -8,9 +8,11 @@ import FormSelect from '@/components/controls/FormSelect';
 import CustomDatePicker from '@/components/controls/CustomDatePicker';
 import Button from '@/components/controls/button/Button';
 import { LeaveRequestType } from '@/api/leave-request/leaveRequest.types';
+import { getUserProfile } from '@/api/user/user.actions';
+import { isApiSuccess } from '@/api/shared.types';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
-import { isApiSuccess } from '@/api/shared.types';
+
 
 const leaveRequestSchema = z.object({
   leaveType: z.object({
@@ -53,9 +55,11 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
   initialData,
   mode = 'create'
 }) => {
+  const [vacationDaysLeft, setVacationDaysLeft] = useState<number>(0);
+  const [isLoadingProfile, setIsLoadingProfile] = useState<boolean>(false);
   const [collectiveDaysOff, setCollectiveDaysOff] = useState<CollectiveDayOff[]>([]);
   const [collectiveDayOffError, setCollectiveDayOffError] = useState<string>('');
-  
+
   const leaveTypeOptions = [
     { label: 'Vacation', value: 'vacation' },
     { label: 'Sick Leave', value: 'sick' },
@@ -63,66 +67,87 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
     { label: 'Other', value: 'other' },
   ];
 
-  // Helper function to get all disabled dates (collective days off)
-  const getDisabledDates = (): string[] => {
-    const disabled: string[] = [];
-    collectiveDaysOff.forEach(dayOff => {
-      const start = new Date(dayOff.startDate);
-      const end = new Date(dayOff.endDate);
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        disabled.push(d.toISOString().split('T')[0]);
-      }
-    });
-    return disabled;
-  };
-
-  // Load collective days off on component mount
-  useEffect(() => {
-    const loadCollectiveDaysOff = async () => {
-      try {
-        const response = await getAllCollectiveDaysOff();
-        if (isApiSuccess(response)) {
-          setCollectiveDaysOff(response.content);
-        }
-      } catch (error) {
-        console.error('Failed to load collective days off:', error);
-      }
-    };
-    loadCollectiveDaysOff();
-  }, []);
-
-  const { control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<LeaveRequestForm>({
+  const { register, control, handleSubmit, formState: { errors, isSubmitting }, reset, setValue, watch } = useForm<LeaveRequestForm>({
     resolver: zodResolver(leaveRequestSchema),
     defaultValues: { leaveType: null, startDate: '', endDate: '' },
     mode: 'onChange',
   });
 
-  // Watch start and end dates for collective day off validation
+  const selectedLeaveType = watch('leaveType');
   const startDate = watch('startDate');
   const endDate = watch('endDate');
 
-  // Check if any date in the range is a collective day off
+  // Fetch user profile to get vacation days left
   useEffect(() => {
-    if (startDate && endDate) {
+    const fetchVacationDays = async () => {
+      if (isOpen && mode === 'create') {
+        setIsLoadingProfile(true);
+        try {
+          const response = await getUserProfile();
+          if (isApiSuccess(response)) {
+            setVacationDaysLeft(response.content.vacationDaysLeft ?? 0);
+          }
+        } catch (error) {
+          console.error('Failed to fetch user profile:', error);
+        } finally {
+          setIsLoadingProfile(false);
+        }
+      }
+    };
+    fetchVacationDays();
+  }, [isOpen, mode]);
+
+  // Fetch collective days off
+  useEffect(() => {
+    const fetchCollectiveDaysOff = async () => {
+      if (isOpen) {
+        try {
+          const response = await getAllCollectiveDaysOff();
+          if (isApiSuccess(response)) {
+            setCollectiveDaysOff(response.content);
+          }
+        } catch (error) {
+          console.error('Failed to fetch collective days off:', error);
+        }
+      }
+    };
+    fetchCollectiveDaysOff();
+  }, [isOpen]);
+
+  // Check for collective days off overlap
+  useEffect(() => {
+    if (startDate && endDate && collectiveDaysOff.length > 0) {
       const start = new Date(startDate);
       const end = new Date(endDate);
       
-      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
-        const dateStr = d.toISOString().split('T')[0];
-        const isCollectiveOff = collectiveDaysOff.some(dayOff => {
-          const dayOffStart = new Date(dayOff.startDate).toISOString().split('T')[0];
-          const dayOffEnd = new Date(dayOff.endDate).toISOString().split('T')[0];
-          return dateStr >= dayOffStart && dateStr <= dayOffEnd;
-        });
-        
-        if (isCollectiveOff) {
-          setCollectiveDayOffError(`This date is a company-wide day off.`);
-          return;
-        }
+      const hasOverlap = collectiveDaysOff.some(dayOff => {
+        const offStart = new Date(dayOff.startDate);
+        const offEnd = new Date(dayOff.endDate);
+        return (start <= offEnd && end >= offStart);
+      });
+
+      if (hasOverlap) {
+        setCollectiveDayOffError('Your selected dates overlap with collective days off. Please choose different dates.');
+      } else {
+        setCollectiveDayOffError('');
       }
+    } else {
       setCollectiveDayOffError('');
     }
   }, [startDate, endDate, collectiveDaysOff]);
+
+  // Get disabled dates (collective days off)
+  const getDisabledDates = () => {
+    const disabledDates: string[] = [];
+    collectiveDaysOff.forEach(dayOff => {
+      const start = new Date(dayOff.startDate);
+      const end = new Date(dayOff.endDate);
+      for (let d = new Date(start); d <= end; d.setDate(d.getDate() + 1)) {
+        disabledDates.push(d.toISOString().split('T')[0]);
+      }
+    });
+    return disabledDates;
+  };
 
   // Set initial values when editing
   useEffect(() => {
@@ -157,7 +182,8 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
       reset();
       onOpenChange(false);
     } catch (error: any) {
-      toast.error(error?.message || 'Failed to submit leave request');
+      // Error is already handled and displayed by the parent component
+      // Don't show another toast to avoid duplication
     }
   };
 
@@ -181,15 +207,35 @@ const DialogLeaveRequestForm: FC<DialogLeaveRequestFormProps> = ({
       onOpenChange={onOpenChange}
     >
       <form onSubmit={handleSubmit(onSubmitHandler)}>
+        {/* Warning message when no vacation days left */}
+        {mode === 'create' && vacationDaysLeft === 0 && !isLoadingProfile && (
+          <div className="mb-lg p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-800 font-medium">
+              ⚠️ You have no vacation days left.
+            </p>
+            <p className="text-xs text-red-600 mt-1">
+              You can still request personal days, sick leave, or other leave types.
+            </p>
+          </div>
+        )}
+        
         <div className="mb-lg">
           <FormSelect
             name="leaveType"
             control={control}
-            options={leaveTypeOptions}
+            options={leaveTypeOptions.map(option => ({
+              ...option,
+              disabled: option.value === 'vacation' && vacationDaysLeft === 0 && mode === 'create'
+            }))}
             label="Leave Type"
             placeholder="Select Leave Type"
             errors={errors}
           />
+          {selectedLeaveType?.value === 'vacation' && vacationDaysLeft === 0 && mode === 'create' && (
+            <p className="text-xs text-red-600 mt-1">
+              Vacation requests are disabled because you have no vacation days remaining.
+            </p>
+          )}
         </div>
         <div className="mb-lg">
           <CustomDatePicker

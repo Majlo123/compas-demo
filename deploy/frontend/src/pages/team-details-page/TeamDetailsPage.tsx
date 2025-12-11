@@ -8,7 +8,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import ConfirmDialog from '@/components/dialog/ConfirmDialog';
 import DialogTeamDetailsForm from '@/components/dialog/DialogTeamDetailsForm';
 import ManagerBadgeIcon from '@/components/images/ManagerBadgeIcon';
-import { getTeam, listTeamMembers, bulkRemoveTeamMembers, bulkUpdateTeamMembersManager, deleteTeam } from '@/api/team/team.actions';
+import { getTeam, listTeamMembers, bulkRemoveTeamMembers, bulkUpdateTeamMembersManager, deleteTeam, removeManagerRole } from '@/api/team/team.actions';
 import { isApiSuccess } from '@/api/shared.types';
 
 interface TeamMember extends Row {
@@ -33,7 +33,11 @@ const TeamDetailsPage: React.FC = () => {
   const [selectedMembers, setSelectedMembers] = useState<Set<string>>(new Set());
   const [deleteSelectedDialogOpen, setDeleteSelectedDialogOpen] = useState(false);
   const [setManagerDialogOpen, setSetManagerDialogOpen] = useState(false);
+  const [removeManagerDialogOpen, setRemoveManagerDialogOpen] = useState(false);
   const [deleteTeamDialogOpen, setDeleteTeamDialogOpen] = useState(false);
+
+  const hasSelectedManagers = members.some(m => selectedMembers.has(m.id) && m.isManager);
+  const hasSelectedEmployees = members.some(m => selectedMembers.has(m.id) && !m.isManager);
 
   useEffect(() => {
     if (!teamId) {
@@ -119,13 +123,18 @@ const TeamDetailsPage: React.FC = () => {
   };
 
   const handleCheckboxChange = (memberId: string) => {
+    const member = members.find(m => m.id === memberId);
+    if (!member) return;
+
     setSelectedMembers(prev => {
       const newSet = new Set(prev);
+
       if (newSet.has(memberId)) {
         newSet.delete(memberId);
       } else {
         newSet.add(memberId);
       }
+
       return newSet;
     });
   };
@@ -184,6 +193,35 @@ const TeamDetailsPage: React.FC = () => {
       }
     } catch (error) {
       toast.error('An error occurred while setting project manager');
+    }
+  };
+
+  const handleUnsetManager = () => {
+    if (selectedMembers.size === 0) {
+      toast.warning('Please select managers to unset');
+      return;
+    }
+    setRemoveManagerDialogOpen(true);
+  };
+
+  const confirmRemoveManagerRole = async () => {
+    if (!teamId || selectedMembers.size === 0) return;
+
+    try {
+      const managerIds = Array.from(selectedMembers);
+      const response = await removeManagerRole(teamId, managerIds.map(userId => ({ userId })));
+      
+      if (isApiSuccess(response)) {
+        setMembers(members.map(m => 
+          selectedMembers.has(m.id) ? { ...m, isManager: false } : m
+        ));
+        toast.success(`Manager role removed from ${selectedMembers.size} member(s)`);
+        setSelectedMembers(new Set());
+      } else {
+        toast.error('Failed to remove manager role');
+      }
+    } catch (error) {
+      toast.error('An error occurred while removing manager role');
     }
   };
 
@@ -280,14 +318,26 @@ const TeamDetailsPage: React.FC = () => {
           >
             Delete Selected
           </Button>
-          <Button
-            className='text-primary'
-            variant="secondary"
-            size="sm"
-            onClick={handleSetManager}
-          >
-            Set Manager
-          </Button>
+          {hasSelectedManagers && !hasSelectedEmployees && (
+            <Button
+              className='text-primary'
+              variant="secondary"
+              size="sm"
+              onClick={handleUnsetManager}
+            >
+              Unset Manager
+            </Button>
+          )}
+          {hasSelectedEmployees && !hasSelectedManagers && (
+            <Button
+              className='text-primary'
+              variant="secondary"
+              size="sm"
+              onClick={handleSetManager}
+            >
+              Set Manager
+            </Button>
+          )}
         </div>
 
         <Table
@@ -330,6 +380,17 @@ const TeamDetailsPage: React.FC = () => {
         cancelText="Cancel"
         variant="primary"
         onConfirm={confirmSetManager}
+      />
+
+      <ConfirmDialog
+        isOpen={removeManagerDialogOpen}
+        onOpenChange={setRemoveManagerDialogOpen}
+        title="Remove Manager Role"
+        message="Are you sure you want to remove the manager role from this member? They will remain on the team as a regular member."
+        confirmText="Remove Manager"
+        cancelText="Cancel"
+        variant="primary"
+        onConfirm={confirmRemoveManagerRole}
       />
 
       <ConfirmDialog
