@@ -194,11 +194,14 @@ export const uploadProfileImage = catchAsync(async (req: Request, res: Response)
     throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
   }
 
-  if (!profileImageBlob) {
-    throw new ApiError('profileImageBlob is required and must be a string', httpStatus.BAD_REQUEST);
+  if (!profileImageBlob || typeof profileImageBlob !== 'string') {
+    throw new ApiError('profileImageBlob is required and must be a string (data URL)', httpStatus.BAD_REQUEST);
   }
 
-  const updated = await userService.updateProfileImage(userId, profileImageBlob);
+  // Convert data URL string to Buffer
+  const buffer = Buffer.from(profileImageBlob, 'base64');
+
+  const updated = await userService.updateProfileImage(userId, buffer);
 
   res.status(httpStatus.OK).send({
     success: true,

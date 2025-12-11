@@ -153,7 +153,7 @@ const ProfilePage: React.FC = () => {
       const reader = new FileReader();
       reader.onload = async (e) => {
         const result = e.target?.result;
-          if (typeof result === 'string') {
+        if (typeof result === 'string') {
           setProfileImage(result);
 
           // Ensure we have the current user's id
@@ -164,8 +164,9 @@ const ProfilePage: React.FC = () => {
             localStorage.setItem(key, result);
           }
 
-          // Upload to database
-          const response = await uploadProfileImage(result);
+          // Extract base64 from data URL and upload to database
+          const base64Data = result.split(',')[1]; // Remove "data:image/png;base64," part
+          const response = await uploadProfileImage(base64Data);
           if (isApiSuccess(response)) {
             // Dispatch custom event for immediate header update (include userId)
             window.dispatchEvent(
