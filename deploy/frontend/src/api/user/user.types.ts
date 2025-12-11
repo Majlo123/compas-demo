@@ -12,6 +12,7 @@ export interface UserProfile {
   email: string;
   role: string;
   emailNotificationsEnabled?: boolean;
+  profileImageBlob?: string;
   vacationDaysInit?: number;
   vacationDaysLeft?: number;
 }
