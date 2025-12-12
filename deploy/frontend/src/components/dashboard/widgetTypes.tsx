@@ -1,4 +1,4 @@
-import { BarChart3, Calendar, PieChart, TrendingUp, Users } from 'lucide-react';
+import { BarChart3, Calendar, PieChart, TrendingUp, Users, UserX } from 'lucide-react';
 import { WidgetType } from '@/components/dialog/DialogAddWidget';
 
 export const widgetTypes: WidgetType[] = [
@@ -40,6 +40,14 @@ export const widgetTypes: WidgetType[] = [
     description: 'Summary of team members and their leave status',
     icon: <Users className="w-8 h-8 text-purple-500" />,
     defaultSize: { w: 3, h: 2 },
+    minSize: { w: 2, h: 2 },
+  },
+  {
+    id: 'absent',
+    name: 'People Absent Today',
+    description: 'View who is on approved leave today',
+    icon: <UserX className="w-8 h-8 text-orange-500" />,
+    defaultSize: { w: 2, h: 2 },
     minSize: { w: 2, h: 2 },
   },
 ];

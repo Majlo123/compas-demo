@@ -14,11 +14,10 @@ import HeatmapWidget from '@/components/dashboard/HeatmapWidget';
 import PieChartWidget from '@/components/dashboard/PieChartWidget';
 import UpcomingLeavesWidget from '@/components/dashboard/UpcomingLeavesWidget';
 import TeamOverviewWidget from '@/components/dashboard/TeamOverviewWidget';
+import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 import { widgetTypes } from '@/components/dashboard/widgetTypes';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
-
-// --------------- Main Dashboard Component ----------------
 
 const DashboardPage: React.FC = () => {
   const [layout, setLayout] = useState<Layout[]>([]);
@@ -32,6 +31,7 @@ const DashboardPage: React.FC = () => {
     heatmap: HeatmapWidget,
     upcoming: UpcomingLeavesWidget,
     team: TeamOverviewWidget,
+    absent: AbsentTodayWidget,
   };
 
   // Lookup for widget config (default/min sizes)
@@ -51,6 +51,12 @@ const DashboardPage: React.FC = () => {
     });
     return map;
   }, [widgets]);
+
+  // Get friendly widget name for display
+  const getWidgetDisplayName = (type: string): string => {
+    const typeConfig = widgetTypes.find((t) => t.id === type);
+    return typeConfig ? typeConfig.name : type.replace('_', ' ');
+  };
 
   // Fetch widgets from DB on mount
   const loadWidgets = async () => {
@@ -178,7 +184,7 @@ const DashboardPage: React.FC = () => {
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
                     </svg>
                     <span className="text-xs text-gray-500 uppercase tracking-wider">
-                      {widget?.type.replace('_', ' ') || 'Widget'}
+                      {getWidgetDisplayName(widget?.type || '')}
                     </span>
                   </div>
                   <button
