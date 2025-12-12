@@ -97,9 +97,9 @@ export const updateEmailNotificationPreference = catchAsync(async (req: Request,
 export const updateUserVacationDays = catchAsync(async (req: Request, res: Response) => {
   const requesterId = req.user?.id;
   const { userId } = req.params;
-  let { vacationDaysInit, vacationDaysLeft, isAnnualLeaveAddition } = req.body;
+  const { vacationDaysInit, vacationDaysLeft } = req.body;
 
-  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}, IsAnnual: ${isAnnualLeaveAddition}`);
+  console.log(`Update vacation days request - Requester: ${requesterId}, Target User: ${userId}, Init: ${vacationDaysInit}, Left: ${vacationDaysLeft}`);
   console.log(`Requester user object:`, req.user);
 
   if (!requesterId) {
@@ -114,9 +114,12 @@ export const updateUserVacationDays = catchAsync(async (req: Request, res: Respo
     return;
   }
 
-  // If adding annual leave (21+), set both init and left to the same value
-  if (isAnnualLeaveAddition && vacationDaysInit >= 21) {
-    vacationDaysLeft = vacationDaysInit;
+  if (vacationDaysLeft > vacationDaysInit) {
+    res.status(httpStatus.BAD_REQUEST).send({
+      success: false,
+      error: { message: 'Remaining days cannot exceed initial days' },
+    });
+    return;
   }
 
   // Check if requester has permission to update this user's vacation days

@@ -103,3 +103,19 @@ export const timeOffSummary = catchAsync(async (req: Request, res: Response) => 
     content: summary,
   });
 });
+
+export const upcomingLeaveRequests = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id;
+  if (!userId) {
+    throw new ApiError('User not authenticated', httpStatus.UNAUTHORIZED);
+  }
+
+  const days = req.query.days ? parseInt(req.query.days as string, 10) : 7;
+
+  const vacations = await widgetService.getUpcomingLeaveRequests(userId, days);
+
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: vacations,
+  });
+});

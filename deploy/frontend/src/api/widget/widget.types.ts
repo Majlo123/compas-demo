@@ -38,3 +38,17 @@ export type TimeOffSummary = {
   totalDays: number;
   breakdown: TimeOffBreakdown[];
 };
+
+export type UpcomingLeave = {
+  id: string;
+  employeeName: string;
+  type: string;
+  startDate: string;
+  endDate: string;
+  days: number;
+};
+
+export type UpcomingVacations = {
+  total: number;
+  leaves: UpcomingLeave[];
+};

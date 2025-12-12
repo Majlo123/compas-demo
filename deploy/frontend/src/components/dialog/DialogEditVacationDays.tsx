@@ -28,7 +28,6 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
   const [vacationDaysLeft, setVacationDaysLeft] = useState<number>(currentVacationDaysLeft);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
-  const [isAnnualLeaveAddition, setIsAnnualLeaveAddition] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -40,10 +39,6 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
 
   // Validate inputs in real-time
   useEffect(() => {
-    // Check if this is an annual leave addition (init >= 21 and changed from previous value)
-    const isAddingAnnualLeave = vacationDaysInit >= 21 && vacationDaysInit !== currentVacationDaysInit;
-    setIsAnnualLeaveAddition(isAddingAnnualLeave);
-    
     if (vacationDaysInit < 0 || vacationDaysLeft < 0) {
       setError('Vacation days cannot be negative');
     } else if (vacationDaysLeft > vacationDaysInit) {
@@ -51,7 +46,7 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
     } else {
       setError('');
     }
-  }, [vacationDaysInit, vacationDaysLeft, currentVacationDaysInit]);
+  }, [vacationDaysInit, vacationDaysLeft]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +58,7 @@ const DialogEditVacationDays: React.FC<DialogEditVacationDaysProps> = ({
 
     setIsSubmitting(true);
     try {
-      const response = await updateUserVacationDays(userId, vacationDaysInit, vacationDaysLeft, isAnnualLeaveAddition);
+      const response = await updateUserVacationDays(userId, vacationDaysInit, vacationDaysLeft);
 
       if (isApiSuccess(response)) {
         toast.success(`Vacation days updated successfully for ${userName}`);
