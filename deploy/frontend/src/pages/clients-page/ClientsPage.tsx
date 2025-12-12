@@ -4,6 +4,7 @@ import PageLayout from '@/components/layout/PageLayout';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import TableIconEdit from '@/components/images/TableIconEdit';
+import DialogClientForm from '@/components/dialog/DialogClientForm';
 
 interface Client extends Row {
   name: string;
@@ -12,7 +13,7 @@ interface Client extends Row {
 }
 
 const ClientsPage: React.FC = () => {
-  const [clients] = useState<Client[]>([
+  const [clients, setClients] = useState<Client[]>([
     {
       _id: '1',
       name: 'Acme Corporation',
@@ -42,6 +43,11 @@ const ClientsPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [search, setSearch] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  // Inline form state removed; managed inside DialogClientForm
+
+  // Validation moved inside DialogClientForm; keep only dialog state here.
+
   const handleEdit = (clientId: string) => {
     const client = clients.find(c => c._id === clientId);
     if (client) {
@@ -50,8 +56,23 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleAddClient = () => {
-    toast.info('Open dialog to add new client');
-    // In a real app, this would open a dialog form
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleCreateClient = async (data: { name: string; hourlyRate: number }) => {
+    const newClient: Client = {
+      _id: `${Date.now()}`,
+      name: data.name,
+      hourlyRate: data.hourlyRate,
+      projectCount: 0,
+    };
+    setClients(prev => [newClient, ...prev]);
+    toast.success('Client created successfully!');
+    handleCloseAddModal();
   };
 
   const columns: Column[] = [
@@ -156,6 +177,8 @@ const ClientsPage: React.FC = () => {
           tableClassName="bg-white rounded-none shadow-none mb-0"
         />
       )}
+
+      <DialogClientForm isOpen={isAddModalOpen} onOpenChange={setIsAddModalOpen} onCreate={handleCreateClient} />
     </PageLayout>
   );
 };
