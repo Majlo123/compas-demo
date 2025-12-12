@@ -18,7 +18,7 @@ type NavItem = {
   requiresTeamManager?: boolean;
 };
 const mainNavItems: NavItem[] = [
-  { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
+  { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon, requiresTeamManager: true },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },
@@ -35,6 +35,10 @@ const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
   const canShow = (item: NavItem) => {
+    if (item.requiresTeamManager) {
+      if (!user) return false;
+      return user.role === RoleEnum.Admin || user.isTeamManager === true;
+    }
     if (item.path === '/team-requests') {
       if (!user) return false;
       return user.role === RoleEnum.Admin || user.isTeamManager === true;
