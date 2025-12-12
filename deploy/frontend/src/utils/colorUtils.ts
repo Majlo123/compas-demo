@@ -18,3 +18,7 @@ export const getLeaveTypeColor = (type: string): string => {
       return colors.primary;
   }
 };
+
+export const getTypeLabel = (type: string): string => {
+  return type.charAt(0).toUpperCase() + type.slice(1);
+};

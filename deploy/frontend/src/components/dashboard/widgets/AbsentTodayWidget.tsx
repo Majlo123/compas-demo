@@ -3,17 +3,7 @@ import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { isApiSuccess } from '@/api/shared.types';
-
-// Color palette for leave types using Tailwind config
-const COLORS: Record<string, string> = {
-  vacation: '#3B82F6', // vacation-leave from tailwind config
-  sick: '#EF4444',     // sick-leave from tailwind config
-  personal: '#10B981', // personal-leave from tailwind config
-  other: '#6B7280',    // other-leave from tailwind config
-  unpaid: '#6B7280',
-  maternity: '#3B82F6',
-  paternity: '#3B82F6',
-};
+import { getLeaveTypeColor, getTypeLabel } from '@/utils/colorUtils';
 
 interface AbsentUser {
   id: string;
@@ -71,27 +61,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
     }
   };
 
-  const getTypeColor = (type: string): string => {
-    return COLORS[type] || COLORS.other;
-  };
-
-  const getTypeTextClass = (type: string): string => {
-    switch (type) {
-      case 'vacation':
-        return 'text-blue-600';
-      case 'sick':
-        return 'text-red-600';
-      case 'personal':
-        return 'text-green-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
-  const getTypeLabel = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
-
   if (isLoading) {
     return (
       <div className="h-full flex items-center justify-center">
@@ -110,7 +79,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
 
   return (
     <div className="h-full flex flex-col">
-
       <div className="flex-1 flex gap-3 min-h-0">
         {/* Left Side - Count */}
         <div className="flex-shrink-0 w-1/3 bg-orange-50 rounded-lg p-4 flex flex-col items-center justify-center">
@@ -137,11 +105,14 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div
                         className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: getTypeColor(user.type) }}
+                        style={{ backgroundColor: getLeaveTypeColor(user.type) }}
                       />
                       <span className="font-medium text-gray-800 truncate">{user.name}</span>
                     </div>
-                    <span className={`text-xs font-medium ${getTypeTextClass(user.type)} flex-shrink-0 ml-2`}>
+                    <span 
+                      className="text-xs font-medium flex-shrink-0 ml-2"
+                      style={{ color: getLeaveTypeColor(user.type) }}
+                    >
                       {getTypeLabel(user.type)}
                     </span>
                   </div>
