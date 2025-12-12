@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { toast } from 'react-toastify';
 import CustomDialog from '@/components/dialog/dialog-props';
 import TextInput from '@/components/controls/TextInput';
-import DateInput from '@/components/controls/DateInput';
+import CustomDatePicker from '@/components/controls/CustomDatePicker';
 import Button from '@/components/controls/button/Button';
 
 const dayOffFormSchema = z.object({
@@ -36,6 +36,8 @@ const DialogDayOffForm: React.FC<DialogDayOffFormProps> = ({
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isSubmitting, isValid },
   } = useForm<DayOffFormData>({
     resolver: zodResolver(dayOffFormSchema),
@@ -46,6 +48,9 @@ const DialogDayOffForm: React.FC<DialogDayOffFormProps> = ({
       title: '',
     },
   });
+
+  const startDate = watch('startDate');
+  const endDate = watch('endDate');
 
   useEffect(() => {
     if (initialData) {
@@ -74,21 +79,24 @@ const DialogDayOffForm: React.FC<DialogDayOffFormProps> = ({
     >
       <form onSubmit={handleSubmit(onSubmitHandler)} className="space-y-lg">
         <div className="mb-xl">
-          <DateInput
+          <CustomDatePicker
             label="Start Date"
             required
             error={errors.startDate?.message}
             min={new Date().toISOString().split('T')[0]}
-            {...register('startDate')}
+            value={startDate}
+            onChange={(date) => setValue('startDate', date)}
           />
         </div>
         <div className="mb-xl">
-          <DateInput
+          <CustomDatePicker
             label="End Date"
             required
             error={errors.endDate?.message}
-            min={new Date().toISOString().split('T')[0]}
-            {...register('endDate')}
+            min={startDate || new Date().toISOString().split('T')[0]}
+            initialMonth={startDate ? new Date(startDate + 'T00:00:00') : undefined}
+            value={endDate}
+            onChange={(date) => setValue('endDate', date)}
           />
         </div>
         <div className="mb-xl">

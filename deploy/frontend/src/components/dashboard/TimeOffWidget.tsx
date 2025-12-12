@@ -4,7 +4,7 @@ import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { getMyTimeOffSummary } from '@/api/widget/widget.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import { TimeOffSummary } from '@/api/widget/widget.types';
-import { getLeaveTypeColor } from '@/utils/colorUtils';
+import { getLeaveTypeColor, getTypeLabel } from '@/utils/colorUtils';
 
 // Color palette for leave types using Tailwind config
 const COLORS: Record<string, string> = {
@@ -53,7 +53,7 @@ const TimeOffWidget: React.FC = () => {
 
   // Transform breakdown data for pie chart
   const pieData = summary?.breakdown.map((item) => ({
-    name: item.type.replace('_', ' ').charAt(0).toUpperCase() + item.type.replace('_', ' ').slice(1),
+    name: getTypeLabel(item.type.replace('_', ' ')),
     value: item.days,
     type: item.type,
   })) || [];
