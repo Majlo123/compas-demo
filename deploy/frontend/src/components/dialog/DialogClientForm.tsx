@@ -34,22 +34,16 @@ const DialogClientForm: FC<DialogClientFormProps> = ({ isOpen, onOpenChange, onC
   });
 
   const onSubmitHandler = async (data: ClientForm) => {
-    if (onCreate) {
-      try {
-        await onCreate({ name: data.name, hourlyRate: data.hourlyRate });
-        reset();
-        onOpenChange(false);
-      } catch (err) {
-        // Error handling is done in the parent component
-      }
-    } else {
-      try {
-        toast.success('Client created successfully!');
-        reset();
-        onOpenChange(false);
-      } catch (error: any) {
-        toast.error(error?.message || 'Failed to create client');
-      }
+    if (!onCreate) {
+      toast.error('Create handler not provided');
+      return;
+    }
+    try {
+      await onCreate({ name: data.name, hourlyRate: data.hourlyRate });
+      reset();
+      onOpenChange(false);
+    } catch (err) {
+      // Error handling is done in the parent component
     }
   };
 
