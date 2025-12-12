@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
@@ -13,6 +14,7 @@ interface Client extends Row {
 }
 
 const ClientsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [clients, setClients] = useState<Client[]>([
     {
       _id: '1',
@@ -49,10 +51,7 @@ const ClientsPage: React.FC = () => {
   // Validation moved inside DialogClientForm; keep only dialog state here.
 
   const handleEdit = (clientId: string) => {
-    const client = clients.find(c => c._id === clientId);
-    if (client) {
-      toast.info(`Edit mode for: ${client.name}`);
-    }
+    navigate(`/client-detail/${clientId}`);
   };
 
   const handleAddClient = () => {
