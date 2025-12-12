@@ -61,19 +61,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
     }
   };
 
-  const getTypeTextClass = (type: string): string => {
-    switch (type) {
-      case 'vacation':
-        return 'text-blue-600';
-      case 'sick':
-        return 'text-red-600';
-      case 'personal':
-        return 'text-green-600';
-      default:
-        return 'text-gray-600';
-    }
-  };
-
   const getTypeLabel = (type: string) => {
     return type.charAt(0).toUpperCase() + type.slice(1);
   };
@@ -126,7 +113,10 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
                       />
                       <span className="font-medium text-gray-800 truncate">{user.name}</span>
                     </div>
-                    <span className={`text-xs font-medium ${getTypeTextClass(user.type)} flex-shrink-0 ml-2`}>
+                    <span 
+                      className="text-xs font-medium flex-shrink-0 ml-2"
+                      style={{ color: getLeaveTypeColor(user.type) }}
+                    >
                       {getTypeLabel(user.type)}
                     </span>
                   </div>
