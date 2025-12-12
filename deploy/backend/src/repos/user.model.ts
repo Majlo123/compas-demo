@@ -22,6 +22,28 @@ export type CreateUser = Omit<User, 'id' | 'createdAt' | 'updatedAt'>;
 const { create, findById, findByField, findAll, updateById, deleteById } =
   createBaseRepository<User>('users');
 
+export const findAllActiveWithBalances = async (): Promise<Array<Pick<User, 'id' | 'fullName' | 'email' | 'vacationDaysInit' | 'vacationDaysLeft'>>> => {
+  const query = `
+    SELECT 
+      id,
+      full_name as "fullName",
+      email,
+      COALESCE(vacation_days_init, 0) as "vacationDaysInit",
+      COALESCE(vacation_days_left, 0) as "vacationDaysLeft"
+    FROM users
+    WHERE is_activated = TRUE
+  `;
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    fullName: row.fullname || row.fullName || row.full_name,
+    email: row.email,
+    vacationDaysInit: Number(row.vacationDaysInit),
+    vacationDaysLeft: Number(row.vacationDaysLeft),
+  }));
+};
+
 /**
  * Search users by name or email
  */

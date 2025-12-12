@@ -1,4 +1,4 @@
-import { BarChart3, Calendar, PieChart, TrendingUp, Users, UserX, Flame } from 'lucide-react';
+import { BarChart3, Calendar, PieChart, TrendingUp, Users, UserX, Flame, AlertCircle } from 'lucide-react';
 import { WidgetType } from '@/components/dialog/DialogAddWidget';
 
 export const widgetTypes: WidgetType[] = [
@@ -57,5 +57,13 @@ export const widgetTypes: WidgetType[] = [
     icon: <Flame className="w-8 h-8 text-red-500" />,
     defaultSize: { w: 4, h: 3 },
     minSize: { w: 3, h: 3 },
+  },
+  {
+    id: 'approaching_leave_limit',
+    name: 'Approaching Leave Limit',
+    description: 'Show employees with low remaining leave balance',
+    icon: <AlertCircle className="w-8 h-8 text-amber-500" />,
+    defaultSize: { w: 2, h: 2 },
+    minSize: { w: 2, h: 2 },
   },
 ];

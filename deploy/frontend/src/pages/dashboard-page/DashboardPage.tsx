@@ -16,6 +16,7 @@ import UpcomingLeaveRequestsWidget from '@/components/dashboard/widgets/Upcoming
 import TeamOverviewWidget from '@/components/dashboard/TeamOverviewWidget';
 import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 import HotSpotsWidget from '@/components/dashboard/widgets/HotSpotsWidget';
+import ApproachingLeaveLimitWidget from '@/components/dashboard/widgets/ApproachingLeaveLimitWidget';
 import { widgetTypes } from '@/components/dashboard/widgetTypes';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -34,6 +35,7 @@ const DashboardPage: React.FC = () => {
     team: TeamOverviewWidget,
     absent: AbsentTodayWidget,
     hot_spots: HotSpotsWidget,
+    approaching_leave_limit: ApproachingLeaveLimitWidget,
   };
 
   // Lookup for widget config (default/min sizes)

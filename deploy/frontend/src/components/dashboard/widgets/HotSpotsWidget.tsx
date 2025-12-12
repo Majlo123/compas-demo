@@ -3,7 +3,15 @@ import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import { getHotSpots } from '@/api/widget/widget.actions';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { isApiSuccess } from '@/api/shared.types';
-import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
+
+interface CollectiveDayOff {
+  id?: string;
+  startDate: string | Date;
+  endDate: string | Date;
+  description: string;
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 interface DayHeatData {
   date: string;
@@ -49,7 +57,7 @@ const HotSpotsWidget: React.FC<WidgetComponentProps> = () => {
       }
 
       if (isApiSuccess(daysOffResponse)) {
-        setCollectiveDaysOff(daysOffResponse.content || []);
+        setCollectiveDaysOff((daysOffResponse.content || []) as unknown as CollectiveDayOff[]);
       }
     } catch (err) {
       console.error('Error fetching hot spots:', err);
@@ -161,7 +169,7 @@ const HotSpotsWidget: React.FC<WidgetComponentProps> = () => {
           <div className="flex gap-0.5 mb-1">
             {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, idx) => (
               <div
-                key={day}
+                key={`day-${idx}`}
                 className={`w-4 h-4 text-xs font-medium flex items-center justify-center ${
                   isWeekend(idx) ? 'text-gray-400' : 'text-gray-500'
                 }`}
