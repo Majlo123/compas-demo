@@ -3,7 +3,7 @@ import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { isApiSuccess } from '@/api/shared.types';
-import { getLeaveTypeColor } from '@/utils/colorUtils';
+import { getLeaveTypeColor, getTypeLabel } from '@/utils/colorUtils';
 
 interface AbsentUser {
   id: string;
@@ -59,10 +59,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const getTypeLabel = (type: string) => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
   };
 
   if (isLoading) {
