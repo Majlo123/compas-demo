@@ -3,17 +3,7 @@ import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import { getCalendarLeaveRequests } from '@/api/leave-request/leaveRequest.actions';
 import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { isApiSuccess } from '@/api/shared.types';
-
-// Color palette for leave types using Tailwind config
-const COLORS: Record<string, string> = {
-  vacation: '#3B82F6', // vacation-leave from tailwind config
-  sick: '#EF4444',     // sick-leave from tailwind config
-  personal: '#10B981', // personal-leave from tailwind config
-  other: '#6B7280',    // other-leave from tailwind config
-  unpaid: '#6B7280',
-  maternity: '#3B82F6',
-  paternity: '#3B82F6',
-};
+import { getLeaveTypeColor } from '@/utils/colorUtils';
 
 interface AbsentUser {
   id: string;
@@ -72,7 +62,7 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
   };
 
   const getTypeColor = (type: string): string => {
-    return COLORS[type] || COLORS.other;
+    return getLeaveTypeColor(type);
   };
 
   const getTypeTextClass = (type: string): string => {
@@ -110,7 +100,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
 
   return (
     <div className="h-full flex flex-col">
-
       <div className="flex-1 flex gap-3 min-h-0">
         {/* Left Side - Count */}
         <div className="flex-shrink-0 w-1/3 bg-orange-50 rounded-lg p-4 flex flex-col items-center justify-center">
