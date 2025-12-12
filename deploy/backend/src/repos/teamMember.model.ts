@@ -125,6 +125,42 @@ export const getTeamsWhereUserIsManager = async (userId: string): Promise<string
   return result.rows.map((row) => row.team_id);
 };
 
+export const findUsersByTeamIdsWithTeam = async (
+  teamIds: string[],
+): Promise<Array<{ userId: string; fullName: string; email: string; vacationDaysLeft: number; vacationDaysInit: number; teamId: string; teamName: string }>> => {
+  if (!teamIds || teamIds.length === 0) return [];
+
+  const query = {
+    text: `
+      SELECT 
+        u.id as user_id,
+        u.full_name as full_name,
+        u.email as email,
+        COALESCE(u.vacation_days_left, 0) as vacation_days_left,
+        COALESCE(u.vacation_days_init, 0) as vacation_days_init,
+        tm.team_id as team_id,
+        t.name as team_name
+      FROM team_members tm
+      JOIN users u ON tm.user_id = u.id
+      JOIN teams t ON tm.team_id = t.id
+      WHERE tm.team_id = ANY($1)
+        AND u.is_activated = TRUE
+    `,
+    values: [teamIds],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    userId: row.user_id,
+    fullName: row.full_name,
+    email: row.email,
+    vacationDaysLeft: Number(row.vacation_days_left),
+    vacationDaysInit: Number(row.vacation_days_init),
+    teamId: row.team_id,
+    teamName: row.team_name,
+  }));
+};
+
 /**
  * Check if user is a manager in a specific team
  */

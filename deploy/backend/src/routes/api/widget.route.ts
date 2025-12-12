@@ -18,6 +18,7 @@ enum WidgetFunctions {
   timeOffSummary = 'timeOffSummary',
   upcomingLeaveRequests = 'upcomingLeaveRequests',
   hotSpots = 'hotSpots',
+  usersApproachingLeaveLimit = 'usersApproachingLeaveLimit',
 }
 
 const createWidgetRoute = (basePath: string): Router => {
@@ -143,6 +144,43 @@ const createWidgetRoute = (basePath: string): Router => {
     });
   registerSwaggerSchema('HotSpots', HotSpotsSchema);
 
+  const UsersApproachingLeaveLimitSchema = z
+    .object({
+      total: z.number().int().nonnegative(),
+      users: z.array(
+        z.object({
+          id: z.string(),
+          fullName: z.string(),
+          email: z.string(),
+          remainingDays: z.number().int().nonnegative(),
+          initialDays: z.number().int().nonnegative(),
+          teams: z.array(
+            z.object({
+              teamId: z.string(),
+              teamName: z.string(),
+            })
+          ),
+        })
+      ),
+    })
+    .openapi({
+      description: 'Users with low remaining vacation balance, scoped by role/teams',
+      example: {
+        total: 1,
+        users: [
+          {
+            id: 'user-1',
+            fullName: 'Jane Doe',
+            email: 'jane@example.com',
+            remainingDays: 2,
+            initialDays: 15,
+            teams: [{ teamId: 'team-1', teamName: 'Engineering' }],
+          },
+        ],
+      },
+    });
+  registerSwaggerSchema('UsersApproachingLeaveLimit', UsersApproachingLeaveLimitSchema);
+
   const UpdateWidgetSchema = z
     .object({
       x: z.number().int().optional(),
@@ -193,7 +231,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Time-off Summary',
-      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month.',
+      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month. (Managers and Admins only)',
       path: '/time-off/summary',
       method: 'get',
       authorize: true,
@@ -209,7 +247,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Upcoming Leave Requests',
-      desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today)',
+      desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today). (Managers and Admins only)',
       path: '/upcoming-leave-requests',
       method: 'get',
       authorize: true,
@@ -224,7 +262,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Hot Spots',
-      desc: 'Get hot spots showing days with multiple absences for next 3 months. Admins see all teams, managers see own teams.',
+      desc: 'Get hot spots showing days with multiple absences for next 3 months. Admins see all teams, managers see own teams. (Managers and Admins only)',
       path: '/hot-spots',
       method: 'get',
       authorize: true,
@@ -232,6 +270,19 @@ const createWidgetRoute = (basePath: string): Router => {
         { code: httpStatus.OK, desc: 'Hot spots data', schema: HotSpotsSchema },
       ],
       functionName: WidgetFunctions.hotSpots,
+      basePath,
+    },
+    {
+      name: 'Users Approaching Leave Limit',
+      desc: 'List users with low remaining leave balance (role scoped). (Managers and Admins only)',
+      path: '/approaching-leave-limit',
+      method: 'get',
+      authorize: true,
+      querySchema: z.object({ threshold: z.coerce.number().int().positive().optional() }),
+      responses: [
+        { code: httpStatus.OK, desc: 'List returned', schema: UsersApproachingLeaveLimitSchema },
+      ],
+      functionName: WidgetFunctions.usersApproachingLeaveLimit,
       basePath,
     },
     {
@@ -311,6 +362,7 @@ const createWidgetRoute = (basePath: string): Router => {
     timeOffSummary: widgetController.timeOffSummary as RequestHandler,
     upcomingLeaveRequests: widgetController.upcomingLeaveRequests as RequestHandler,
     hotSpots: widgetController.getHotSpots as RequestHandler,
+    usersApproachingLeaveLimit: widgetController.usersApproachingLeaveLimit as RequestHandler,
   };
 
   const router = Router();

@@ -63,11 +63,13 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
  * @param userId - User ID (null for all users - admin view)
  * @param year - Optional year (defaults to current year)
  * @param month - Optional month (1-12, defaults to current month)
+ * @param teamIds - Optional team IDs for manager view
  */
 export const findApprovedMonthSummaryByUser = async (
   userId: string | null,
   year?: number,
-  month?: number
+  month?: number,
+  teamIds?: string[]
 ): Promise<LeaveMonthlySummary> => {
   const now = new Date();
   const targetYear = year ?? now.getFullYear();
@@ -103,8 +105,11 @@ export const findApprovedMonthSummaryByUser = async (
         AND lr.start_date <= $2
         AND lr.end_date >= $1
         ${userId ? 'AND lr.user_id = $3' : ''}
+        ${teamIds && teamIds.length > 0 ? `AND lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = ANY($${userId ? '4' : '3'}))` : ''}
     `,
-    values: userId ? [startMonth, endMonth, userId] : [startMonth, endMonth],
+    values: userId 
+      ? (teamIds && teamIds.length > 0 ? [startMonth, endMonth, userId, teamIds] : [startMonth, endMonth, userId])
+      : (teamIds && teamIds.length > 0 ? [startMonth, endMonth, teamIds] : [startMonth, endMonth]),
   };
 
   const result = await pool.query(query);
@@ -378,6 +383,72 @@ export const findApprovedInDateRange = async (startDate: Date, endDate: Date): P
       ORDER BY lr.start_date ASC
     `,
     values: [startDate, endDate],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    employeeName: row.employee_name,
+  }));
+};
+
+/**
+ * Find approved leave requests within a date range for specific teams
+ */
+export const findApprovedInDateRangeByTeams = async (startDate: Date, endDate: Date, teamIds: string[]): Promise<LeaveRequestWithEmployee[]> => {
+  const query = {
+    text: `
+      SELECT lr.*, u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      WHERE lr.status = 'approved'
+        AND lr.start_date <= $2
+        AND lr.end_date >= $1
+        AND lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = ANY($3))
+      ORDER BY lr.start_date ASC
+    `,
+    values: [startDate, endDate, teamIds],
+  };
+
+  const result = await pool.query(query);
+  return result.rows.map((row) => ({
+    id: row.id,
+    userId: row.user_id,
+    type: row.type,
+    startDate: row.start_date,
+    endDate: row.end_date,
+    status: row.status,
+    reason: row.reason,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    employeeName: row.employee_name,
+  }));
+};
+
+/**
+ * Find approved leave requests within a date range for a specific user
+ */
+export const findApprovedInDateRangeByUser = async (startDate: Date, endDate: Date, userId: string): Promise<LeaveRequestWithEmployee[]> => {
+  const query = {
+    text: `
+      SELECT lr.*, u.full_name as employee_name
+      FROM leave_requests lr
+      LEFT JOIN users u ON lr.user_id = u.id
+      WHERE lr.status = 'approved'
+        AND lr.start_date <= $2
+        AND lr.end_date >= $1
+        AND lr.user_id = $3
+      ORDER BY lr.start_date ASC
+    `,
+    values: [startDate, endDate, userId],
   };
 
   const result = await pool.query(query);

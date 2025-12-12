@@ -9,13 +9,11 @@ import { Widget, WidgetLayoutItem } from '@/api/widget/widget.types';
 import DialogAddWidget, { WidgetType } from '@/components/dialog/DialogAddWidget';
 import Button from '@/components/controls/button/Button';
 import { X } from 'lucide-react';
-import TimeOffWidget from '@/components/dashboard/TimeOffWidget';
-import HeatmapWidget from '@/components/dashboard/HeatmapWidget';
-import PieChartWidget from '@/components/dashboard/PieChartWidget';
+import TimeOffWidget from '@/components/dashboard/widgets/TimeOffWidget';
 import UpcomingLeaveRequestsWidget from '@/components/dashboard/widgets/UpcomingVacationsWidget';
-import TeamOverviewWidget from '@/components/dashboard/TeamOverviewWidget';
 import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
 import HotSpotsWidget from '@/components/dashboard/widgets/HotSpotsWidget';
+import ApproachingLeaveLimitWidget from '@/components/dashboard/widgets/ApproachingLeaveLimitWidget';
 import { widgetTypes } from '@/components/dashboard/widgetTypes';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -28,12 +26,10 @@ const DashboardPage: React.FC = () => {
   // Map widget type strings to React components
   const widgetComponents: Record<string, React.FC> = {
     time_off: TimeOffWidget,
-    piechart: PieChartWidget,
-    heatmap: HeatmapWidget,
     upcoming: UpcomingLeaveRequestsWidget,
-    team: TeamOverviewWidget,
     absent: AbsentTodayWidget,
     hot_spots: HotSpotsWidget,
+    approaching_leave_limit: ApproachingLeaveLimitWidget,
   };
 
   // Lookup for widget config (default/min sizes)
@@ -190,9 +186,16 @@ const DashboardPage: React.FC = () => {
                     </span>
                   </div>
                   <button
-                    onClick={() => handleRemoveWidget(item.i)}
-                    className="p-1 rounded hover:bg-gray-200 text-gray-400 hover:text-red-500"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      e.stopPropagation();
+                      handleRemoveWidget(item.i);
+                    }}
+                    onMouseDown={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    className="p-1 rounded hover:bg-red-100 text-gray-400 hover:text-red-500 transition-colors"
                     title="Remove widget"
+                    style={{ cursor: 'pointer' }}
                   >
                     <X className="w-4 h-4" />
                   </button>

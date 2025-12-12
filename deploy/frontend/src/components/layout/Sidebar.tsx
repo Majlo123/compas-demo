@@ -15,8 +15,8 @@ type NavItem = {
   path: string;
   Icon: React.ComponentType<{ className?: string }>;
   allowedRoles?: Role[];
+  requiresTeamManager?: boolean;
 };
-
 const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
@@ -34,7 +34,6 @@ const manageOrgItems: NavItem[] = [
 const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
   const location = useLocation();
-
   const canShow = (item: NavItem) => {
     if (item.path === '/team-requests') {
       if (!user) return false;

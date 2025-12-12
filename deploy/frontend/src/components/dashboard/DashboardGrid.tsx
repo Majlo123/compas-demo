@@ -83,10 +83,19 @@ const DashboardGrid: React.FC<DashboardGridProps> = ({
             {/* Remove Widget Button */}
             {enableRemove && onRemoveWidget && (
               <button
-                onClick={() => handleRemoveWidget(item.i)}
-                className="absolute top-2 right-2 text-gray-500 hover:text-gray-700 text-h2"
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  handleRemoveWidget(item.i);
+                }}
+                onMouseDown={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                }}
+                className="absolute top-2 right-2 z-50 p-1 w-6 h-6 flex items-center justify-center rounded hover:bg-red-100 text-gray-500 hover:text-red-600 transition-colors"
                 title="Remove widget"
                 aria-label="Remove widget"
+                style={{ pointerEvents: 'auto', cursor: 'pointer' }}
               >
                 ✕
               </button>
