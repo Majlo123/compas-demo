@@ -15,6 +15,7 @@ import PieChartWidget from '@/components/dashboard/PieChartWidget';
 import UpcomingLeaveRequestsWidget from '@/components/dashboard/widgets/UpcomingVacationsWidget';
 import TeamOverviewWidget from '@/components/dashboard/TeamOverviewWidget';
 import AbsentTodayWidget from '@/components/dashboard/widgets/AbsentTodayWidget';
+import HotSpotsWidget from '@/components/dashboard/widgets/HotSpotsWidget';
 import { widgetTypes } from '@/components/dashboard/widgetTypes';
 
 const ResponsiveGridLayout = WidthProvider(Responsive);
@@ -32,6 +33,7 @@ const DashboardPage: React.FC = () => {
     upcoming: UpcomingLeaveRequestsWidget,
     team: TeamOverviewWidget,
     absent: AbsentTodayWidget,
+    hot_spots: HotSpotsWidget,
   };
 
   // Lookup for widget config (default/min sizes)

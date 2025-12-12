@@ -2,6 +2,7 @@ import createBaseRepository from 'repos/utils/baseRepository';
 import pool from 'config/database';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
+import { findByDateRange as findCollectiveDaysOffByDateRange } from 'repos/collectiveDayOff.model';
 
 export type LeaveRequestStatus = 'approved' | 'pending' | 'declined';
 
@@ -57,8 +58,8 @@ export const findByUserId = async (userId: string): Promise<LeaveRequest[]> => {
 };
 
 /**
- * Aggregate approved leave days for a specific month by type for a user
- * Counts the overlap of each request with the specified month (inclusive of boundaries)
+ * Aggregate approved leave days for a specific month by type for a user.
+ * Counts only working days (excludes weekends and collective days off) inside the month window.
  * @param userId - User ID (null for all users - admin view)
  * @param year - Optional year (defaults to current year)
  * @param month - Optional month (1-12, defaults to current month)
@@ -68,49 +69,77 @@ export const findApprovedMonthSummaryByUser = async (
   year?: number,
   month?: number
 ): Promise<LeaveMonthlySummary> => {
+  const now = new Date();
+  const targetYear = year ?? now.getFullYear();
+  const targetMonth = month ?? now.getMonth() + 1;
+
+  const startMonth = new Date(targetYear, targetMonth - 1, 1);
+  startMonth.setHours(0, 0, 0, 0);
+  const endMonth = new Date(targetYear, targetMonth, 0);
+  endMonth.setHours(0, 0, 0, 0);
+
+  const collectiveDaysOff = await findCollectiveDaysOffByDateRange(startMonth, endMonth);
+  const collectiveDaySet = new Set<string>();
+
+  collectiveDaysOff.forEach((dayOff) => {
+    const cursor = new Date(dayOff.startDate);
+    const offEnd = new Date(dayOff.endDate);
+    cursor.setHours(0, 0, 0, 0);
+    offEnd.setHours(0, 0, 0, 0);
+
+    while (cursor <= offEnd) {
+      if (cursor >= startMonth && cursor <= endMonth) {
+        collectiveDaySet.add(cursor.toISOString().split('T')[0]);
+      }
+      cursor.setDate(cursor.getDate() + 1);
+    }
+  });
+
   const query = {
     text: `
-      WITH month_bounds AS (
-        SELECT 
-          CASE 
-            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
-              make_date($2::int, $3::int, 1)
-            ELSE
-              DATE_TRUNC('month', NOW()::DATE)::DATE
-          END AS start_month,
-          CASE 
-            WHEN $2::int IS NOT NULL AND $3::int IS NOT NULL THEN
-              (make_date($2::int, $3::int, 1) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
-            ELSE
-              (DATE_TRUNC('month', NOW()::DATE) + INTERVAL '1 month' - INTERVAL '1 day')::DATE
-          END AS end_month
-      ),
-      filtered_requests AS (
-        SELECT
-          lr.type,
-          GREATEST(lr.start_date, mb.start_month)::DATE AS overlap_start,
-          LEAST(lr.end_date, mb.end_month)::DATE AS overlap_end
-        FROM leave_requests lr
-        CROSS JOIN month_bounds mb
-        WHERE ($1::uuid IS NULL OR lr.user_id = $1)
-          AND lr.status = 'approved'
-          AND lr.start_date <= mb.end_month
-          AND lr.end_date >= mb.start_month
-      ),
-      per_type AS (
-        SELECT 
-          type,
-          SUM((overlap_end::DATE - overlap_start::DATE + 1))::int AS days
-        FROM filtered_requests
-        GROUP BY type
-      )
-      SELECT type, days FROM per_type;
+      SELECT lr.type, lr.start_date, lr.end_date
+      FROM leave_requests lr
+      WHERE lr.status = 'approved'
+        AND lr.start_date <= $2
+        AND lr.end_date >= $1
+        ${userId ? 'AND lr.user_id = $3' : ''}
     `,
-    values: [userId, year || null, month || null],
+    values: userId ? [startMonth, endMonth, userId] : [startMonth, endMonth],
   };
 
   const result = await pool.query(query);
-  const breakdown = result.rows.map((row) => ({ type: row.type as LeaveRequestType, days: Number(row.days) }));
+  const breakdownMap = new Map<LeaveRequestType, number>();
+
+  const isWorkingDay = (date: Date): boolean => {
+    const dayOfWeek = date.getDay();
+    if (dayOfWeek === 0 || dayOfWeek === 6) return false;
+    const dateKey = date.toISOString().split('T')[0];
+    return !collectiveDaySet.has(dateKey);
+  };
+
+  result.rows.forEach((row) => {
+    const type = row.type as LeaveRequestType;
+    const startDate = new Date(row.start_date);
+    const endDate = new Date(row.end_date);
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(0, 0, 0, 0);
+
+    const overlapStart = startDate > startMonth ? startDate : new Date(startMonth);
+    const overlapEnd = endDate < endMonth ? endDate : new Date(endMonth);
+
+    const current = new Date(overlapStart);
+    while (current <= overlapEnd) {
+      if (isWorkingDay(current)) {
+        breakdownMap.set(type, (breakdownMap.get(type) || 0) + 1);
+      }
+      current.setDate(current.getDate() + 1);
+    }
+  });
+
+  const breakdown = Array.from(breakdownMap.entries()).map(([leaveType, days]) => ({
+    type: leaveType,
+    days,
+  }));
   const totalDays = breakdown.reduce((sum, b) => sum + b.days, 0);
   return { totalDays, breakdown };
 };

@@ -88,3 +88,12 @@ export const getUpcomingLeaveRequests = async (days?: number): Promise<ApiRespon
     return formatError(error);
   }
 };
+
+export const getHotSpots = async (): Promise<ApiResponse<any>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/hot-spots`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
