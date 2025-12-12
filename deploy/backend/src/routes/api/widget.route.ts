@@ -231,7 +231,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Time-off Summary',
-      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month.',
+      desc: 'Total approved leave days for a specific month plus breakdown by leave type for the authenticated user. If year/month not provided, defaults to current month. (Managers and Admins only)',
       path: '/time-off/summary',
       method: 'get',
       authorize: true,
@@ -247,7 +247,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Upcoming Leave Requests',
-      desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today)',
+      desc: 'Get upcoming approved leave requests within a date range (7 or 30 days from today). (Managers and Admins only)',
       path: '/upcoming-leave-requests',
       method: 'get',
       authorize: true,
@@ -262,7 +262,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Hot Spots',
-      desc: 'Get hot spots showing days with multiple absences for next 3 months. Admins see all teams, managers see own teams.',
+      desc: 'Get hot spots showing days with multiple absences for next 3 months. Admins see all teams, managers see own teams. (Managers and Admins only)',
       path: '/hot-spots',
       method: 'get',
       authorize: true,
@@ -274,7 +274,7 @@ const createWidgetRoute = (basePath: string): Router => {
     },
     {
       name: 'Users Approaching Leave Limit',
-      desc: 'List users with low remaining leave balance (role scoped)',
+      desc: 'List users with low remaining leave balance (role scoped). (Managers and Admins only)',
       path: '/approaching-leave-limit',
       method: 'get',
       authorize: true,

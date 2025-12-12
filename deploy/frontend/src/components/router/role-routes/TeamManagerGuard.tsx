@@ -7,7 +7,7 @@ const TeamManagerGuard: React.FC = () => {
   const user = useAuthStore((state) => state.user);
 
   if (!user) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/team-calendar" replace />;
   }
 
   // Admin always has access
@@ -17,7 +17,7 @@ const TeamManagerGuard: React.FC = () => {
 
   // For employees, check isTeamManager flag from store
   if (!user.isTeamManager) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/team-calendar" replace />;
   }
 
   return <Outlet />;

@@ -101,6 +101,7 @@ export const saveWidgetsLayout = async (userId: string, widgets: Array<Pick<Widg
 /**
  * Compute time-off summary for a specific month for the authenticated user
  * For admin users, returns aggregated data for all users
+ * For managers, returns aggregated data for their team members
  * @param userId - User ID
  * @param userRole - User role (admin or employee)
  * @param year - Optional year (defaults to current year)
@@ -108,7 +109,23 @@ export const saveWidgetsLayout = async (userId: string, widgets: Array<Pick<Widg
  */
 export const getTimeOffSummary = async (userId: string, userRole?: string, year?: number, month?: number): Promise<LeaveMonthlySummary> => {
   const isAdmin = userRole === 'admin';
-  const summary = await findApprovedMonthSummaryByUser(isAdmin ? null : userId, year, month);
+  
+  if (isAdmin) {
+    const summary = await findApprovedMonthSummaryByUser(null, year, month);
+    return summary;
+  }
+  
+  // Check if user is a manager
+  const managerTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
+  
+  if (managerTeamIds.length > 0) {
+    // Manager: get summary for team members
+    const summary = await findApprovedMonthSummaryByUser(null, year, month, managerTeamIds);
+    return summary;
+  }
+  
+  // Regular employee: only their own data
+  const summary = await findApprovedMonthSummaryByUser(userId, year, month);
   return summary;
 };
 
@@ -128,17 +145,29 @@ interface UpcomingVacationsResult {
 
 /**
  * Get upcoming approved leave requests within a date range
+ * For managers, only shows their team members
  * @param userId - User ID
+ * @param userRole - User role
  * @param days - Number of days from today (default: 7)
  */
-export const getUpcomingLeaveRequests = async (userId: string, days: number = 7): Promise<UpcomingVacationsResult> => {
+export const getUpcomingLeaveRequests = async (userId: string, userRole?: string, days: number = 7): Promise<UpcomingVacationsResult> => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   
   const endDate = new Date(today);
   endDate.setDate(today.getDate() + days);
 
-  const leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
+  const isAdmin = userRole === 'admin';
+  const managerTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
+  
+  let leaves;
+  if (isAdmin) {
+    leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
+  } else if (managerTeamIds.length > 0) {
+    leaves = await leaveRequestRepository.findApprovedInDateRangeByTeams(today, endDate, managerTeamIds);
+  } else {
+    leaves = await leaveRequestRepository.findApprovedInDateRangeByUser(today, endDate, userId);
+  }
 
   // Helper function to calculate work days (excluding weekends and collective days off)
   const calculateWorkDays = async (startDate: Date, endDate: Date): Promise<number> => {
@@ -227,22 +256,22 @@ export const getHotSpots = async (userId: string, userRole?: string): Promise<{ 
   endDate.setMonth(today.getMonth() + 3);
   endDate.setDate(0); // Last day of the month
   
-  // Get all approved leaves in the next 3 months
-  const leaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
-
-  // If not admin, filter by user's teams
-  let filteredLeaves = leaves;
-  if (!isAdmin) {
-    const userTeamIds = await (require('repos/index').teamMemberRepository as any).getTeamsWhereUserIsManager(userId);
-    const userTeamsAndSelf = new Set(userTeamIds);
+  let filteredLeaves;
+  
+  if (isAdmin) {
+    // Admin: all approved leaves
+    filteredLeaves = await leaveRequestRepository.findApprovedInDateRange(today, endDate);
+  } else {
+    // Check if user is a manager
+    const managerTeamIds = await teamMemberRepository.getTeamsWhereUserIsManager(userId);
     
-    // Also include leaves from the user themselves
-    filteredLeaves = leaves.filter((leave: any) => {
-      return leave.userId === userId || userTeamIds.some(teamId => 
-        // Will be filtered by team membership in repository query
-        true
-      );
-    });
+    if (managerTeamIds.length > 0) {
+      // Manager: only team members' leaves
+      filteredLeaves = await leaveRequestRepository.findApprovedInDateRangeByTeams(today, endDate, managerTeamIds);
+    } else {
+      // Regular employee: only their own leaves
+      filteredLeaves = await leaveRequestRepository.findApprovedInDateRangeByUser(today, endDate, userId);
+    }
   }
 
   // Group leaves by date and count absences (only on working days)

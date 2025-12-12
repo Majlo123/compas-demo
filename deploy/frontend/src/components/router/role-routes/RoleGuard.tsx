@@ -12,7 +12,7 @@ const RoleGuard: React.FC<RoleGuardProps> = ({ allowedRoles }) => {
   const user = useAuthStore((state) => state.user);
 
   if (!user || !allowedRoles.includes(user.role)) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/team-calendar" replace />;
   }
 
   return <Outlet />;

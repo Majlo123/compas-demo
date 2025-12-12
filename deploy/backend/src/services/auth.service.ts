@@ -91,6 +91,7 @@ export const login = async (credentials: LoginRequest): Promise<LoginResponse> =
       sub: user.id,
       email: user.email,
       role: user.role,
+      isTeamManager: isTeamManager,
     },
     config.jwt.secret,
     {
