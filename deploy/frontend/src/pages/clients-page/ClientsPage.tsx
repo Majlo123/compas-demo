@@ -1,58 +1,52 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
 import PageLayout from '@/components/layout/PageLayout';
-import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
-import TableIconEdit from '@/components/images/TableIconEdit';
+import { getClients } from '@/api/client/client.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
-interface Client extends Row {
+type ClientRow = Row & {
+  id: string;
   name: string;
   hourlyRate: number;
-  projectCount: number;
-}
+  projectCount?: number;
+};
 
 const ClientsPage: React.FC = () => {
-  const [clients] = useState<Client[]>([
-    {
-      _id: '1',
-      name: 'Acme Corporation',
-      hourlyRate: 150,
-      projectCount: 5,
-    },
-    {
-      _id: '2',
-      name: 'Tech Solutions Inc',
-      hourlyRate: 175,
-      projectCount: 3,
-    },
-    {
-      _id: '3',
-      name: 'Global Enterprises',
-      hourlyRate: 200,
-      projectCount: 8,
-    },
-    {
-      _id: '4',
-      name: 'StartUp Ventures',
-      hourlyRate: 125,
-      projectCount: 2,
-    },
-  ]);
+  const [clients, setClients] = useState<ClientRow[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [search, setSearch] = useState('');
-  const handleEdit = (clientId: string) => {
-    const client = clients.find(c => c._id === clientId);
-    if (client) {
-      toast.info(`Edit mode for: ${client.name}`);
+
+  const filteredClients = useMemo(() => {
+    const term = search.trim().toLowerCase();
+    if (!term) return clients;
+    return clients.filter((c) => c.name.toLowerCase().includes(term));
+  }, [clients, search]);
+
+  const fetchClients = async () => {
+    setIsLoading(true);
+    setHasError(false);
+    const response = await getClients();
+    if (!isApiSuccess(response)) {
+      setHasError(true);
+      setIsLoading(false);
+      toast.error(response.error?.message || 'Failed to load clients');
+      return;
     }
+    const data = response.content?.data || [];
+    const mapped = data.map((c) => ({
+      _id: c.id,
+      ...c,
+    } as ClientRow));
+    setClients(mapped);
+    setIsLoading(false);
   };
 
-  const handleAddClient = () => {
-    toast.info('Open dialog to add new client');
-    // In a real app, this would open a dialog form
-  };
+  useEffect(() => {
+    fetchClients();
+  }, []);
 
   const columns: Column[] = [
     {
@@ -62,25 +56,14 @@ const ClientsPage: React.FC = () => {
     {
       accessor: 'hourlyRate',
       header: 'Hourly Rate',
-      formatter: (value: number) => `$${value.toFixed(2)}/hr`,
+      formatter: (value: number | string) => {
+        const num = typeof value === 'string' ? parseFloat(value) : value;
+        return `$${num.toFixed(2)}/hr`;
+      },
     },
     {
       accessor: 'projectCount',
       header: '# of Projects',
-    },
-    {
-      accessor: 'actions',
-      header: 'Actions',
-      formatter: (_value: any, row: any) => (
-        <button
-          onClick={() => handleEdit(row._id)}
-          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
-          title="Edit client"
-        >
-          <TableIconEdit />
-          <span>Edit</span>
-        </button>
-      ),
     },
   ];
 
@@ -100,26 +83,20 @@ const ClientsPage: React.FC = () => {
               />
             </div>
           </div>
-          <Button
-            variant="primary"
-            onClick={handleAddClient}
-            className="h-[48px] whitespace-nowrap px-4 ml-4"
-          >
-            + New Client
-          </Button>
         </div>
       )}
       actionPosition="below"
       isLoading={isLoading}
       hasError={hasError}
-      isEmpty={false}
+      isEmpty={!isLoading && !hasError && filteredClients.length === 0}
       onRetry={() => {
         setHasError(false);
         setIsLoading(false);
+        fetchClients();
       }}
     >
       {/* Empty State */}
-      {clients.length === 0 ? (
+      {filteredClients.length === 0 ? (
         <div className="py-12 px-4 text-center">
           <div className="mb-4">
             <svg
@@ -140,22 +117,15 @@ const ClientsPage: React.FC = () => {
           <p className="text-gray-500 mb-6">
             Create your first client to get started managing projects and assignments.
           </p>
-          <Button
-            onClick={handleAddClient}
-            variant="primary"
-            className="inline-flex items-center gap-2"
-          >
-            <span>+</span>
-            <span>Add Your First Client</span>
-          </Button>
         </div>
       ) : (
         <Table
           columns={columns}
-          data={clients}
+          data={filteredClients}
           tableClassName="bg-white rounded-none shadow-none mb-0"
         />
       )}
+
     </PageLayout>
   );
 };

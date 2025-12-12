@@ -7,3 +7,4 @@ export * as userInviteController from 'controllers/userInvite.controller';
 export * as notificationController from 'controllers/notification.controller';
 export * as collectiveDayOffController from 'controllers/collectiveDayOff.controller';
 export * as widgetController from 'controllers/widget.controller';
+export * as clientController from 'controllers/client.controller';
