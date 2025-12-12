@@ -1,5 +1,5 @@
-import React from 'react';
-import { NavLink } from 'react-router-dom';
+import React, { useEffect, useMemo, useState } from 'react';
+import { NavLink, useLocation } from 'react-router-dom';
 import TableIconCalendar from '@/components/images/TableIconCalendar';
 import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
@@ -17,34 +17,54 @@ type NavItem = {
   allowedRoles?: Role[];
 };
 
-const navItems: NavItem[] = [
+const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon },
-  { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Clients', path: '/clients', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Projects', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Days Off', path: '/days-off', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
-  // { label: 'Reports', path: '/reports', Icon: ReportsIcon },
-  // { label: 'Settings', path: '/settings', Icon: SettingsIcon },
+];
+
+const manageOrgItems: NavItem[] = [
+  { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Projects', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Clients', path: '/clients', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
 ];
 
 const Sidebar: React.FC = () => {
   const user = useAuthStore((state) => state.user);
+  const location = useLocation();
 
-  const visibleNavItems = navItems.filter((item) => {
-    // Special case for Team Requests: show to Admins OR team managers
+  const canShow = (item: NavItem) => {
     if (item.path === '/team-requests') {
       if (!user) return false;
       return user.role === RoleEnum.Admin || user.isTeamManager === true;
     }
-
-    // For other items, use allowedRoles if specified
     if (!item.allowedRoles) return true;
     if (!user) return false;
     return item.allowedRoles.includes(user.role);
-  });
+  };
+
+  const visibleMainNavItems = useMemo(
+    () => mainNavItems.filter(canShow),
+    [user]
+  );
+
+  const visibleManageNavItems = useMemo(
+    () => manageOrgItems.filter(canShow),
+    [user]
+  );
+
+  const isManageActive = useMemo(
+    () => visibleManageNavItems.some((item) => location.pathname.startsWith(item.path)),
+    [visibleManageNavItems, location.pathname]
+  );
+
+  const [isManageOpen, setIsManageOpen] = useState(isManageActive);
+
+  useEffect(() => {
+    if (isManageActive) setIsManageOpen(true);
+  }, [isManageActive]);
 
   return (
     <aside className="min-w-48 bg-primary flex flex-col h-full rounded-l-2xl overflow-hidden">
@@ -59,29 +79,95 @@ const Sidebar: React.FC = () => {
       {/* Navigation */}
       <nav className="flex-1 py-6">
         <ul className="space-y-1 px-3">
-          {visibleNavItems.map((item) => (
-            <li key={item.path}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  classNameBuilder(
-                    'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm',
-                    'text-sidebarText hover:text-white hover:bg-sidebarNavHover',
-                    isActive && 'bg-sidebarNavActive text-white font-medium '
-                  )
-                }
-              >
-                {({ isActive }) => (
-                  <>
-                    <item.Icon className={classNameBuilder(
-                      'w-5 h-5',
-                      isActive ? 'stroke-white' : 'stroke-sidebarText'
-                    )} />
-                    <span>{item.label}</span>
-                  </>
-                )}
-              </NavLink>
-            </li>
+          {visibleMainNavItems.map((item) => (
+            <React.Fragment key={item.path}>
+              <li>
+                <NavLink
+                  to={item.path}
+                  className={({ isActive }) =>
+                    classNameBuilder(
+                      'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm',
+                      'text-sidebarText hover:text-white hover:bg-sidebarNavHover',
+                      isActive && 'bg-sidebarNavActive text-white font-medium '
+                    )
+                  }
+                >
+                  {({ isActive }) => (
+                    <>
+                      <item.Icon className={classNameBuilder(
+                        'w-5 h-5',
+                        isActive ? 'stroke-white' : 'stroke-sidebarText'
+                      )} />
+                      <span>{item.label}</span>
+                    </>
+                  )}
+                </NavLink>
+              </li>
+
+              {item.path === '/team-requests' && visibleManageNavItems.length > 0 && (
+                <li className="mt-2">
+                  <button
+                    type="button"
+                    onClick={() => setIsManageOpen((prev) => !prev)}
+                    className={classNameBuilder(
+                      'flex w-full items-center justify-between px-4 py-3 rounded-lg text-sm transition-colors',
+                      'text-sidebarText hover:text-white hover:bg-sidebarNavHover'
+                    )}
+                  >
+                    <span className="flex items-center gap-3">
+                      <TableIconUser className="w-5 h-5 stroke-sidebarText" />
+                      <span>Manage Organization</span>
+                    </span>
+                    <svg
+                      className={classNameBuilder(
+                        'w-4 h-4 transition-transform',
+                        isManageOpen ? 'rotate-180' : 'rotate-0'
+                      )}
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M5.5 7.5L10 12l4.5-4.5"
+                        stroke="currentColor"
+                        strokeWidth="1.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </button>
+
+                  {isManageOpen && (
+                    <ul className="mt-2 space-y-1">
+                      {visibleManageNavItems.map((manageItem) => (
+                        <li key={manageItem.path}>
+                          <NavLink
+                            to={manageItem.path}
+                            className={({ isActive }) =>
+                              classNameBuilder(
+                                'flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-sm pl-10',
+                                'text-sidebarText hover:text-white hover:bg-sidebarNavHover',
+                                isActive && 'bg-sidebarNavActive text-white font-medium '
+                              )
+                            }
+                          >
+                            {({ isActive }) => (
+                              <>
+                                <manageItem.Icon className={classNameBuilder(
+                                  'w-5 h-5',
+                                  isActive ? 'stroke-white' : 'stroke-sidebarText'
+                                )} />
+                                <span>{manageItem.label}</span>
+                              </>
+                            )}
+                          </NavLink>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              )}
+            </React.Fragment>
           ))}
         </ul>
       </nav>
