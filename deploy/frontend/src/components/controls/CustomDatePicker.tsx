@@ -13,6 +13,8 @@ type CustomDatePickerProps = {
   onChange?: (dateString: string) => void;
   min?: string;
   disabledDates?: string[];
+  markedDates?: Record<string, 'vacation' | 'sick' | 'personal' | 'other' | 'collective-day-off'>;
+  initialMonth?: Date;
   className?: string;
 };
 
@@ -26,6 +28,8 @@ const CustomDatePicker = React.forwardRef<HTMLDivElement, CustomDatePickerProps>
       onChange,
       min,
       disabledDates = [],
+      markedDates = {},
+      initialMonth,
       className = '',
     },
     ref
@@ -152,7 +156,9 @@ const CustomDatePicker = React.forwardRef<HTMLDivElement, CustomDatePickerProps>
             placeholder="Select date"
             className="outline-none border-none bg-transparent text-p2 px-0 py-0 text-darkGrey cursor-pointer"
           />
-          <span className="icon-calendar" />
+          <svg className="w-5 h-5 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
         </div>
 
         {error && (
@@ -183,6 +189,24 @@ const CustomDatePicker = React.forwardRef<HTMLDivElement, CustomDatePickerProps>
                   onChange={handleDateChange}
                   minDate={minDate}
                   tileDisabled={({ date, view }) => view === 'month' ? isDateDisabled(date) : false}
+                  tileContent={({ date, view }) => {
+                    if (view !== 'month') return null;
+                    const dateStr = format(date, 'yyyy-MM-dd');
+                    const type = markedDates[dateStr];
+                    if (!type) return null;
+                    const colorClass =
+                      type === 'vacation' ? 'bg-primary' :
+                      type === 'sick' ? 'bg-sick-leave' :
+                      type === 'personal' ? 'bg-personal-leave' :
+                      type === 'other' ? 'bg-other-leave' :
+                      'bg-purple-500'; // collective-day-off
+                    return (
+                      <div className="mt-1 flex justify-center">
+                        <span className={`inline-block w-1.5 h-1.5 rounded ${colorClass}`}></span>
+                      </div>
+                    );
+                  }}
+                  activeStartDate={initialMonth}
                   className="react-calendar-custom"
                 />
               </div>
@@ -216,6 +240,10 @@ const CustomDatePicker = React.forwardRef<HTMLDivElement, CustomDatePickerProps>
           .calendar-picker-wrapper .react-calendar__tile:hover:not(:disabled) {
             background-color: #e6f0ff;
           }
+          .calendar-picker-wrapper .bg-sick-leave { background-color: #EF4444; }
+          .calendar-picker-wrapper .bg-personal-leave { background-color: #10B981; }
+          .calendar-picker-wrapper .bg-other-leave { background-color: #6B7280; }
+          .calendar-picker-wrapper .bg-purple-500 { background-color: #A855F7; }
         `}</style>
       </div>
     );

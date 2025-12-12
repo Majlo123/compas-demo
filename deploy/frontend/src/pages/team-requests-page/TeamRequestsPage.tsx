@@ -2,6 +2,7 @@ import { LeaveRequestStatus, LeaveRequestWithEmployee } from '@/api/leave-reques
 import StatusBadge from '@/components/controls/badge/StatusBadge';
 import Table, { Column } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
+import { getTypeLabel } from '@/utils/colorUtils';
 import React, { useState, useEffect } from 'react';
 import { getTeams } from '@/api/team/team.actions';
 import { getTeamsByUserId } from '@/api/team/team.actions';
@@ -192,7 +193,7 @@ const TeamRequestsPage: React.FC = () => {
         {
           accessor: 'type',
           header: 'Type',
-          formatter: (value: string) => value.charAt(0).toUpperCase() + value.slice(1),
+          formatter: (value: string) => getTypeLabel(value),
         },
         {
           accessor: 'startDate',
@@ -209,7 +210,7 @@ const TeamRequestsPage: React.FC = () => {
           header: 'Status',
           formatter: (value: LeaveRequestStatus) => (
             <StatusBadge status={value}>
-              {value.charAt(0).toUpperCase() + value.slice(1)}
+              {getTypeLabel(value)}
             </StatusBadge>
           ),
         },

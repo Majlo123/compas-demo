@@ -14,7 +14,7 @@ import { LeaveRequest } from '@/api/leave-request/leaveRequest.types';
 import { RoleEnum } from '../../../../shared/auth.types';
 import Button from '@/components/controls/button/Button';
 import DialogChangePassword from '@/components/dialog/DialogChangePassword';
-import { getLeaveTypeColor } from '@/utils/colorUtils';
+import { getLeaveTypeColor, getTypeLabel } from '@/utils/colorUtils';
 
 interface UserProfile {
   id: string;
@@ -324,9 +324,9 @@ const ProfilePage: React.FC = () => {
                     onClick={() => handleEmailNotificationToggle(!profile.emailNotificationsEnabled)}
                     disabled={isUpdatingNotification}
                     className={`
-                      relative inline-flex h-6 w-11 rounded-full transition-colors
-                      ${profile.emailNotificationsEnabled 
-                        ? 'bg-primary' 
+                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                      ${profile.emailNotificationsEnabled
+                        ? 'bg-primary'
                         : 'bg-gray-300'
                       }
                       ${isUpdatingNotification ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
@@ -449,7 +449,7 @@ const ProfilePage: React.FC = () => {
                     transformDayElement={(element: any, value: any) => {
                       if (value && value.date && value.type) {
                         const formattedDate = format(new Date(value.date + 'T00:00:00'), 'dd.MM.yyyy');
-                        const typeLabel = value.type.charAt(0).toUpperCase() + value.type.slice(1);
+                        const typeLabel = getTypeLabel(value.type);
                         const tooltipText = `${formattedDate} - ${typeLabel} Leave`;
                         
                         return React.cloneElement(element, {
