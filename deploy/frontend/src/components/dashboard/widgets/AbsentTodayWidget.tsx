@@ -61,10 +61,6 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
     }
   };
 
-  const getTypeColor = (type: string): string => {
-    return getLeaveTypeColor(type);
-  };
-
   const getTypeTextClass = (type: string): string => {
     switch (type) {
       case 'vacation':
@@ -126,7 +122,7 @@ const AbsentTodayWidget: React.FC<WidgetComponentProps> = () => {
                     <div className="flex items-center gap-2 flex-1 min-w-0">
                       <div
                         className="w-2 h-2 rounded-full flex-shrink-0"
-                        style={{ backgroundColor: getTypeColor(user.type) }}
+                        style={{ backgroundColor: getLeaveTypeColor(user.type) }}
                       />
                       <span className="font-medium text-gray-800 truncate">{user.name}</span>
                     </div>
