@@ -169,7 +169,7 @@ export const createLeaveRequest = async (
       const managerEmailsWithPreferences: Record<string, boolean> = {};
       
       teamsMembers.flat().
-        filter(tm => tm.isManager && tm.email).
+        filter(tm => tm.isManager && tm.email && tm.email !== requester.email).
         forEach(tm => {
           managerEmailsSet.add(tm.email!);
         });
@@ -265,7 +265,9 @@ export const getTeamLeaveRequests = async (
   }
 
   // Call repository with or without team filter based on role
-  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams, managedTeamIds);
+  // Exclude user's own requests for managers (but not for admins)
+  const excludeUserId = userRole !== RoleEnum.Admin ? userId : undefined;
+  const paginatedResult = await leaveRequestRepository.findAllWithFilters(queryParams, managedTeamIds, excludeUserId);
 
   return {
     data: paginatedResult.data.map((request: LeaveRequestWithEmployee) => ({
@@ -303,6 +305,11 @@ export const updateLeaveRequestStatus = async (
 
   if (existingRequest.status !== 'pending') {
     throw new ApiError('Only pending requests can be updated', httpStatus.BAD_REQUEST);
+  }
+
+  // Prevent self-approval: managers cannot approve their own requests
+  if (existingRequest.userId === userId) {
+    throw new ApiError('You cannot approve your own leave request', httpStatus.FORBIDDEN);
   }
 
   // Admin can update any request

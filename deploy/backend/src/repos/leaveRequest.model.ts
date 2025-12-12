@@ -156,7 +156,8 @@ export const findApprovedMonthSummaryByUser = async (
  */
 export const findAllWithFilters = async (
   queryParams: QueryParams,
-  teamIds?: string[]
+  teamIds?: string[],
+  excludeUserId?: string
 ): Promise<PaginatedResult<LeaveRequestWithEmployee>> => {
   const page = queryParams.pagination?.page || 1;
   const pageSize = queryParams.pagination?.pageSize || 20;
@@ -180,6 +181,13 @@ export const findAllWithFilters = async (
   if (teamIds && teamIds.length > 0) {
     whereClauses.push(`lr.user_id IN (SELECT user_id FROM team_members WHERE team_id = ANY($${paramIndex}))`);
     whereValues.push(teamIds);
+    paramIndex++;
+  }
+
+  // Exclude specific user's requests (e.g., manager's own requests)
+  if (excludeUserId) {
+    whereClauses.push(`lr.user_id != $${paramIndex}`);
+    whereValues.push(excludeUserId);
     paramIndex++;
   }
 

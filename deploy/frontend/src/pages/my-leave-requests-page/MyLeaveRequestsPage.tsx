@@ -10,6 +10,7 @@ import { LeaveRequest, LeaveRequestStatus, LeaveRequestType } from '@/api/leave-
 import DialogLeaveRequestForm from '@/components/dialog/DialogLeaveRequestForm';
 import TableIconEdit from '@/components/images/TableIconEdit';
 import { isApiSuccess } from '@/api/shared.types';
+import { getTypeLabel } from '@/utils/colorUtils';
 
 interface LeaveRequestRow extends Row {
   type: string;
@@ -60,7 +61,7 @@ const MyLeaveRequestsPage: React.FC = () => {
         }
         const formattedData: LeaveRequestRow[] = content.map((request: LeaveRequest) => ({
           _id: request.id,
-          type: formatLeaveType(request.type),
+          type: getTypeLabel(request.type),
           startDate: formatDate(request.startDate),
           endDate: formatDate(request.endDate),
           status: request.status,
@@ -87,10 +88,6 @@ const MyLeaveRequestsPage: React.FC = () => {
     const reqId = params.get('requestId');
     setRequestIdFilter(reqId);
   }, [location.search]);
-
-  const formatLeaveType = (type: string): string => {
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
 
   const formatDate = (dateString: string): string => {
     const date = new Date(dateString);
