@@ -324,9 +324,9 @@ const ProfilePage: React.FC = () => {
                     onClick={() => handleEmailNotificationToggle(!profile.emailNotificationsEnabled)}
                     disabled={isUpdatingNotification}
                     className={`
-                      relative inline-flex h-6 w-11 rounded-full transition-colors
-                      ${profile.emailNotificationsEnabled 
-                        ? 'bg-primary' 
+                      relative inline-flex h-6 w-11 items-center rounded-full transition-colors
+                      ${profile.emailNotificationsEnabled
+                        ? 'bg-primary'
                         : 'bg-gray-300'
                       }
                       ${isUpdatingNotification ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}
