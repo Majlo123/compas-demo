@@ -9,6 +9,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Trash2, ArrowLeft } from 'lucide-react';
+import { getClient, updateClient, getClientProjects } from '@/api/client/client.actions';
+import { isApiSuccess } from '@/api/shared.types';
 
 interface Project extends Row {
   id: string;
@@ -38,6 +40,7 @@ const ClientDetailPage: React.FC = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [hasError, setHasError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [clientName, setClientName] = useState<string>('Client');
 
   const { control, handleSubmit, formState: { errors, isDirty }, reset } = useForm<ClientForm>({
     resolver: zodResolver(clientFormSchema),
@@ -58,45 +61,34 @@ const ClientDetailPage: React.FC = () => {
     setHasError(false);
     
     try {
-      // TODO: Replace with actual API call
-      // Simulating API call with mock data
-      setTimeout(() => {
-        // Mock client data
-        const mockClient = {
-          _id: clientId,
-          name: 'Acme Corporation',
-          hourlyRate: 150,
-        };
-        
-        // Mock projects data
-        const mockProjects: Project[] = [
-          {
-            id: '1',
-            _id: '1',
-            name: 'Website Redesign',
-            description: 'Complete website overhaul',
-            memberCount: 5,
-          },
-          {
-            id: '2',
-            _id: '2',
-            name: 'Mobile App Development',
-            description: 'iOS and Android apps',
-            memberCount: 8,
-          },
-          {
-            id: '3',
-            _id: '3',
-            name: 'API Integration',
-            description: 'Third-party API integration',
-            memberCount: 3,
-          },
-        ];
-        
-        reset({ name: mockClient.name, hourlyRate: mockClient.hourlyRate });
-        setProjects(mockProjects);
+      // Fetch client details
+      const clientResponse = await getClient(clientId!);
+      if (!isApiSuccess(clientResponse)) {
+        setHasError(true);
         setIsLoading(false);
-      }, 500);
+        toast.error(clientResponse.error?.message || 'Failed to load client data');
+        return;
+      }
+
+      const client = clientResponse.content;
+      setClientName(client.name);
+      reset({ name: client.name, hourlyRate: client.hourlyRate });
+
+      // Fetch client projects
+      const projectsResponse = await getClientProjects(clientId!);
+      if (isApiSuccess(projectsResponse)) {
+        const projectsData = projectsResponse.content?.data || [];
+        const mappedProjects: Project[] = projectsData.map((p: any) => ({
+          id: p.id,
+          _id: p.id,
+          name: p.name,
+          description: p.description,
+          memberCount: p.memberCount || 0,
+        }));
+        setProjects(mappedProjects);
+      }
+
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching client data:', error);
       setHasError(true);
@@ -110,12 +102,15 @@ const ClientDetailPage: React.FC = () => {
     
     setIsSaving(true);
     try {
-      // TODO: Replace with actual API call
-      // Simulating API call
-      await new Promise(resolve => setTimeout(resolve, 500));
+      const response = await updateClient(clientId, { name: data.name, hourlyRate: data.hourlyRate });
       
-      toast.success('Client updated successfully');
-      reset(data); // Reset form with new values to clear dirty state
+      if (isApiSuccess(response)) {
+        setClientName(data.name);
+        toast.success('Client updated successfully');
+        reset(data); // Reset form with new values to clear dirty state
+      } else {
+        toast.error(response.error?.message || 'Failed to update client');
+      }
     } catch (error) {
       console.error('Error updating client:', error);
       toast.error('Failed to update client');
@@ -197,11 +192,11 @@ const ClientDetailPage: React.FC = () => {
     );
   }
 
-  const clientName = control._formValues.name || 'Client';
+  const clientTitle = clientName || 'Client';
 
   return (
     <PageLayout 
-      title={`Client: ${clientName}`}
+      title={`Client: ${clientTitle}`}
       isLoading={false}
       hasError={false}
       isEmpty={false}

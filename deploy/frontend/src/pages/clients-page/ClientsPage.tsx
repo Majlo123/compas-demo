@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import Button from '@/components/controls/button/Button';
-import { getClients } from '@/api/client/client.actions';
+import { getClients, createClient } from '@/api/client/client.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import DialogClientForm from '@/components/dialog/DialogClientForm';
 
@@ -66,16 +66,27 @@ const ClientsPage: React.FC = () => {
   };
 
   const handleCreateClient = async (data: { name: string; hourlyRate: number }) => {
-    const newClient: ClientRow = {
-      _id: `${Date.now()}`,
-      id: `${Date.now()}`,
-      name: data.name,
-      hourlyRate: data.hourlyRate,
-      projectCount: 0,
-    };
-    setClients(prev => [newClient, ...prev]);
-    toast.success('Client created successfully!');
-    handleCloseAddModal();
+    try {
+      const response = await createClient(data);
+      if (isApiSuccess(response)) {
+        const newClient = response.content;
+        const mappedClient: ClientRow = {
+          _id: newClient.id,
+          id: newClient.id,
+          name: newClient.name,
+          hourlyRate: newClient.hourlyRate,
+          projectCount: newClient.projectCount || 0,
+        };
+        setClients(prev => [mappedClient, ...prev]);
+        toast.success('Client created successfully!');
+        handleCloseAddModal();
+      } else {
+        toast.error(response.error?.message || 'Failed to create client');
+      }
+    } catch (error) {
+      console.error('Error creating client:', error);
+      toast.error('Failed to create client');
+    }
   };
 
   const columns: Column[] = [
