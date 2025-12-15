@@ -1,9 +1,12 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 import PageLayout from '@/components/layout/PageLayout';
 import Table, { Column, Row } from '@/components/controls/table/Table';
+import Button from '@/components/controls/button/Button';
 import { getClients } from '@/api/client/client.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import DialogClientForm from '@/components/dialog/DialogClientForm';
 
 type ClientRow = Row & {
   id: string;
@@ -13,11 +16,13 @@ type ClientRow = Row & {
 };
 
 const ClientsPage: React.FC = () => {
+  const navigate = useNavigate();
   const [clients, setClients] = useState<ClientRow[]>([]);
 
   const [isLoading, setIsLoading] = useState(false);
   const [hasError, setHasError] = useState(false);
   const [search, setSearch] = useState('');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
 
   const filteredClients = useMemo(() => {
     const term = search.trim().toLowerCase();
@@ -48,6 +53,31 @@ const ClientsPage: React.FC = () => {
     fetchClients();
   }, []);
 
+  const handleEdit = (clientId: string) => {
+    navigate(`/client-detail/${clientId}`);
+  };
+
+  const handleAddClient = () => {
+    setIsAddModalOpen(true);
+  };
+
+  const handleCloseAddModal = () => {
+    setIsAddModalOpen(false);
+  };
+
+  const handleCreateClient = async (data: { name: string; hourlyRate: number }) => {
+    const newClient: ClientRow = {
+      _id: `${Date.now()}`,
+      id: `${Date.now()}`,
+      name: data.name,
+      hourlyRate: data.hourlyRate,
+      projectCount: 0,
+    };
+    setClients(prev => [newClient, ...prev]);
+    toast.success('Client created successfully!');
+    handleCloseAddModal();
+  };
+
   const columns: Column[] = [
     {
       accessor: 'name',
@@ -65,14 +95,30 @@ const ClientsPage: React.FC = () => {
       accessor: 'projectCount',
       header: '# of Projects',
     },
+    {
+      accessor: 'actions',
+      header: 'Actions',
+      formatter: (_value: any, row: any) => (
+        <button
+          onClick={() => handleEdit(row._id)}
+          className="inline-flex items-center gap-2 px-3 py-2 text-sm font-medium text-primary hover:bg-primary/10 rounded-md transition-colors"
+          title="Edit client"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          Edit
+        </button>
+      ),
+    },
   ];
 
   return (
     <PageLayout
       title="Clients"
       action={(
-        <div className="flex justify-between items-center w-30">
-          <div className="flex gap-3 items-center w-full max-w-lg">
+        <div className="flex justify-between items-center gap-4 w-full">
+          <div className="flex gap-3 items-center flex-1 max-w-lg">
             <div className="relative w-full">
               <input
                 id="clients-search"
@@ -83,6 +129,10 @@ const ClientsPage: React.FC = () => {
               />
             </div>
           </div>
+          <Button onClick={handleAddClient} variant="primary" className="inline-flex items-center gap-2">
+            <span>+</span>
+            <span>New Client</span>
+          </Button>
         </div>
       )}
       actionPosition="below"
@@ -126,10 +176,9 @@ const ClientsPage: React.FC = () => {
         />
       )}
 
+      <DialogClientForm isOpen={isAddModalOpen} onOpenChange={setIsAddModalOpen} onCreate={handleCreateClient} />
     </PageLayout>
   );
 };
 
 export default ClientsPage;
-
-
