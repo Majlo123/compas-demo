@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react';
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO, differenceInMinutes } from 'date-fns';
+import AddTimeEntryDialog from '@/components/dialog/AddTimeEntryDialog';
 import './weekly-calendar.css';
 
 type TimeEntry = {
@@ -28,12 +29,16 @@ type Props = {
   onNavigate?: (weekStart: Date) => void;
   style?: React.CSSProperties;
   collectiveDaysOff?: CollectiveDayOff[];
+  projects?: Array<{ id: string; name: string }>;
+  onAddTimeEntry?: (data: any, date: Date) => void;
 };
 
-const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, collectiveDaysOff = [] }) => {
+const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, collectiveDaysOff = [], projects = [], onAddTimeEntry }) => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }) // Monday
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const weekDays = useMemo(() => {
     // Monday to Friday only
@@ -117,6 +122,20 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
   };
 
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(day);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogSubmit = (data: any, date: Date) => {
+    onAddTimeEntry?.(data, date);
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogCancel = () => {
+    setIsDialogOpen(false);
+  };
+
   const getDayOffInfo = (date: Date) => {
     // 1. Reset time to midnight for accurate comparison
     const checkDate = new Date(date);
@@ -194,7 +213,14 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
           }
 
           return (
-            <div key={dayKey} className={dayClass} style={dayStyle}>
+            <div
+              key={dayKey}
+              className={dayClass}
+              style={dayStyle}
+              onClick={() => handleDayClick(day)}
+              role="button"
+              tabIndex={0}
+            >
               {/* Day header */}
               <div className="day-header">
                 <span className="day-name">{format(day, 'EEE, MMM d')}</span>
@@ -257,6 +283,15 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
           );
         })}
       </div>
+
+      {/* Add Time Entry Dialog */}
+      <AddTimeEntryDialog
+        isOpen={isDialogOpen}
+        selectedDate={selectedDate}
+        projects={projects}
+        onSubmit={handleDialogSubmit}
+        onCancel={handleDialogCancel}
+      />
     </div>
   );
 };
