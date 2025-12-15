@@ -131,6 +131,15 @@ CREATE TABLE IF NOT EXISTS widgets (
     CONSTRAINT uq_widget_user_type UNIQUE (user_id, type)
 );
 
+CREATE TABLE IF NOT EXISTS time_entries (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    project_name VARCHAR(255) NOT NULL,
+    description TEXT,
+    time_spent NUMERIC(5, 2) NOT NULL,
+    is_overtime BOOLEAN DEFAULT FALSE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for widgets
 CREATE INDEX IF NOT EXISTS idx_widgets_user_id ON widgets(user_id);
 CREATE INDEX IF NOT EXISTS idx_widgets_type ON widgets(type);
