@@ -130,3 +130,11 @@ export const deleteTeam = catchAsync(async (req: Request, res: Response) => {
     content: deleted,
   });
 });
+
+export const listUnassignedTeams = catchAsync(async (req: Request, res: Response) => {
+  const teams = await teamService.listUnassignedTeams();
+  res.status(httpStatus.OK).send({
+    success: true,
+    content: { data: teams },
+  });
+});

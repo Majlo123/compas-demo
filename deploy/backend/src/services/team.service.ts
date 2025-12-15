@@ -237,6 +237,15 @@ export const deleteTeamById = async (id: string): Promise<Team> => {
   return deleted as Team;
 };
 
+/**
+ * Get teams that are not assigned to any client
+ */
+export const listUnassignedTeams = async (): Promise<Team[]> => {
+  const allTeams = await teamRepository.findAll({ queryParams: {} as QueryParams });
+  const unassignedTeams = allTeams.data.filter((team) => !team.clientId);
+  return unassignedTeams;
+};
+
 // Backwards-compatible aliases (optional)
 export const create = createTeam;
 export const findById = getTeamById;

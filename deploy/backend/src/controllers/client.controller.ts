@@ -27,3 +27,13 @@ export const listClientProjects = catchAsync(async (req: Request, res: Response)
   const projects = await clientService.listClientProjects(req.params.id);
   res.status(httpStatus.OK).send({ success: true, content: { data: projects } });
 });
+
+export const assignProjectToClient = catchAsync(async (req: Request, res: Response) => {
+  const result = await clientService.assignProjectToClient(req.params.id, req.params.projectId);
+  res.status(httpStatus.OK).send({ success: true, message: 'Project assigned to client', content: result });
+});
+
+export const unassignProjectFromClient = catchAsync(async (req: Request, res: Response) => {
+  const result = await clientService.unassignProjectFromClient(req.params.id, req.params.projectId);
+  res.status(httpStatus.OK).send({ success: true, message: 'Project unassigned from client', content: result });
+});

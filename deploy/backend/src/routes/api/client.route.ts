@@ -23,6 +23,8 @@ enum ClientFunctions {
   create = 'createClient',
   update = 'updateClient',
   projects = 'listClientProjects',
+  assignProject = 'assignProjectToClient',
+  unassignProject = 'unassignProjectFromClient',
 }
 
 const createClientRoute = (basePath: string): Router => {
@@ -103,6 +105,36 @@ const createClientRoute = (basePath: string): Router => {
       functionName: ClientFunctions.update,
       basePath,
     },
+    {
+      name: 'Assign Project to Client',
+      desc: 'Assign a project to a client',
+      path: '/:id/projects/:projectId',
+      params: [{ name: 'id' }, { name: 'projectId' }],
+      method: 'post',
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Project assigned' },
+        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
+      ],
+      functionName: ClientFunctions.assignProject,
+      basePath,
+    },
+    {
+      name: 'Unassign Project from Client',
+      desc: 'Unassign a project from a client',
+      path: '/:id/projects/:projectId',
+      params: [{ name: 'id' }, { name: 'projectId' }],
+      method: 'delete',
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Project unassigned' },
+        { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
+      ],
+      functionName: ClientFunctions.unassignProject,
+      basePath,
+    },
   ];
 
   const controllerFunctions = {
@@ -111,6 +143,8 @@ const createClientRoute = (basePath: string): Router => {
     [ClientFunctions.create]: clientController.createClient,
     [ClientFunctions.update]: clientController.updateClient,
     [ClientFunctions.projects]: clientController.listClientProjects,
+    [ClientFunctions.assignProject]: clientController.assignProjectToClient,
+    [ClientFunctions.unassignProject]: clientController.unassignProjectFromClient,
   };
 
   const router = Router();

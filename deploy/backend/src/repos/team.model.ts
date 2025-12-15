@@ -4,6 +4,7 @@ export type Team = {
   id?: string;
   name: string;
   description?: string;
+  clientId?: string | null;
   memberCount?: number;
   createdAt?: Date;
   updatedAt?: Date;

@@ -5,11 +5,12 @@ import Button from '@/components/controls/button/Button';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
 import FormTextInput from '@/components/controls/FormTextInput';
+import DialogAddProjectToClient from '@/components/dialog/DialogAddProjectToClient';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { Trash2, ArrowLeft } from 'lucide-react';
-import { getClient, updateClient, getClientProjects } from '@/api/client/client.actions';
+import { getClient, updateClient, getClientProjects, unassignProjectFromClient } from '@/api/client/client.actions';
 import { isApiSuccess } from '@/api/shared.types';
 
 interface Project extends Row {
@@ -41,6 +42,7 @@ const ClientDetailPage: React.FC = () => {
   const [hasError, setHasError] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
   const [clientName, setClientName] = useState<string>('Client');
+  const [isAddProjectDialogOpen, setIsAddProjectDialogOpen] = useState(false);
 
   const { control, handleSubmit, formState: { errors, isDirty }, reset } = useForm<ClientForm>({
     resolver: zodResolver(clientFormSchema),
@@ -119,18 +121,32 @@ const ClientDetailPage: React.FC = () => {
     }
   };
 
-  const handleRemoveProject = (projectId: string) => {
+  const handleRemoveProject = async (projectId: string) => {
     const project = projects.find(p => p.id === projectId);
     if (!project) return;
 
-    // Frontend-only removal (no API call as per requirements)
-    setProjects(prevProjects => prevProjects.filter(p => p.id !== projectId));
-    toast.success(`Project "${project.name}" removed from client`);
+    if (!clientId) return;
+
+    try {
+      const response = await unassignProjectFromClient(clientId, projectId);
+      if (isApiSuccess(response)) {
+        setProjects(prevProjects => prevProjects.filter(p => p.id !== projectId));
+        toast.success(`Project "${project.name}" removed from client`);
+      } else {
+        toast.error(response.error?.message || 'Failed to remove project');
+      }
+    } catch (error) {
+      console.error('Error removing project:', error);
+      toast.error('Failed to remove project');
+    }
   };
 
   const handleAddExistingProject = () => {
-    toast.info('Add Existing Project feature coming soon');
-    // TODO: Open a dialog to select and add existing projects
+    setIsAddProjectDialogOpen(true);
+  };
+
+  const handleProjectAssigned = () => {
+    fetchClientData();
   };
 
   const columns: Column[] = [
@@ -259,16 +275,18 @@ const ClientDetailPage: React.FC = () => {
         {/* Projects Section */}
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold text-gray-900">Assigned Projects</h2>
-            <Button 
-              onClick={handleAddExistingProject}
-              variant="primary"
-              className="inline-flex items-center gap-2"
-            >
-              <span>+</span>
-              <span>Add Existing Project</span>
-            </Button>
-          </div>
+              <h2 className="text-xl font-semibold text-gray-900">Assigned Projects</h2>
+              {projects.length > 0 && (
+                <Button 
+                  onClick={handleAddExistingProject}
+                  variant="primary"
+                  className="inline-flex items-center gap-2"
+                >
+                  <span>+</span>
+                  <span>Add Existing Project</span>
+                </Button>
+              )}
+            </div>
           
           {projects.length === 0 ? (
             <div className="text-center py-12">
@@ -310,6 +328,16 @@ const ClientDetailPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Add Project Dialog */}
+      {clientId && (
+        <DialogAddProjectToClient
+          isOpen={isAddProjectDialogOpen}
+          onOpenChange={setIsAddProjectDialogOpen}
+          clientId={clientId}
+          onProjectAssigned={handleProjectAssigned}
+        />
+      )}
     </PageLayout>
   );
 };

@@ -33,6 +33,7 @@ enum TeamFunctions {
   bulkRemoveMembers = 'bulkRemoveMembers',
   bulkUpdateMembersManager = 'bulkUpdateMembersManager',
   removeManagerRole = 'removeManagerRole',
+  listUnassigned = 'listUnassignedTeams',
 }
 
 const createTeamRoute = (basePath: string): Router => {
@@ -54,6 +55,35 @@ const createTeamRoute = (basePath: string): Router => {
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid object format', schema: BadRequestResponseSchema },
       ],
       functionName: TeamFunctions.create,
+      basePath,
+    },
+    {
+      name: 'List Teams',
+      desc: 'List teams',
+      path: '/',
+      method: 'get',
+      querySchema: QuerySchema,
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Teams list', schema: TeamListSchema },
+        { code: httpStatus.UNAUTHORIZED, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
+      ],
+      functionName: TeamFunctions.findAll,
+      basePath,
+    },
+    {
+      name: 'List Unassigned Teams',
+      desc: 'List teams not assigned to any client',
+      path: '/unassigned',
+      method: 'get',
+      authorize: true,
+      allowedRoles: [RoleEnum.Admin],
+      responses: [
+        { code: httpStatus.OK, desc: 'Unassigned teams list', schema: TeamListSchema },
+        { code: httpStatus.UNAUTHORIZED, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
+      ],
+      functionName: TeamFunctions.listUnassigned,
       basePath,
     },
     {
@@ -84,21 +114,6 @@ const createTeamRoute = (basePath: string): Router => {
         { code: httpStatus.NOT_FOUND, desc: 'Not found', schema: NotFoundResponseSchema },
       ],
       functionName: TeamFunctions.delete,
-      basePath,
-    },
-    {
-      name: 'List Teams',
-      desc: 'List teams',
-      path: '/',
-      method: 'get',
-      querySchema: QuerySchema,
-      authorize: true,
-      allowedRoles: [RoleEnum.Admin],
-      responses: [
-        { code: httpStatus.OK, desc: 'Teams list', schema: TeamListSchema },
-        { code: httpStatus.UNAUTHORIZED, desc: 'Unauthorized', schema: UnauthorizedResponseSchema },
-      ],
-      functionName: TeamFunctions.findAll,
       basePath,
     },
     {
@@ -209,6 +224,7 @@ const createTeamRoute = (basePath: string): Router => {
     bulkRemoveMembers: teamController.bulkRemoveMembers as RequestHandler,
     bulkUpdateMembersManager: teamController.bulkUpdateMembersManager as RequestHandler,
     removeManagerRole: teamController.removeManagerRole as RequestHandler,
+    listUnassignedTeams: teamController.listUnassignedTeams as RequestHandler,
   };
 
   const router = Router();

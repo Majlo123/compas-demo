@@ -69,3 +69,27 @@ export const getClientProjects = async (
     return formatError(error);
   }
 };
+
+export const assignProjectToClient = async (
+  clientId: string,
+  projectId: string,
+): Promise<ApiResponse<{ success: boolean }>> => {
+  try {
+    const response = await axiosServer.post(`${endpoint}/${clientId}/projects/${projectId}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+
+export const unassignProjectFromClient = async (
+  clientId: string,
+  projectId: string,
+): Promise<ApiResponse<{ success: boolean }>> => {
+  try {
+    const response = await axiosServer.delete(`${endpoint}/${clientId}/projects/${projectId}`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
