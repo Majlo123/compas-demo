@@ -1,0 +1,333 @@
+.weekly-calendar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100%;
+  background: #fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+}
+
+.weekly-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: transparent;
+}
+
+.weekly-nav {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.nav-btn {
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid #d1d5db;
+  background: #fff;
+  border-radius: 4px;
+  font-size: 20px;
+  font-weight: 300;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #6b7280;
+}
+
+.nav-btn:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+.today-btn {
+  font-size: 14px;
+  min-width: 60px;
+}
+
+.weekly-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.weekly-grid {
+  display: flex;
+  flex: 1;
+  flex-shrink: 0;
+  overflow: visible;
+  border: 1px solid #e5e7eb;
+  border-top: none;
+  position: relative;
+  /* Context for sticky */
+}
+
+.time-column {
+  flex-shrink: 0;
+  width: 72px;
+  border-right: 1px solid #e5e7eb;
+  background: #fff;
+  z-index: 20;
+  /* Keep time column above if needed */
+  position: sticky;
+  left: 0;
+}
+
+.time-header {
+  height: 48px;
+  border-bottom: 1px solid #e5e7eb;
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: #fff;
+}
+
+.time-label {
+  height: 54px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding-top: 0.5rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.day-column {
+  flex: 1;
+  min-width: 170px;
+  border-right: 1px solid #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.day-column.weekend {
+  background: #fafafa;
+}
+
+.day-column:last-child {
+  border-right: none;
+}
+
+.day-header {
+  height: 48px;
+  padding: 0.75rem;
+  border-bottom: 1px solid #e5e7eb;
+  background: #fff;
+  /* Ensure opaque background for sticky */
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.day-column.weekend .day-header {
+  background: #fafafa;
+}
+
+/* Ensure collective day off header matches or is neutral */
+.day-column.collective-day-off .day-header {
+  /* Keep white or match logic? Let's use white/transparent mix or just simple white */
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.day-name {
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.day-time {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.time-grid {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  /* Ensure children stack properly for sizing */
+}
+
+.time-slot {
+  height: 54px;
+  border-bottom: 1px solid #e5e7eb;
+  flex-shrink: 0;
+}
+
+.entries-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  /* This might need adjustment if scrolling? */
+  /* Actually with relative positioning in time-grid, absolute overlay works relative to the grid height */
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  overflow-y: auto;
+  /* Enable inner scrolling for entries */
+}
+
+/* Remove pointer-events hack */
+
+.time-entry {
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-left: 4px solid #ff4d4f;
+  border-radius: 4px;
+  padding: 0.75rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  transition: all 0.2s;
+}
+
+.time-entry:hover {
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+}
+
+.entry-content {
+  margin-bottom: 0.5rem;
+}
+
+.entry-title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+  line-height: 1.4;
+}
+
+.entry-team {
+  font-size: 0.75rem;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.team-name {
+  color: #ff4d4f;
+  font-weight: 500;
+}
+
+.entry-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f3f4f6;
+}
+
+.entry-icons {
+  display: flex;
+  gap: 0.5rem;
+  color: #9ca3af;
+}
+
+.entry-icons svg {
+  width: 16px;
+  height: 16px;
+}
+
+.entry-duration {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.day-total {
+  padding: 0.75rem;
+  background: transparent;
+  border-top: 1px solid #e5e7eb;
+  text-align: center;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Scrollbar styling */
+.entries-container::-webkit-scrollbar {
+  width: 6px;
+}
+
+.entries-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.entries-container::-webkit-scrollbar-thumb {
+  background: #d1d5db;
+  border-radius: 3px;
+}
+
+.entries-container::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;
+}
+
+/* Collective Days Off */
+.day-column.collective-day-off {
+  background: repeating-linear-gradient(45deg,
+      #ECDCFF,
+      #ECDCFF 8px,
+      #D9B4FF 8px,
+      #D9B4FF 16px) !important;
+  position: relative;
+}
+
+.day-column.collective-day-off .time-slot {
+  border-bottom: none;
+}
+
+/* Tooltip for Collective Day Off */
+.day-column.collective-day-off:hover::before {
+  content: var(--collective-tooltip-text);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+
+  /* Visual Look - White Card */
+  background-color: #ffffff;
+  color: #374151;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  pointer-events: none;
+  display: block;
+}
+
+/* Ensure time slots and labels don't shrink */
+.time-label,
+.time-slot {
+  flex-shrink: 0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .day-column {
+    min-width: 150px;
+  }
+}
+
+@media (max-width: 768px) {
+  .weekly-grid {
+    overflow-x: scroll;
+  }
+
+  .day-column {
+    min-width: 180px;
+  }
+}

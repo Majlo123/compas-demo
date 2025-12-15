@@ -24,6 +24,7 @@ import ProfilePage from '@/pages/profile-page/ProfilePage';
 import DaysOffPage from '@/pages/days-off-page/DaysOffPage';
 import ClientsPage from '@/pages/clients-page/ClientsPage';
 import ClientDetailPage from '@/pages/client-detail-page/ClientDetailPage';
+import TimeEntriesPage from '@/pages/time-entries-page/TimeEntriesPage';
 
 const Router: FC = () => {
   return (
@@ -62,6 +63,7 @@ const Router: FC = () => {
             <Route path="/profile" element={<ProfilePage />} />
             
             <Route path="/team-calendar" element={<TeamCalendarPage />} />
+                        <Route path="/time-entries" element={<TimeEntriesPage />} />
             <Route path="/reports" element={<ReportsPage />} />
             <Route path="/settings" element={<SettingsPage />} />
           </Route>
