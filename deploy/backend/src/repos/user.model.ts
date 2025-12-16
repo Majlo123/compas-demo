@@ -53,7 +53,7 @@ export const searchByNameOrEmail = async (searchQuery: string): Promise<any[]> =
   }
 
   const query = `
-    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft"
+    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft", profile_image_blob as "profileImageBlob"
     FROM users
     WHERE is_activated = TRUE
       AND (LOWER(full_name) LIKE LOWER($1) OR LOWER(email) LIKE LOWER($1))
@@ -71,7 +71,7 @@ export const findAllActivePaginated = async (page: number, pageSize: number, exc
   const excludeClause = excludeUserId ? 'AND id != $1' : '';
   const countQuery = `SELECT COUNT(*) FROM users WHERE is_activated = TRUE ${excludeClause}`;
   const dataQuery = `
-    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft"
+    SELECT id, full_name as "fullName", email, vacation_days_init as "vacationDaysInit", vacation_days_left as "vacationDaysLeft", profile_image_blob as "profileImageBlob"
     FROM users
     WHERE is_activated = TRUE ${excludeClause}
     ORDER BY created_at DESC

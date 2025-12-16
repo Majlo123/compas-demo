@@ -2,7 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import Button from '@/components/controls/button/Button';
+import DeleteButton from '@/components/controls/button/DeleteButton';
 import PageLayout from '@/components/layout/PageLayout';
+import ImagePreviewDialog from '@/components/dialog/ImagePreviewDialog';
 import { getUsers, searchUsers, deactivateUser, distributeAnnualLeave } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
 import usePagination from '@/hooks/usePagination';
@@ -21,6 +23,7 @@ interface UserRow extends Row {
   email: string;
   vacationDaysInit?: number;
   vacationDaysLeft?: number;
+  profileImageBlob?: string;
 }
 
 const UsersPage: React.FC = () => {
@@ -37,6 +40,8 @@ const UsersPage: React.FC = () => {
   const [editVacationDaysOpen, setEditVacationDaysOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<{ id: string; name: string; vacationDaysInit: number; vacationDaysLeft: number } | null>(null);
   const [confirmAnnualLeaveOpen, setConfirmAnnualLeaveOpen] = useState(false);
+  const [imagePreviewOpen, setImagePreviewOpen] = useState(false);
+  const [previewImage, setPreviewImage] = useState<{ url: string; userName: string } | null>(null);
   const user = useAuthStore((s) => s.user);
 
   useEffect(() => setPage(1), [debouncedSearch]);
@@ -58,7 +63,8 @@ const UsersPage: React.FC = () => {
             fullName: u.fullName,
             email: u.email,
             vacationDaysInit: u.vacationDaysInit ?? 0,
-            vacationDaysLeft: u.vacationDaysLeft ?? 0
+            vacationDaysLeft: u.vacationDaysLeft ?? 0,
+            profileImageBlob: u.profileImageBlob
           }));
           setUsers(userRows);
           setTotalPages(1);
@@ -75,7 +81,8 @@ const UsersPage: React.FC = () => {
             fullName: u.fullName,
             email: u.email,
             vacationDaysInit: u.vacationDaysInit ?? 0,
-            vacationDaysLeft: u.vacationDaysLeft ?? 0
+            vacationDaysLeft: u.vacationDaysLeft ?? 0,
+            profileImageBlob: u.profileImageBlob
           }));
           setUsers(userRows);
           setTotalPages(response.content.totalPages);
@@ -139,6 +146,42 @@ const UsersPage: React.FC = () => {
     {
       accessor: 'fullName',
       header: 'User Name',
+      formatter: (_value: any, row: any) => {
+        const getUserInitials = (fullName: string): string => {
+          const names = fullName.split(' ');
+          if (names.length >= 2) {
+            return `${names[0][0]}${names[names.length - 1][0]}`.toUpperCase();
+          }
+          return fullName[0]?.toUpperCase() || 'U';
+        };
+
+        return (
+          <div className="flex items-center gap-3">
+            <div
+              className="w-9 h-9 rounded-full bg-primary text-white flex items-center justify-center text-sm font-medium overflow-hidden cursor-pointer flex-shrink-0"
+              onClick={() => {
+                if (row.profileImageBlob) {
+                  setPreviewImage({ url: row.profileImageBlob, userName: row.fullName });
+                  setImagePreviewOpen(true);
+                }
+              }}
+            >
+              {row.profileImageBlob ? (
+                <img
+                  src={row.profileImageBlob}
+                  alt={row.fullName}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                <span>
+                  {getUserInitials(row.fullName)}
+                </span>
+              )}
+            </div>
+            <span>{row.fullName}</span>
+          </div>
+        );
+      },
     },
     { accessor: 'email', header: 'Email' },
     {
@@ -171,14 +214,12 @@ const UsersPage: React.FC = () => {
           >
             Edit Days
           </Button>
-          <Button
-            variant="delete"
-            size="sm"
+          <DeleteButton
             onClick={() => handleDeleteClick(row.id)}
             disabled={!user || (user.role !== RoleEnum.Admin)}
-          >
-            Delete
-          </Button>
+            title="Delete user"
+            size="md"
+          />
         </div>
       ),
     },
@@ -273,6 +314,14 @@ const UsersPage: React.FC = () => {
           onSuccess={() => {
             fetchUsers();
           }}
+        />
+      )}
+      {previewImage && (
+        <ImagePreviewDialog
+          isOpen={imagePreviewOpen}
+          onClose={() => setImagePreviewOpen(false)}
+          imageUrl={previewImage.url}
+          userName={previewImage.userName}
         />
       )}
     </PageLayout >
