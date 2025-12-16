@@ -1,5 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
+import { ClipboardList, FolderCog, CalendarX, ShieldUser } from 'lucide-react';
 import TableIconCalendar from '@/components/images/TableIconCalendar';
 import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
@@ -22,13 +23,13 @@ const mainNavItems: NavItem[] = [
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },
-  { label: 'Days Off', path: '/days-off', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Days Off', path: '/days-off', Icon: CalendarX, allowedRoles: [RoleEnum.Admin] },
 ];
 
 const manageOrgItems: NavItem[] = [
   { label: 'Users', path: '/users', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Projects', path: '/teams-list', Icon: TeamsIcon, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Clients', path: '/clients', Icon: TableIconUser, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Projects', path: '/teams-list', Icon: ClipboardList, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Clients', path: '/clients', Icon: ShieldUser, allowedRoles: [RoleEnum.Admin] },
 ];
 
 const Sidebar: React.FC = () => {
@@ -118,7 +119,7 @@ const Sidebar: React.FC = () => {
                     )}
                   >
                     <span className="flex items-center gap-3">
-                      <TableIconUser className="w-5 h-5 stroke-sidebarText" />
+                      <FolderCog className="w-5 h-5 stroke-sidebarText" />
                       <span>Manage Organization</span>
                     </span>
                     <svg
