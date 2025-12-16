@@ -181,10 +181,10 @@ const HeaderNav: React.FC = () => {
           prev.map((n) =>
             n.id === notification.id
               ? {
-                  ...n,
-                  title: notification.title,
-                  timestamp: new Date(notification.createdAt),
-                }
+                ...n,
+                title: notification.title,
+                timestamp: new Date(notification.createdAt),
+              }
               : n
           )
         );
@@ -288,9 +288,7 @@ const HeaderNav: React.FC = () => {
       {/* Organization Name */}
       <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-primary/10 rounded flex items-center justify-center">
-            <span className="text-primary font-semibold text-sm">2C</span>
-          </div>
+          <img src="/assets/2c-logo.jpg" alt="2C Logo" className="w-auto h-8 rounded" />
           <span className="font-medium text-gray-800">2C Solution</span>
         </div>
       </div>
@@ -319,7 +317,7 @@ const HeaderNav: React.FC = () => {
 
         {/* User Menu */}
         <div className="relative" ref={dropdownRef}>
-          <button 
+          <button
             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
             className="flex items-center gap-2 p-1 hover:bg-gray-100 rounded-lg transition-colors"
           >
@@ -335,7 +333,7 @@ const HeaderNav: React.FC = () => {
               )}
             </div>
           </button>
-          
+
           {/* Dropdown menu */}
           <Dropdown isOpen={isDropdownOpen} onClose={() => setIsDropdownOpen(false)} className="w-56">
             {/* User Info Header */}
@@ -345,7 +343,7 @@ const HeaderNav: React.FC = () => {
                 <div className="text-sm text-gray-600 truncate">{userInfo.email}</div>
               </div>
             )}
-            
+
             <div className="py-1">
               <button
                 onClick={handleProfileClick}
