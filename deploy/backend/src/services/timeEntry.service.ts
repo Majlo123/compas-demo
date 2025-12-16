@@ -105,66 +105,39 @@ export const deleteTimeEntryById = async (id: string): Promise<TimeEntry> => {
     return deleted;
 };
 
+/**
+ * Get all time entries for a user with optional date range filtering
+ */
+export const getUserTimeEntries = async (userId: string, filters?: { startDate?: string; endDate?: string }) => {
+    const entries = await timeEntryRepository.findByUserId(userId);
+    
+    // Apply date range filters if provided
+    if (filters?.startDate || filters?.endDate) {
+        return entries.filter((entry: any) => {
+            const entryDate = new Date(entry.startate || entry.start_date).getTime();
+            const startDate = filters.startDate ? new Date(filters.startDate).getTime() : 0;
+            const endDate = filters.endDate ? new Date(filters.endDate).getTime() + 86400000 : Infinity; // +1 day for inclusive end
+            return entryDate >= startDate && entryDate <= endDate;
+        });
+    }
+    
+    return entries;
+};
+
+/**
+ * Delete a time entry
+ */
+export const deleteTimeEntry = async (id: string): Promise<boolean> => {
+    const deleted = await timeEntryRepository.deleteById(id);
+    return !!deleted;
+};
+
 // --- LIST Operations ---
 
 /**
  * List all time entries (simplest find all)
  */
 export const listAllTimeEntries = async (): Promise<TimeEntry[]> => {
-    // Assuming findAll without queryParams returns all data
-    const result = await timeEntryRepository.findAll({}); 
-    // The result from the repository is expected to be TimeEntry[] here
-    return result.data || result; 
+    const result = await timeEntryRepository.findAll({});
+    return Array.isArray(result) ? result : (result.data || []);
 };
-
-/**
- * List time entries associated with a specific user ID
- */
-export const listTimeEntriesByUserId = async (userId: string): Promise<TimeEntry[]> => {
-    const user = await userRepository.findById({ id: userId });
-    if (!user) {
-        throw new ApiError(`User with id ${userId} not found`, httpStatus.NOT_FOUND);
-    }
-
-    // Assuming findAllByUserId is adapted to return TimeEntry[] (not PaginatedResult)
-    const result = await timeEntryRepository.findAllByUserId(userId); 
-    return result;
-};
-
-/**
- * List time entries by userId and a date range (start up to 5 days later)
- * @param {string} userId - The ID of the user.
- * @param {string} startDate - The start date (e.g., '2025-12-15').
- */
-export const listTimeEntriesByUserIdAndDateRange = async (userId: string, startDate: string): Promise<TimeEntry[]> => {
-    const user = await userRepository.findById({ id: userId });
-    if (!user) {
-        throw new ApiError(`User with id ${userId} not found`, httpStatus.NOT_FOUND);
-    }
-
-    // 1. Calculate the end date (start date + 5 days)
-    const endDate = DateHelper.calculateEndDate(startDate);
-    
-    // 2. Format the start date for comparison (important for ignoring time)
-    const formattedStartDate = DateHelper.formatDate(startDate);
-    
-    // 3. Call a new repository method to handle the range query
-    // This new repository method must perform a date-only comparison in SQL:
-    // WHERE user_id = :userId AND created_at >= :startDate AND created_at < :endDate
-    // (Note: Using < endDate ensures we only get entries *before* midnight of the 6th day)
-    
-    const result = await timeEntryRepository.findByUserIdAndDateRange(
-        userId, 
-        formattedStartDate, 
-        endDate
-    );
-
-    return result;
-};
-
-// Backwards-compatible aliases
-export const create = createTimeEntry;
-export const findById = getTimeEntryById;
-export const findAll = listAllTimeEntries; // Changed name to avoid conflict with listTimeEntriesByUserId
-export const findByUserId = listTimeEntriesByUserId;
-export const deleteEntry = deleteTimeEntryById;

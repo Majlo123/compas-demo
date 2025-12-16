@@ -19,6 +19,16 @@ const { create, findById, findByField, findAll, updateById, deleteById } =
 
 export { create, findById, findByField, findAll, updateById, deleteById };
 
-export function findAllByUserId(userId: string, arg1: { queryParams: QueryParams; }) {
-    throw new Error('Function not implemented.');
-}
+export const findByUserId = async (userId: string): Promise<TimeEntry[]> => {
+    try {
+        const pool = require('config/database').default;
+        const result = await pool.query(
+            'SELECT * FROM time_entries WHERE user_id = $1 ORDER BY start_date DESC',
+            [userId]
+        );
+        return result.rows;
+    } catch (error) {
+        console.error('Error finding time entries by userId:', error);
+        return [];
+    }
+};
