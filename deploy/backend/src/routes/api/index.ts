@@ -54,16 +54,37 @@ const defaultRoutes: { path: string; route: any }[] = [
     path: '/widgets',
     route: createWidgetRoute('/widgets'),
   },
+  {
+    path: '/time-entries',
+    route: (() => {
+      try {
+        console.log('BEFORE calling createTimeEntryRoute');
+        const result = createTimeEntryRoute('/time-entries');
+        console.log('AFTER calling createTimeEntryRoute');
+        return result;
+      } catch (err) {
+        console.error('ERROR in createTimeEntryRoute:', err);
+        throw err;
+      }
+    })(),
+  },
+  {
+    path: '/clients',
+    route: createClientRoute('/clients'),
+  },
 ];
 
 const addRoutes = (router: Router, routes: any[]): void => {
+  console.log('===== Adding routes count:', routes.length, '===== FORCE RELOAD');
   routes.forEach((route) => {
+    console.log('Processing route path:', route.path);
     if (Array.isArray(route.route)) {
       // If the route has nested routes, recursively add them
       const nestedRouter = express.Router();
       addRoutes(nestedRouter, route.route);
       router.use(route.path, nestedRouter);
     } else {
+      console.log('Registering router for path:', route.path);
       router.use(route.path, route.route);
     }
   });

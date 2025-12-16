@@ -14,24 +14,24 @@ export const TimeEntrySchema = z.object({
     description: 'Description of work done',
     example: 'Worked on frontend components and responsive design'
   }),
-    startTime: z.string().datetime().openapi({ 
-      description: 'Start time of the work (ISO 8601 timestamp)',
-      example: '2025-12-16T08:00:00.000Z'
+  startTime: z.string().datetime().openapi({ 
+    description: 'Start time of the work (ISO 8601 timestamp)',
+    example: '2025-12-16T08:00:00.000Z'
   }),
-    endTime: z.string().datetime().openapi({ 
-      description: 'End time of the work (ISO 8601 timestamp)',
-      example: '2025-12-16T10:00:00.000Z'
+  endTime: z.string().datetime().openapi({ 
+    description: 'End time of the work (ISO 8601 timestamp)',
+    example: '2025-12-16T10:00:00.000Z'
   }),
   isOvertime: z.boolean().openapi({ 
     description: 'Whether this entry is overtime',
     example: false
   }),
-    isBillable: z.boolean().openapi({ 
-      description: 'Whether this entry is billable',
-      example: true
-    }),
+  isBillable: z.boolean().openapi({ 
+    description: 'Whether this entry is billable',
+    example: true
+  }),
   createdAt: z.string().datetime().optional().openapi({ description: 'Creation timestamp' }),
-    updatedAt: z.string().datetime().optional().openapi({ description: 'Last update timestamp' }),
+  updatedAt: z.string().datetime().optional().openapi({ description: 'Last update timestamp' }),
 });
 
 export const CreateTimeEntryBodySchema = z.object({
@@ -43,17 +43,17 @@ export const CreateTimeEntryBodySchema = z.object({
     description: 'Description of work done',
     example: 'Worked on frontend components and responsive design'
   }),
-    startTime: z.string()
-      .datetime('Invalid datetime format (ISO 8601)')
+  startTime: z.string()
+    .datetime('Invalid datetime format (ISO 8601)')
     .openapi({ 
-        description: 'Start time of work (ISO 8601 timestamp)',
-        example: '2025-12-16T08:00:00.000Z'
+      description: 'Start time of work (ISO 8601 timestamp)',
+      example: '2025-12-16T08:00:00.000Z'
     }),
-    endTime: z.string()
-      .datetime('Invalid datetime format (ISO 8601)')
+  endTime: z.string()
+    .datetime('Invalid datetime format (ISO 8601)')
     .openapi({ 
-        description: 'End time of work (ISO 8601 timestamp)',
-        example: '2025-12-16T10:00:00.000Z'
+      description: 'End time of work (ISO 8601 timestamp)',
+      example: '2025-12-16T10:00:00.000Z'
     }),
   isOvertime: z.boolean().optional().default(false).openapi({ 
     description: 'Whether this entry is overtime',
@@ -74,19 +74,19 @@ export const UpdateTimeEntryBodySchema = z.object({
     description: 'Description of work done',
     example: 'Updated API integration'
   }),
-    startTime: z.string()
-      .datetime('Invalid datetime format (ISO 8601)')
+  startTime: z.string()
+    .datetime('Invalid datetime format (ISO 8601)')
     .optional()
     .openapi({ 
-        description: 'Start time of work (ISO 8601 timestamp)',
-        example: '2025-12-16T09:00:00.000Z'
-      }),
-    endTime: z.string()
-      .datetime('Invalid datetime format (ISO 8601)')
-      .optional()
-      .openapi({ 
-        description: 'End time of work (ISO 8601 timestamp)',
-        example: '2025-12-16T12:00:00.000Z'
+      description: 'Start time of work (ISO 8601 timestamp)',
+      example: '2025-12-16T09:00:00.000Z'
+    }),
+  endTime: z.string()
+    .datetime('Invalid datetime format (ISO 8601)')
+    .optional()
+    .openapi({ 
+      description: 'End time of work (ISO 8601 timestamp)',
+      example: '2025-12-16T12:00:00.000Z'
     }),
   isOvertime: z.boolean().optional().openapi({ 
     description: 'Whether this entry is overtime',

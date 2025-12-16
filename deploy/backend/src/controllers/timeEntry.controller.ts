@@ -13,13 +13,13 @@ export const createTimeEntry = catchAsync(async (req: Request, res: Response) =>
     return;
   }
 
-    const { projectName, description, startTime, endTime, isOvertime, isBillable } = req.body;
+  const { projectName, description, startDate, timeSpentMinutes, isOvertime, isBillable } = req.body;
   const timeEntry = await timeEntryService.createTimeEntry({
     userId,
     projectName,
     description,
-      startTime,
-      endTime,
+    startDate,
+    timeSpentMinutes,
     isOvertime,
     isBillable,
   });
@@ -83,12 +83,11 @@ export const updateTimeEntry = catchAsync(async (req: Request, res: Response) =>
     return;
   }
 
-    const { projectName, description, startTime, endTime, isOvertime, isBillable } = req.body;
+  const { projectName, description, timeSpentMinutes, isOvertime, isBillable } = req.body;
   const updated = await timeEntryService.updateTimeEntry(id, {
     projectName,
     description,
-      startTime,
-      endTime,
+    timeSpentMinutes,
     isOvertime,
     isBillable,
   });
