@@ -8,38 +8,40 @@ import ApiError from 'shared/error/ApiError';
  * and calculate the date 5 days later.
  */
 const DateHelper = {
-    // Note: Assumes input is a valid date string or Date object
-    formatDate: (dateInput) => {
-        const date = new Date(dateInput);
-        if (isNaN(date)) {
-            throw new ApiError('Invalid date provided.', httpStatus.BAD_REQUEST);
-        }
-        // Gets YYYY-MM-DD regardless of local timezone
-        return date.toISOString().split('T')[0];
-    },
-
-    // Calculates the date 5 days after the start date, formatted as YYYY-MM-DD
-    calculateEndDate: (startDateInput) => {
-        const startDate = new Date(startDateInput);
-        if (isNaN(startDate)) {
-            throw new ApiError('Invalid start date provided.', httpStatus.BAD_REQUEST);
-        }
-        // Add 5 full days (5 * 24 * 60 * 60 * 1000 milliseconds)
-        startDate.setDate(startDate.getDate() + 5);
-        return DateHelper.formatDate(startDate);
-    },
-
-    // Validation (same as before)
     validateTimeEntryData: (entity) => {
         if (!entity.projectName || entity.projectName.trim().length === 0) {
             throw new ApiError('Project name is required', httpStatus.BAD_REQUEST);
         }
-        // Check for positive integer, max 480 minutes (8 hours)
-        if (!entity.timeSpentMinutes || !Number.isInteger(entity.timeSpentMinutes) || entity.timeSpentMinutes <= 0 || entity.timeSpentMinutes > 480) {
-            throw new ApiError('Time spent must be a positive integer lower than 480 minutes', httpStatus.BAD_REQUEST);
+        
+        // Validate start and end times
+        const startTime = new Date(entity.startTime);
+        const endTime = new Date(entity.endTime);
+        
+        if (isNaN(startTime.getTime())) {
+            throw new ApiError('Invalid start time provided', httpStatus.BAD_REQUEST);
         }
+        
+        if (isNaN(endTime.getTime())) {
+            throw new ApiError('Invalid end time provided', httpStatus.BAD_REQUEST);
+        }
+        
+        if (endTime <= startTime) {
+            throw new ApiError('End time must be after start time', httpStatus.BAD_REQUEST);
+        }
+        
+        // Check maximum duration (24 hours)
+        const diffMs = endTime.getTime() - startTime.getTime();
+        const diffHours = diffMs / (1000 * 60 * 60);
+        if (diffHours > 24) {
+            throw new ApiError('Time entry cannot exceed 24 hours', httpStatus.BAD_REQUEST);
+        }
+        
         if (entity.isOvertime !== undefined && typeof entity.isOvertime !== 'boolean') {
             entity.isOvertime = entity.isOvertime === 'true';
+        }
+        
+        if (entity.isBillable !== undefined && typeof entity.isBillable !== 'boolean') {
+            entity.isBillable = entity.isBillable === 'true';
         }
     }
 };
@@ -114,9 +116,12 @@ export const getUserTimeEntries = async (userId: string, filters?: { startDate?:
     // Apply date range filters if provided
     if (filters?.startDate || filters?.endDate) {
         return entries.filter((entry: any) => {
-            const entryDate = new Date(entry.startate || entry.start_date).getTime();
-            const startDate = filters.startDate ? new Date(filters.startDate).getTime() : 0;
-            const endDate = filters.endDate ? new Date(filters.endDate).getTime() + 86400000 : Infinity; // +1 day for inclusive end
+            const entryStartTime = new Date(entry.start_time || entry.startTime);
+            const entryDate = entryStartTime.toISOString().split('T')[0]; // Get YYYY-MM-DD
+            
+            const startDate = filters.startDate || '1970-01-01';
+            const endDate = filters.endDate || '9999-12-31';
+            
             return entryDate >= startDate && entryDate <= endDate;
         });
     }

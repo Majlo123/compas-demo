@@ -1,12 +1,26 @@
 import React, { FC, useState, useEffect } from 'react';
 
-type TimeEntryFormData = {
+export type TimeEntryFormData = {
   project: string;
   description: string;
   hours: number;
   minutes: number;
   overtime: boolean;
   billable: boolean;
+  startHour?: number;
+  startMinute?: number;
+};
+
+export type TimeEntryInitialData = {
+  id: string;
+  project: string;
+  description: string;
+  hours: number;
+  minutes: number;
+  overtime: boolean;
+  billable: boolean;
+  startHour?: number;
+  startMinute?: number;
 };
 
 type Props = {
@@ -15,6 +29,9 @@ type Props = {
   projects?: Array<{ id: string; name: string }>;
   onSubmit?: (data: TimeEntryFormData, date: Date) => void;
   onCancel?: () => void;
+  mode?: 'create' | 'edit';
+  initialData?: TimeEntryInitialData;
+  initialStartTime?: { hour: number; minute: number };
 };
 
 const AddTimeEntryDialog: FC<Props> = ({
@@ -22,7 +39,10 @@ const AddTimeEntryDialog: FC<Props> = ({
   selectedDate,
   projects = [],
   onSubmit,
-  onCancel
+  onCancel,
+  mode = 'create',
+  initialData,
+  initialStartTime
 }) => {
   const [formData, setFormData] = useState<TimeEntryFormData>({
     project: '',
@@ -30,21 +50,45 @@ const AddTimeEntryDialog: FC<Props> = ({
     hours: 0,
     minutes: 0,
     overtime: false,
-    billable: false
+    billable: false,
+    startHour: 8,
+    startMinute: 0
   });
 
   useEffect(() => {
-    if (!isOpen) {
+    if (isOpen && mode === 'edit' && initialData) {
+      // Pre-fill form with existing data for edit mode
+      setFormData({
+        project: initialData.project,
+        description: initialData.description,
+        hours: initialData.hours,
+        minutes: initialData.minutes,
+        overtime: initialData.overtime,
+        billable: initialData.billable,
+        startHour: initialData.startHour ?? 8,
+        startMinute: initialData.startMinute ?? 0
+      });
+    } else if (isOpen && mode === 'create') {
+      // Use initialStartTime if provided
+      setFormData(prev => ({
+        ...prev,
+        startHour: initialStartTime?.hour ?? 8,
+        startMinute: initialStartTime?.minute ?? 0
+      }));
+    } else if (!isOpen) {
+      // Reset form when dialog closes
       setFormData({
         project: '',
         description: '',
         hours: 0,
         minutes: 0,
         overtime: false,
-        billable: false
+        billable: false,
+        startHour: 8,
+        startMinute: 0
       });
     }
-  }, [isOpen]);
+  }, [isOpen, mode, initialData, initialStartTime]);
 
   const isFormValid = formData.project && formData.description && (formData.hours > 0 || formData.minutes > 0);
 
@@ -57,7 +101,9 @@ const AddTimeEntryDialog: FC<Props> = ({
         hours: 0,
         minutes: 0,
         overtime: false,
-        billable: false
+        billable: false,
+        startHour: 8,
+        startMinute: 0
       });
     }
   };
@@ -70,7 +116,9 @@ const AddTimeEntryDialog: FC<Props> = ({
       hours: 0,
       minutes: 0,
       overtime: false,
-      billable: false
+      billable: false,
+      startHour: 8,
+      startMinute: 0
     });
   };
 
@@ -78,8 +126,20 @@ const AddTimeEntryDialog: FC<Props> = ({
     return date.toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' });
   };
 
-  const formatTime = (hours: number, minutes: number) => {
-    return `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:00`;
+  const formatTime = (hour: number, minute: number) => {
+    return `${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
+  };
+
+  // Calculate End Time
+  const getEndTime = () => {
+    const startTotalMinutes = (formData.startHour || 0) * 60 + (formData.startMinute || 0);
+    const durationMinutes = (formData.hours || 0) * 60 + (formData.minutes || 0);
+    const endTotalMinutes = startTotalMinutes + durationMinutes;
+
+    const endHour = Math.floor(endTotalMinutes / 60) % 24;
+    const endMinute = endTotalMinutes % 60;
+
+    return formatTime(endHour, endMinute);
   };
 
   if (!isOpen) return null;
@@ -94,7 +154,9 @@ const AddTimeEntryDialog: FC<Props> = ({
         <div className="flex flex-col h-full">
           {/* Header */}
           <div className="flex justify-between items-center px-6 py-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Add time entry</h2>
+            <h2 className="text-xl font-semibold text-gray-900">
+              {mode === 'edit' ? 'Edit time entry' : 'Add time entry'}
+            </h2>
             <button
               className="bg-none border-none text-2xl cursor-pointer text-gray-400 hover:text-gray-600 p-0 w-8 h-8 flex items-center justify-center transition-colors"
               onClick={handleCancel}
@@ -109,32 +171,69 @@ const AddTimeEntryDialog: FC<Props> = ({
             {/* Time and Date Section */}
             <div className="mb-8 pb-6 border-b border-gray-100">
               <h3 className="text-xs font-semibold text-gray-500 mb-4 uppercase tracking-wide">Time and date</h3>
-              <div className="flex items-center gap-3">
-                <div className="text-lg font-semibold text-gray-900 min-w-max">
-                  {formatTime(formData.hours, formData.minutes)}
+
+              <div className="flex flex-col gap-4">
+                {/* Start Time and Duration Row */}
+                <div className="flex items-center gap-6">
+                  {/* Start Time */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-gray-500 font-medium">Start Time</span>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        min="0"
+                        max="23"
+                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
+                        value={String(formData.startHour || 0).padStart(2, '0')}
+                        onChange={(e) => setFormData({ ...formData, startHour: Math.min(23, Math.max(0, parseInt(e.target.value) || 0)) })}
+                      />
+                      <span className="text-gray-400">:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
+                        value={String(formData.startMinute || 0).padStart(2, '0')}
+                        onChange={(e) => setFormData({ ...formData, startMinute: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Duration */}
+                  <div className="flex flex-col gap-1">
+                    <span className="text-xs text-gray-500 font-medium">Duration (hh:mm)</span>
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="number"
+                        min="0"
+                        max="23"
+                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
+                        value={String(formData.hours).padStart(2, '0')}
+                        onChange={(e) => setFormData({ ...formData, hours: Math.max(0, parseInt(e.target.value) || 0) })}
+                      />
+                      <span className="text-gray-400">:</span>
+                      <input
+                        type="number"
+                        min="0"
+                        max="59"
+                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
+                        value={String(formData.minutes).padStart(2, '0')}
+                        onChange={(e) => setFormData({ ...formData, minutes: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
+                      />
+                    </div>
+                  </div>
                 </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="number"
-                    min="0"
-                    max="23"
-                    className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm"
-                    value={String(formData.hours).padStart(2, '0')}
-                    onChange={(e) => setFormData({ ...formData, hours: Math.max(0, parseInt(e.target.value) || 0) })}
-                  />
-                  <span className="text-gray-300 mx-1">-</span>
-                  <input
-                    type="number"
-                    min="0"
-                    max="59"
-                    className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm"
-                    value={String(formData.minutes).padStart(2, '0')}
-                    onChange={(e) => setFormData({ ...formData, minutes: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
-                  />
-                </div>
-                <span className="text-lg cursor-pointer hover:opacity-70 transition-opacity">📅</span>
-                <div className="text-sm font-medium text-gray-700 min-w-max">
-                  {selectedDate ? formatDate(selectedDate) : 'No date'}
+
+                {/* Calculated Range Display */}
+                <div className="flex items-center gap-2 text-sm bg-blue-50 px-3 py-2 rounded text-blue-700 font-medium self-start">
+                  <span>🕒</span>
+                  <span>
+                    {formatTime(formData.startHour || 0, formData.startMinute || 0)}
+                    {' - '}
+                    {getEndTime()}
+                  </span>
+                  <span className="text-blue-400 mx-2">|</span>
+                  <span>{selectedDate ? formatDate(selectedDate) : 'No date'}</span>
                 </div>
               </div>
             </div>
@@ -227,8 +326,8 @@ const AddTimeEntryDialog: FC<Props> = ({
             </button>
             <button
               className={`border-none rounded font-semibold text-sm transition-all px-6 py-2.5 ${isFormValid
-                  ? 'text-white cursor-pointer hover:bg-blue-600'
-                  : 'text-gray-500 cursor-not-allowed opacity-70'
+                ? 'text-white cursor-pointer hover:bg-blue-600'
+                : 'text-gray-500 cursor-not-allowed opacity-70'
                 }`}
               style={{
                 backgroundColor: isFormValid ? '#3b82f6' : '#d1d5db'
@@ -236,7 +335,7 @@ const AddTimeEntryDialog: FC<Props> = ({
               onClick={handleSubmit}
               disabled={!isFormValid}
             >
-              ADD
+              {mode === 'edit' ? 'SAVE' : 'ADD'}
             </button>
           </div>
         </div>
