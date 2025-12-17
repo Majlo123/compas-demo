@@ -2,18 +2,8 @@ import React, { FC, useState, useEffect } from 'react';
 import WeeklyCalendar from '@/components/calendar/WeeklyCalendar';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { isApiSuccess } from '@/api/shared.types';
-import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
-
-type TimeEntry = {
-  id: string;
-  title: string;
-  start: string | Date;
-  end: string | Date;
-  teamName?: string;
-  projectName?: string;
-  color?: string;
-  createdAt?: string | Date;
-};
+import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
+import { TimeEntry } from '@shared/timeEntry.types';
 
 const TimeEntriesPage: FC = () => {
   const [entries] = useState<TimeEntry[]>([]);
