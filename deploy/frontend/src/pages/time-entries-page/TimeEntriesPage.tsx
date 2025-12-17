@@ -2,18 +2,8 @@ import React, { FC, useState, useEffect } from 'react';
 import WeeklyCalendar from '@/components/calendar/WeeklyCalendar';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { isApiSuccess } from '@/api/shared.types';
-import { CollectiveDayOff } from '../../../../shared/collectiveDayOff.types';
-
-type TimeEntry = {
-  id: string;
-  title: string;
-  start: string | Date;
-  end: string | Date;
-  teamName?: string;
-  projectName?: string;
-  color?: string;
-  createdAt?: string | Date;
-};
+import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
+import { TimeEntry } from '@shared/timeEntry.types';
 
 const TimeEntriesPage: FC = () => {
   const [entries] = useState<TimeEntry[]>([]);
@@ -47,23 +37,8 @@ const TimeEntriesPage: FC = () => {
   };
 
   return (
-    <div className="time-entries-page" style={{
-      height: '100%',
-      display: 'flex',
-      flexDirection: 'column',
-      padding: '0',
-      backgroundColor: '#f5f5f5',
-      overflowY: 'auto' // Allow page scrolling
-    }}>
-      <div style={{
-        position: 'relative',
-        flex: '1 0 auto', // Allow growth
-        height: 'auto',   // Natural height
-        backgroundColor: '#ffffff',
-        borderRadius: '0',
-        border: 'none',
-        overflow: 'visible' // No clipping
-      }}>
+    <div className="time-entries-page h-full flex flex-col p-0 bg-layoutBg overflow-y-auto">
+      <div className="relative flex-1 h-auto bg-white rounded-none border-none overflow-visible">
         <WeeklyCalendar
           entries={entries}
           onSelectEntry={handleSelectEntry}

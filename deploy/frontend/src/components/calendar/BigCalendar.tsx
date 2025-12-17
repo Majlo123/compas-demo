@@ -3,6 +3,7 @@ import { Calendar as RbcCalendar, dateFnsLocalizer, View } from 'react-big-calen
 import { parse, startOfWeek, getDay, format, addMonths, subMonths, addWeeks, subWeeks, addDays, subDays } from 'date-fns';
 import { enUS } from 'date-fns/locale/en-US';
 import { formatInTimeZone } from 'date-fns-tz';
+import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
 import 'react-big-calendar/lib/css/react-big-calendar.css';
 import './big-calendar.css';
 
@@ -18,14 +19,6 @@ type Event = {
   end: string | Date;
   allDay?: boolean;
   [k: string]: any;
-};
-
-type CollectiveDayOff = {
-  id: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  createdAt?: string;
 };
 
 type Props = {
