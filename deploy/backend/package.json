@@ -12,7 +12,11 @@
     "start-pm2": "pm2-runtime start ecosystem.config.js",
     "lint": "bun lint:source",
     "lint:fix": "eslint --ext ts,tsx './src/**/*' --fix --quiet",
-    "lint:source": "eslint './src/**/*' --quiet --cache --cache-strategy='content' --cache-location='.eslintcache/'"
+    "lint:source": "eslint './src/**/*' --quiet --cache --cache-strategy='content' --cache-location='.eslintcache/'",
+    "migrate": "bun run knex migrate:latest --knexfile knexfile.ts",
+    "migrate:rollback": "bun run knex migrate:rollback --knexfile knexfile.ts",
+    "migrate:status": "bun run knex migrate:status --knexfile knexfile.ts",
+    "seed": "bun run knex seed:run --knexfile knexfile.ts"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -56,6 +60,7 @@
     "helmet": "^7.0.0",
     "http-status": "^1.7.0",
     "jsonwebtoken": "^9.0.2",
+    "knex": "^3.1.0",
     "mime-types": "^3.0.1",
     "morgan": "^1.10.0",
     "nodemailer": "^6.9.5",

@@ -1,4 +1,0 @@
-# Ignore all SQL init scripts
-*.sql
-
-!.gitignore
