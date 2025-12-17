@@ -168,73 +168,79 @@ const AddTimeEntryDialog: FC<Props> = ({
 
           {/* Body */}
           <div className="px-6 py-6 flex-1 overflow-y-auto">
-            {/* Time and Date Section */}
-            <div className="mb-8 pb-6 border-b border-gray-100">
-              <h3 className="text-xs font-semibold text-gray-500 mb-4 uppercase tracking-wide">Time and date</h3>
+            {/* Compact Time and Date Section */}
+            <div className="mb-6 pb-6 border-b border-gray-100">
+              <div className="flex items-end gap-5">
 
-              <div className="flex flex-col gap-4">
-                {/* Start Time and Duration Row */}
-                <div className="flex items-center gap-6">
-                  {/* Start Time */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-gray-500 font-medium">Start Time</span>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min="0"
-                        max="23"
-                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
-                        value={String(formData.startHour || 0).padStart(2, '0')}
-                        onChange={(e) => setFormData({ ...formData, startHour: Math.min(23, Math.max(0, parseInt(e.target.value) || 0)) })}
-                      />
-                      <span className="text-gray-400">:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="59"
-                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
-                        value={String(formData.startMinute || 0).padStart(2, '0')}
-                        onChange={(e) => setFormData({ ...formData, startMinute: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Duration */}
-                  <div className="flex flex-col gap-1">
-                    <span className="text-xs text-gray-500 font-medium">Duration (hh:mm)</span>
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="number"
-                        min="0"
-                        max="23"
-                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
-                        value={String(formData.hours).padStart(2, '0')}
-                        onChange={(e) => setFormData({ ...formData, hours: Math.max(0, parseInt(e.target.value) || 0) })}
-                      />
-                      <span className="text-gray-400">:</span>
-                      <input
-                        type="number"
-                        min="0"
-                        max="59"
-                        className="w-12 px-2 py-2 border border-gray-300 rounded text-center font-medium text-sm focus:border-blue-500 focus:outline-none"
-                        value={String(formData.minutes).padStart(2, '0')}
-                        onChange={(e) => setFormData({ ...formData, minutes: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
-                      />
-                    </div>
+                {/* Start Time Group */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-500 font-medium">Start Time</span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="23"
+                      className="w-14 px-2 py-2 border border-gray-300 rounded text-center font-medium text-lg focus:border-blue-500 focus:outline-none"
+                      value={String(formData.startHour || 0).padStart(2, '0')}
+                      onChange={(e) => setFormData({ ...formData, startHour: Math.min(23, Math.max(0, parseInt(e.target.value) || 0)) })}
+                    />
+                    <span className="text-gray-400 font-bold">:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      className="w-14 px-2 py-2 border border-gray-300 rounded text-center font-medium text-lg focus:border-blue-500 focus:outline-none"
+                      value={String(formData.startMinute || 0).padStart(2, '0')}
+                      onChange={(e) => setFormData({ ...formData, startMinute: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
+                    />
                   </div>
                 </div>
 
-                {/* Calculated Range Display */}
-                <div className="flex items-center gap-2 text-sm bg-blue-50 px-3 py-2 rounded text-blue-700 font-medium self-start">
-                  <span>🕒</span>
-                  <span>
-                    {formatTime(formData.startHour || 0, formData.startMinute || 0)}
-                    {' - '}
-                    {getEndTime()}
-                  </span>
-                  <span className="text-blue-400 mx-2">|</span>
-                  <span>{selectedDate ? formatDate(selectedDate) : 'No date'}</span>
+                {/* Duration Group */}
+                <div className="flex flex-col gap-1">
+                  <span className="text-xs text-gray-500 font-medium">Duration (hh:mm)</span>
+                  <div className="flex items-center gap-1">
+                    <input
+                      type="number"
+                      min="0"
+                      max="23"
+                      className="w-14 px-2 py-2 border border-gray-300 rounded text-center font-medium text-lg focus:border-blue-500 focus:outline-none"
+                      value={String(formData.hours).padStart(2, '0')}
+                      onChange={(e) => setFormData({ ...formData, hours: Math.max(0, parseInt(e.target.value) || 0) })}
+                    />
+                    <span className="text-gray-400 font-bold">:</span>
+                    <input
+                      type="number"
+                      min="0"
+                      max="59"
+                      className="w-14 px-2 py-2 border border-gray-300 rounded text-center font-medium text-lg focus:border-blue-500 focus:outline-none"
+                      value={String(formData.minutes).padStart(2, '0')}
+                      onChange={(e) => setFormData({ ...formData, minutes: Math.min(59, Math.max(0, parseInt(e.target.value) || 0)) })}
+                    />
+                  </div>
                 </div>
+
+                {/* Info Group - Direct placement next to inputs */}
+                <div className="flex items-center gap-4 pb-3 ml-2">
+                  {/* Clock & Time Range */}
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <span style={{ fontSize: '1.2rem' }}>🕒</span>
+                    <span className="font-semibold text-sm">
+                      {formatTime(formData.startHour || 0, formData.startMinute || 0)}
+                      {' - '}
+                      {getEndTime()}
+                    </span>
+                  </div>
+
+                  {/* Calendar & Date */}
+                  <div className="flex items-center gap-2 text-gray-700">
+                    <span style={{ fontSize: '1.2rem' }}>📅</span>
+                    <span className="font-semibold text-sm">
+                      {selectedDate ? formatDate(selectedDate) : 'No date'}
+                    </span>
+                  </div>
+                </div>
+
               </div>
             </div>
 
