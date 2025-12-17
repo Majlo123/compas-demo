@@ -1,0 +1,31 @@
+/* Custom CSS for features not possible with Tailwind */
+
+/* Collective Days Off - custom gradient background */
+.collective-day-off {
+  background: repeating-linear-gradient(45deg,
+      #ECDCFF,
+      #ECDCFF 8px,
+      #D9B4FF 8px,
+      #D9B4FF 16px) !important;
+}
+
+/* Tooltip for Collective Day Off - uses CSS variable for dynamic content */
+.collective-day-off:hover::before {
+  content: var(--collective-tooltip-text);
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 99999;
+  background-color: #ffffff;
+  color: #374151;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  white-space: nowrap;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+  pointer-events: none;
+  display: block;
+}

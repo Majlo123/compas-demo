@@ -3,15 +3,7 @@ import { WidgetComponentProps } from '@/components/dashboard/WidgetRenderer';
 import { getHotSpots } from '@/api/widget/widget.actions';
 import { getAllCollectiveDaysOff } from '@/api/collective-day-off/collectiveDayOff.actions';
 import { isApiSuccess } from '@/api/shared.types';
-
-interface CollectiveDayOff {
-  id?: string;
-  startDate: string | Date;
-  endDate: string | Date;
-  description: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-}
+import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
 
 interface DayHeatData {
   date: string;

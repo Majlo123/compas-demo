@@ -9,4 +9,5 @@ export * as userInviteRepository from 'repos/userInvite.model';
 export * as leaveRequestNotificationRepository from 'repos/notification.model';
 export * as collectiveDayOffRepository from 'repos/collectiveDayOff.model';
 export * as widgetRepository from 'repos/widget.model';
+export * as timeEntryRepository from 'repos/timeEntry.model';
 export * as clientRepository from 'repos/client.model';
