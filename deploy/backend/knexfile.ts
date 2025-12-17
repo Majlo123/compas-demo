@@ -1,15 +1,14 @@
 import type { Knex } from 'knex';
-import config from './src/config/config';
 
-// Parse DATABASE_URL or use individual env vars
+// Use DATABASE_URL from env or fallback to individual env vars
 const dbConfig: Knex.Config = {
   client: 'pg',
-  connection: config.database.url || {
-    host: process.env.DB_HOST || 'database',
-    port: parseInt(process.env.DB_PORT || '5432'),
-    database: process.env.DB_NAME || 'vacationtracker',
-    user: process.env.DB_USER || 'vt_user',
-    password: process.env.DB_PASSWORD || 'vt_password',
+  connection: process.env.DATABASE_URL || {
+    host: process.env.DB_HOST,
+    port: parseInt(process.env.DB_PORT!, 10),
+    database: process.env.DB_NAME,
+    user: process.env.DB_USER,
+    password: process.env.DB_PASSWORD,
   },
   pool: {
     min: 2,
