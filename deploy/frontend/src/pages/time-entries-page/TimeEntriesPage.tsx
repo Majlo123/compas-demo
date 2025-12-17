@@ -9,6 +9,15 @@ const TimeEntriesPage: FC = () => {
   const [entries] = useState<TimeEntry[]>([]);
   const [collectiveDaysOff, setCollectiveDaysOff] = useState<CollectiveDayOff[]>([]);
 
+  // Mock projects data
+  const mockProjects = [
+    { id: '1', name: 'Website Redesign' },
+    { id: '2', name: 'Mobile App Development' },
+    { id: '3', name: 'Backend API' },
+    { id: '4', name: 'Database Optimization' },
+    { id: '5', name: 'Testing & QA' },
+  ];
+
   useEffect(() => {
     const fetchCollectiveDaysOff = async () => {
       const response = await getAllCollectiveDaysOff();
@@ -35,6 +44,7 @@ const TimeEntriesPage: FC = () => {
           onSelectEntry={handleSelectEntry}
           onNavigate={handleNavigate}
           collectiveDaysOff={collectiveDaysOff}
+          projects={mockProjects}
         />
       </div>
     </div>

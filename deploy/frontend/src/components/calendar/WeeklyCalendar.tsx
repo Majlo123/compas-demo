@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react';
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO, differenceInMinutes } from 'date-fns';
+import AddTimeEntryDialog from '@/components/dialog/AddTimeEntryDialog';
 import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
 import { TimeEntry } from '@shared/timeEntry.types';
 import './weekly-calendar.css';
@@ -10,12 +11,16 @@ type Props = {
   onNavigate?: (weekStart: Date) => void;
   style?: React.CSSProperties;
   collectiveDaysOff?: CollectiveDayOff[];
+  projects?: Array<{ id: string; name: string }>;
+  onAddTimeEntry?: (data: any, date: Date) => void;
 };
 
-const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, collectiveDaysOff = [] }) => {
+const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, collectiveDaysOff = [], projects = [], onAddTimeEntry }) => {
   const [currentWeekStart, setCurrentWeekStart] = useState(() =>
     startOfWeek(new Date(), { weekStartsOn: 1 }) // Monday
   );
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
 
   const weekDays = useMemo(() => {
     // Monday to Friday only
@@ -97,6 +102,20 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
     const hours = Math.floor(minutes / 60);
     const mins = minutes % 60;
     return `${String(hours).padStart(2, '0')}:${String(mins).padStart(2, '0')}:00`;
+  };
+
+  const handleDayClick = (day: Date) => {
+    setSelectedDate(day);
+    setIsDialogOpen(true);
+  };
+
+  const handleDialogSubmit = (data: any, date: Date) => {
+    onAddTimeEntry?.(data, date);
+    setIsDialogOpen(false);
+  };
+
+  const handleDialogCancel = () => {
+    setIsDialogOpen(false);
   };
 
   const getDayOffInfo = (date: Date) => {
@@ -184,7 +203,14 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
           }
 
           return (
-            <div key={dayKey} className={dayClass} style={dayStyle}>
+            <div
+              key={dayKey}
+              className={dayClass}
+              style={dayStyle}
+              onClick={() => handleDayClick(day)}
+              role="button"
+              tabIndex={0}
+            >
               {/* Day header */}
               <div className="h-12 px-3 py-3 border-b border-grey bg-white flex flex-row items-center justify-start sticky top-0 z-10">
                 <span className="font-semibold text-sm text-gray-900 mb-1">{format(day, 'EEE, MMM d')}</span>
@@ -247,6 +273,15 @@ const WeeklyCalendar: FC<Props> = ({ entries, onSelectEntry, onNavigate, style, 
           );
         })}
       </div>
+
+      {/* Add Time Entry Dialog */}
+      <AddTimeEntryDialog
+        isOpen={isDialogOpen}
+        selectedDate={selectedDate}
+        projects={projects}
+        onSubmit={handleDialogSubmit}
+        onCancel={handleDialogCancel}
+      />
     </div>
   );
 };
