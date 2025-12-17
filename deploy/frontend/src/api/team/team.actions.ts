@@ -129,3 +129,12 @@ export const removeManagerRole = async (
   }
 };
 
+export const getUnassignedTeams = async (): Promise<ApiResponse<{ data: Team[] }>> => {
+  try {
+    const response = await axiosServer.get(`${endpoint}/unassigned`);
+    return response.data;
+  } catch (error) {
+    return formatError(error);
+  }
+};
+

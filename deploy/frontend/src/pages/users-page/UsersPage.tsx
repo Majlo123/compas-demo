@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import Button from '@/components/controls/button/Button';
+import TableIconEdit from '@/components/images/TableIconEdit';
 import PageLayout from '@/components/layout/PageLayout';
 import { getUsers, searchUsers, deactivateUser, distributeAnnualLeave } from '@/api/user/user.actions';
 import { isApiSuccess } from '@/api/shared.types';
@@ -156,7 +157,7 @@ const UsersPage: React.FC = () => {
       formatter: (_v: any, row: any) => (
         <div className="flex gap-2 items-center justify-center">
           <Button
-            variant="secondary"
+            variant="edit"
             size="sm"
             onClick={() => {
               setSelectedUser({
@@ -168,8 +169,9 @@ const UsersPage: React.FC = () => {
               setEditVacationDaysOpen(true);
             }}
             disabled={!user || (user.role !== RoleEnum.Admin && !user.isTeamManager)}
+            Icon={TableIconEdit}
           >
-            Edit Days
+            <span className='self-center'>Edit Days</span>
           </Button>
           <Button
             variant="delete"

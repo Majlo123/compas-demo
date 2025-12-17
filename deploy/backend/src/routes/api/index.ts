@@ -13,6 +13,7 @@ import createNotificationRoute from 'routes/api/notification.route';
 import createCollectiveDayOffRoute from 'routes/api/collectiveDayOff.route';
 import createWidgetRoute from 'routes/api/widget.route';
 import createTimeEntryRoute from 'routes/api/timeEntry.route';
+import createClientRoute from 'routes/api/client.route';
 
 const apiRouter = express.Router();
 
@@ -52,10 +53,6 @@ const defaultRoutes: { path: string; route: any }[] = [
   {
     path: '/widgets',
     route: createWidgetRoute('/widgets'),
-  },
-  {
-    path: '/time-entries',
-    route: createTimeEntryRoute('/time-entries'),
   },
 ];
 

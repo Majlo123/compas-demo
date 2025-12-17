@@ -8,3 +8,4 @@ export * as notificationController from 'controllers/notification.controller';
 export * as collectiveDayOffController from 'controllers/collectiveDayOff.controller';
 export * as widgetController from 'controllers/widget.controller';
 export * as timeEntryController from 'controllers/timeEntry.controller';
+export * as clientController from 'controllers/client.controller';
