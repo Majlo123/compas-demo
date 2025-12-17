@@ -1,9 +1,19 @@
 import React, { FC, useState, useMemo } from 'react';
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO, differenceInMinutes } from 'date-fns';
-import AddTimeEntryDialog from '@/components/dialog/AddTimeEntryDialog';
 import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
-import { TimeEntry } from '@shared/timeEntry.types';
 import './weekly-calendar.css';
+
+type TimeEntry = {
+  id: string;
+  title: string;
+  start: string | Date;
+  end: string | Date;
+  teamName?: string;
+  projectName?: string;
+  color?: string;
+  createdAt?: string | Date;
+  [key: string]: any;
+};
 
 type Props = {
   entries: TimeEntry[];
