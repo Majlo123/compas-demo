@@ -1,5 +1,6 @@
 import React, { FC, useState, useMemo } from 'react';
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO, differenceInMinutes } from 'date-fns';
+import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
 import './weekly-calendar.css';
 
 type TimeEntry = {
@@ -12,14 +13,6 @@ type TimeEntry = {
   color?: string;
   createdAt?: string | Date;
   [key: string]: any;
-};
-
-type CollectiveDayOff = {
-  id: string;
-  startDate: string;
-  endDate: string;
-  description: string;
-  createdAt?: string;
 };
 
 type Props = {
