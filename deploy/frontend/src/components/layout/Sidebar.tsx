@@ -21,6 +21,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon, requiresTeamManager: true },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
+  { label: 'Time Entries', path: '/time-entries', Icon: TableIconCalendar },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Days Off', path: '/days-off', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Admin] },
 ];
