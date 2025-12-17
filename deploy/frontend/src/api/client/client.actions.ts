@@ -2,7 +2,7 @@ import { formatError } from '@/api/handle.error';
 import { ApiResponse } from '@/api/shared.types';
 import axiosServer from '@/services/axios';
 import QueryParams from '@/types/query/QueryParams';
-import { Client, CreateClientData, UpdateClientData } from './client.types';
+import { Client, CreateClientData, UpdateClientData } from '@shared/client.types';
 
 const endpoint = '/clients';
 

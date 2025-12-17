@@ -3,6 +3,8 @@ export type Client = {
   name: string;
   hourlyRate: number;
   projectCount?: number;
+  createdAt?: string | Date;
+  updatedAt?: string | Date;
 };
 
 export type CreateClientData = {

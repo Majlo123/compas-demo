@@ -1,16 +1,10 @@
 import httpStatus from 'http-status';
+import { Client } from '@shared/client.types';
 import { clientRepository } from 'repos/index';
 import { Client as ClientModel, CreateClient } from 'repos/client.model';
 import QueryParams from 'repos/utils/query/QueryParams';
 import { PaginatedResult } from 'repos/utils/pagination';
 import ApiError from 'shared/error/ApiError';
-
-export type Client = {
-  id: string;
-  name: string;
-  hourlyRate: number;
-  projectCount?: number;
-};
 
 export const listClients = async (query: QueryParams): Promise<PaginatedResult<Client>> => {
   const result = await clientRepository.findAll({ queryParams: query });
