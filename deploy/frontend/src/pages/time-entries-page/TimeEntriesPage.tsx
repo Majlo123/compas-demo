@@ -66,12 +66,10 @@ const TimeEntriesPage: FC = () => {
 
         setEntries(transformedEntries);
       } else {
-        const errorMsg = (response as any)?.error?.message || 'Failed to fetch time entries';
-        setError(errorMsg);
+        setError(response.error.message || 'Failed to fetch time entries');
       }
     } catch (err) {
-      const errorMsg = err instanceof Error ? err.message : 'An unexpected error occurred';
-      setError(errorMsg);
+      setError('An unexpected error occurred');
       console.error('Error fetching time entries:', err);
     } finally {
       setLoading(false);
@@ -111,10 +109,7 @@ const TimeEntriesPage: FC = () => {
   };
 
   const handleAddTimeEntry = async (data: any, date: Date, clickedTime?: { hour: number; minute: number }) => {
-    const projectName =
-      projects.find(p => p.id === data.project)?.name ||
-      data.projectName ||
-      data.project;
+    const projectName = data.project || data.projectName;
     
     // Use clicked time if provided, otherwise use the time from the dialog
     const startHour = clickedTime?.hour ?? data.startHour ?? 8;
@@ -143,16 +138,12 @@ const TimeEntriesPage: FC = () => {
       // Refresh entries
       await fetchTimeEntries(currentWeekStart);
     } else {
-      const errorMsg = (response as any)?.error?.message || 'Failed to create time entry';
-      setError(errorMsg);
+      setError(response.error.message || 'Failed to create time entry');
     }
   };
 
   const handleEditTimeEntry = async (id: string, data: any, date: Date) => {
-    const projectName =
-      projects.find(p => p.id === data.project)?.name ||
-      data.projectName ||
-      data.project;
+    const projectName = data.project || data.projectName;
     
     // Create start time using UTC to avoid timezone issues
     const year = date.getFullYear();
@@ -177,8 +168,7 @@ const TimeEntriesPage: FC = () => {
       // Refresh entries
       await fetchTimeEntries(currentWeekStart);
     } else {
-      const errorMsg = (response as any)?.error?.message || 'Failed to update time entry';
-      setError(errorMsg);
+      setError(response.error.message || 'Failed to update time entry');
     }
   };
 
