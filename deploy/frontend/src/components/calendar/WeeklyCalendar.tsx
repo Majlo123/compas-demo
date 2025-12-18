@@ -2,6 +2,7 @@ import React, { FC, useState, useMemo } from 'react';
 import { format, startOfWeek, addDays, addWeeks, subWeeks, parseISO, differenceInMinutes } from 'date-fns';
 import { CollectiveDayOff } from '@shared/collectiveDayOff.types';
 import { TimeEntry } from '@shared/timeEntry.types';
+import AddTimeEntryDialog from '@/components/dialog/AddTimeEntryDialog';
 import './weekly-calendar.css';
 
 type Props = {

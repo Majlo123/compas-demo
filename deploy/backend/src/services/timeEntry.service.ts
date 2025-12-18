@@ -13,9 +13,45 @@ const DateHelper = {
             throw new ApiError('Project name is required', httpStatus.BAD_REQUEST);
         }
         
-        // Validate start and end times
-        const startTime = new Date(entity.startTime);
-        const endTime = new Date(entity.endTime);
+        // Validate start and end times - handle string, Date, or null
+        if (!entity.startTime) {
+            throw new ApiError('Start time is required', httpStatus.BAD_REQUEST);
+        }
+        
+        if (!entity.endTime) {
+            throw new ApiError('End time is required', httpStatus.BAD_REQUEST);
+        }
+        
+        let startTime: Date;
+        let endTime: Date;
+        
+        console.log('validateTimeEntryData - startTime:', entity.startTime, 'type:', typeof entity.startTime);
+        console.log('validateTimeEntryData - endTime:', entity.endTime, 'type:', typeof entity.endTime);
+        
+        try {
+            // Handle both string and Date object inputs
+            if (typeof entity.startTime === 'string') {
+                startTime = new Date(entity.startTime);
+            } else if (entity.startTime instanceof Date) {
+                startTime = entity.startTime;
+            } else {
+                startTime = new Date(entity.startTime);
+            }
+            
+            if (typeof entity.endTime === 'string') {
+                endTime = new Date(entity.endTime);
+            } else if (entity.endTime instanceof Date) {
+                endTime = entity.endTime;
+            } else {
+                endTime = new Date(entity.endTime);
+            }
+        } catch (e) {
+            console.error('Error parsing dates:', e);
+            throw new ApiError('Invalid date format provided', httpStatus.BAD_REQUEST);
+        }
+        
+        console.log('Parsed startTime:', startTime.getTime(), 'isValid:', !isNaN(startTime.getTime()));
+        console.log('Parsed endTime:', endTime.getTime(), 'isValid:', !isNaN(endTime.getTime()));
         
         if (isNaN(startTime.getTime())) {
             throw new ApiError('Invalid start time provided', httpStatus.BAD_REQUEST);
@@ -53,9 +89,26 @@ const DateHelper = {
  */
 export const createTimeEntry = async (entity: CreateTimeEntry): Promise<TimeEntry> => {
     DateHelper.validateTimeEntryData(entity);
-    // Assuming project existence is validated elsewhere or handled by DB Foreign Key
     
-    const created = await timeEntryRepository.create(entity);
+    // Ensure startTime and endTime are properly formatted as ISO strings for the database
+    const startTimeStr = typeof entity.startTime === 'string' 
+        ? entity.startTime 
+        : entity.startTime instanceof Date 
+            ? entity.startTime.toISOString()
+            : new Date(entity.startTime).toISOString();
+    
+    const endTimeStr = typeof entity.endTime === 'string'
+        ? entity.endTime
+        : entity.endTime instanceof Date
+            ? entity.endTime.toISOString()
+            : new Date(entity.endTime).toISOString();
+    
+    // Create entry with normalized datetime strings
+    const created = await timeEntryRepository.create({
+        ...entity,
+        startTime: startTimeStr as any,
+        endTime: endTimeStr as any
+    });
     return created;
 };
 
@@ -83,7 +136,26 @@ export const updateTimeEntry = async (id: string, entity: Partial<CreateTimeEntr
     const validationEntity = { ...existing, ...entity };
     DateHelper.validateTimeEntryData(validationEntity);
 
-    const updated = await timeEntryRepository.updateById(id, entity);
+    // Normalize datetime strings if provided
+    const updateData: any = { ...entity };
+    
+    if (entity.startTime) {
+        updateData.startTime = typeof entity.startTime === 'string'
+            ? entity.startTime
+            : entity.startTime instanceof Date
+                ? entity.startTime.toISOString()
+                : new Date(entity.startTime).toISOString();
+    }
+    
+    if (entity.endTime) {
+        updateData.endTime = typeof entity.endTime === 'string'
+            ? entity.endTime
+            : entity.endTime instanceof Date
+                ? entity.endTime.toISOString()
+                : new Date(entity.endTime).toISOString();
+    }
+
+    const updated = await timeEntryRepository.updateById(id, updateData);
     if (!updated) {
         throw new ApiError('Failed to update time entry', httpStatus.INTERNAL_SERVER_ERROR);
     }

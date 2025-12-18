@@ -26,8 +26,8 @@ const createTimeEntryRoute = (basePath: string): Router => {
     .object({
       projectName: z.string().min(1, 'Project name is required'),
       description: z.string().optional(),
-      startTime: z.string().datetime(),
-      endTime: z.string().datetime(),
+      startTime: z.string().datetime({ message: 'Invalid start time format (must be ISO 8601)' }),
+      endTime: z.string().datetime({ message: 'Invalid end time format (must be ISO 8601)' }),
       isOvertime: z.boolean().optional(),
       isBillable: z.boolean().optional(),
     })
@@ -76,8 +76,8 @@ const createTimeEntryRoute = (basePath: string): Router => {
     .object({
       projectName: z.string().optional(),
       description: z.string().optional(),
-      startTime: z.string().datetime().optional(),
-      endTime: z.string().datetime().optional(),
+      startTime: z.string().datetime({ message: 'Invalid start time format (must be ISO 8601)' }).optional(),
+      endTime: z.string().datetime({ message: 'Invalid end time format (must be ISO 8601)' }).optional(),
       isOvertime: z.boolean().optional(),
       isBillable: z.boolean().optional(),
     })
