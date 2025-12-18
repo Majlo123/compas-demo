@@ -404,7 +404,7 @@ const WeeklyCalendar: FC<Props> = ({
                             <div className="entry-team" style={{ fontSize: '0.7rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                               {entry.teamName && <span className="team-name">{entry.teamName}</span>}
                               {entry.teamName && entry.projectName && <span> : </span>}
-                              {entry.projectName && <span>{entry.projectName}</span>}
+                              {entry.projectName && <span>{projects.find(p => p.id === entry.projectName)?.name || entry.projectName}</span>}
                             </div>
                           )}
                         </div>

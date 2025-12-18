@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
-import { ClipboardList, FolderCog, CalendarX, ShieldUser } from 'lucide-react';
+import { ClipboardList, FolderCog, CalendarX, ShieldUser, CalendarClock } from 'lucide-react';
 import TableIconCalendar from '@/components/images/TableIconCalendar';
 import DashboardIcon from '@/components/images/DashboardIcon';
 import CheckCircleIcon from '@/components/images/CheckCircleIcon';
@@ -22,7 +22,7 @@ const mainNavItems: NavItem[] = [
   { label: 'Dashboard', path: '/dashboard', Icon: DashboardIcon, requiresTeamManager: true },
   { label: 'My Requests', path: '/my-leave-requests', Icon: CheckCircleIcon, allowedRoles: [RoleEnum.Employee] },
   { label: 'Leave Requests', path: '/team-requests', Icon: TableIconEdit, allowedRoles: [RoleEnum.Admin] },
-  { label: 'Time Entries', path: '/time-entries', Icon: TableIconCalendar },
+  { label: 'Time Entries', path: '/time-entries', Icon: CalendarClock },
   { label: 'Calendar', path: '/team-calendar', Icon: TableIconCalendar },
   { label: 'Days Off', path: '/days-off', Icon: CalendarX, allowedRoles: [RoleEnum.Admin] },
 ];

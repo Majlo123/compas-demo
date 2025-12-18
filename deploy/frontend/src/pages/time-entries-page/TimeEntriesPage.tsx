@@ -109,7 +109,9 @@ const TimeEntriesPage: FC = () => {
   };
 
   const handleAddTimeEntry = async (data: any, date: Date, clickedTime?: { hour: number; minute: number }) => {
-    const projectName = data.project || data.projectName;
+    // Map selected project ID to its human-readable name for backend storage
+    const selectedProjectId = data.project;
+    const projectName = (projects.find(p => p.id === selectedProjectId)?.name) || data.projectName || selectedProjectId || '';
     
     // Use clicked time if provided, otherwise use the time from the dialog
     const startHour = clickedTime?.hour ?? data.startHour ?? 8;
@@ -143,7 +145,9 @@ const TimeEntriesPage: FC = () => {
   };
 
   const handleEditTimeEntry = async (id: string, data: any, date: Date) => {
-    const projectName = data.project || data.projectName;
+    // Map selected project ID to its human-readable name for backend storage
+    const selectedProjectId = data.project;
+    const projectName = (projects.find(p => p.id === selectedProjectId)?.name) || data.projectName || selectedProjectId || '';
     
     // Create start time using UTC to avoid timezone issues
     const year = date.getFullYear();
