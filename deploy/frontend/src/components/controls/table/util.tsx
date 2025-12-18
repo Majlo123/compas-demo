@@ -1,6 +1,6 @@
 import { Column, Row } from '@/components/controls/table/Table';
 import TableActionButton from '@/components/controls/table/TableActionButton';
-import TableIconDelete from '@/components/images/TableIconDelete';
+import DeleteButton from '@/components/controls/button/DeleteButton';
 import TableIconEdit from '@/components/images/TableIconEdit';
 
 const DEFAULT_ACTION_BUTTON_WIDTH = 65;
@@ -22,9 +22,9 @@ export const createActionColumn = ({
         <TableActionButton Icon={TableIconEdit} onClick={() => onEdit(row)} />
       )}
       {onDelete && (
-        <TableActionButton
-          Icon={TableIconDelete}
+        <DeleteButton
           onClick={() => onDelete(row)}
+          size="md"
         />
       )}
     </div>

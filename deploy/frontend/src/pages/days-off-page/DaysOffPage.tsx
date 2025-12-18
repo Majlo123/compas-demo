@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { toast } from 'react-toastify';
 import Button from '@/components/controls/button/Button';
+import DeleteButton from '@/components/controls/button/DeleteButton';
 import Table, { Column, Row } from '@/components/controls/table/Table';
 import PageLayout from '@/components/layout/PageLayout';
 import ConfirmDialog from '@/components/dialog/ConfirmDialog';
@@ -129,13 +130,11 @@ const DaysOffPage: React.FC = () => {
         header: 'Actions',
         formatter: (_value: any, row: DayOffRow) => (
           <div className="flex gap-2 items-center justify-center">
-            <Button
-              variant="delete"
-              size="sm"
+            <DeleteButton
               onClick={() => handleDeleteDayOff(row.id, row.title)}
-            >
-              Delete
-            </Button>
+              title="Delete day off"
+              size="md"
+            />
           </div>
         ),
       },
