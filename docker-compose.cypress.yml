@@ -1,0 +1,15 @@
+services:
+  cypress:
+    image: cypress/included:13.6.0
+    working_dir: /e2e
+    volumes:
+      - ./deploy/cypress:/e2e
+    environment:
+      CYPRESS_BASE_URL: http://proxy
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+    networks:
+      - local_net
