@@ -1,5 +1,6 @@
 const { defineConfig } = require("cypress");
-const webpackPreprocessor = require("@cypress/webpack-preprocessor");
+const webpack = require("@cypress/webpack-preprocessor");
+const path = require("path");
 
 module.exports = defineConfig({
   e2e: {
@@ -11,7 +12,7 @@ module.exports = defineConfig({
     setupNodeEvents(on) {
       on(
         "file:preprocessor",
-        webpackPreprocessor({
+        webpack({
           webpackOptions: {
             resolve: {
               extensions: [".ts", ".js"],
@@ -21,14 +22,15 @@ module.exports = defineConfig({
                 {
                   test: /\.ts$/,
                   exclude: /node_modules/,
-                  use: [
-                    {
-                      loader: "ts-loader",
-                      options: {
-                        configFile: "tsconfig.cypress.json",
-                      },
+                  use: {
+                    loader: "ts-loader",
+                    options: {
+                      configFile: path.resolve(
+                        __dirname,
+                        "tsconfig.cypress.json"
+                      ),
                     },
-                  ],
+                  },
                 },
               ],
             },

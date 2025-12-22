@@ -1,15 +1,12 @@
 {
   "name": "cypress",
   "private": true,
-  "type": "module",
-  "module": "es2015",
   "scripts": {
     "cy:dev": "CYPRESS_BASE_URL=http://localhost cypress open",
     "cy:headless": "CYPRESS_BASE_URL=http://localhost cypress run"
   },
   "devDependencies": {
     "@cypress/webpack-preprocessor": "^7.0.2",
-    "@types/bun": "latest",
     "cypress": "^15.8.1",
     "ts-loader": "^9.5.4",
     "webpack": "^5.104.1"

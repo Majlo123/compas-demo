@@ -1,12 +1,12 @@
 services:
   cypress:
-    image: cypress/included:13.6.0
-    working_dir: /e2e
-    volumes:
-      - ./deploy/cypress:/e2e
-      - ./deploy/cypress/node_modules:/e2e/node_modules
+    build:
+      context: .
+      dockerfile: deploy/tools/docker/cypress/Dockerfile
     environment:
       CYPRESS_BASE_URL: http://proxy
+    volumes:
+      - ./deploy/cypress:/e2e:cached
     depends_on:
       frontend:
         condition: service_started
