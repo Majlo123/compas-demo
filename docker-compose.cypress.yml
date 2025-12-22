@@ -4,6 +4,7 @@ services:
     working_dir: /e2e
     volumes:
       - ./deploy/cypress:/e2e
+      - ./deploy/cypress/node_modules:/e2e/node_modules
     environment:
       CYPRESS_BASE_URL: http://proxy
     depends_on:

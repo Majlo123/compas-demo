@@ -1,7 +1,5 @@
 {
   "name": "cypress",
-  "module": "index.ts",
-  "type": "module",
   "private": true,
   "scripts": {
     "cy:dev": "CYPRESS_BASE_URL=http://localhost cypress open",
