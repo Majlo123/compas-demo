@@ -20,15 +20,16 @@ jobs:
           echo "${{ vars.CY_FRONTEND_ENV }}" > deploy/tools/env/frontend.dev.env
           echo "${{ vars.CY_BACKEND_ENV }}" > deploy/tools/env/backend.dev.env
 
-      - name: Start application stack
-        run: docker compose up -d
-
-      - name: Install Cypress dependencies
-        run: docker compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress npm ci
-
-      - name: Run Cypress tests
-        run: docker compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress
+      - name: Run application stack and Cypress
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.cypress.yml \
+            up \
+            --abort-on-container-exit \
+            --exit-code-from cypress
 
       - name: Stop stack and cleanup
         if: always()
-        run: docker compose down -v
+        run: |
+          docker compose down -v
