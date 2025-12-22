@@ -15,11 +15,11 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Start application stack
-        run: docker-compose up -d
+        run: docker compose up -d
 
       - name: Run Cypress tests
-        run: docker-compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress
+        run: docker compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress
 
       - name: Stop stack and cleanup
         if: always()
-        run: docker-compose down -v
+        run: docker compose down -v
