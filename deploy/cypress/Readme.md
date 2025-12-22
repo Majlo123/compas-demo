@@ -1,6 +1,8 @@
 - Navigate to the project directory : `cd deploy/cypress/`
 - Initialize new bun project :`bun init -y`
 - Install Cypress using bun : `bun add cypress`
+- Install preprocessors and types for TypeScript support:
+  `bun add -d @cypress/webpack-preprocessor ts-loader webpack @types/bun`
 - For running Cypress in interactive use : `bun run cy:dev`
 - For running Cypress in headless mode, use : `bun run cy:headless`
 

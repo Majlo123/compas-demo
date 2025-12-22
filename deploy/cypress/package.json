@@ -8,8 +8,11 @@
     "cy:headless": "CYPRESS_BASE_URL=http://localhost cypress run"
   },
   "devDependencies": {
+    "@cypress/webpack-preprocessor": "^7.0.2",
     "@types/bun": "latest",
-    "cypress": "^15.8.1"
+    "cypress": "^15.8.1",
+    "ts-loader": "^9.5.4",
+    "webpack": "^5.104.1"
   },
   "peerDependencies": {
     "typescript": "^5"
