@@ -12,6 +12,7 @@ import { z } from 'zod';
 import { Trash2, ArrowLeft } from 'lucide-react';
 import { getClient, updateClient, getClientProjects, unassignProjectFromClient } from '@/api/client/client.actions';
 import { isApiSuccess } from '@/api/shared.types';
+import DeleteButton from '@/components/controls/button/DeleteButton';
 
 interface Project extends Row {
   id: string;
@@ -166,13 +167,11 @@ const ClientDetailPage: React.FC = () => {
       accessor: 'actions',
       header: 'Actions',
       formatter: (_value: any, row: any) => (
-        <button
+        <DeleteButton
           onClick={() => handleRemoveProject(row.id)}
-          className="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition-colors"
           title="Remove project"
-        >
-          <Trash2 size={18} />
-        </button>
+          size="md"
+        />
       ),
     },
   ];

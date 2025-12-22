@@ -26,8 +26,8 @@ const createTimeEntryRoute = (basePath: string): Router => {
     .object({
       projectName: z.string().min(1, 'Project name is required'),
       description: z.string().optional(),
-      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Invalid date format (YYYY-MM-DD)'),
-      timeSpentMinutes: z.number().int().positive('Time spent must be positive').max(480, 'Cannot exceed 480 minutes (8 hours)'),
+      startTime: z.string().datetime({ message: 'Invalid start time format (must be ISO 8601)' }),
+      endTime: z.string().datetime({ message: 'Invalid end time format (must be ISO 8601)' }),
       isOvertime: z.boolean().optional(),
       isBillable: z.boolean().optional(),
     })
@@ -36,8 +36,8 @@ const createTimeEntryRoute = (basePath: string): Router => {
       example: {
         projectName: 'Website Redesign',
         description: 'Worked on frontend components and responsive design',
-        startDate: '2025-12-16',
-        timeSpentMinutes: 120,
+        startTime: '2025-12-16T09:00:00Z',
+        endTime: '2025-12-16T11:00:00Z',
         isOvertime: false,
         isBillable: true,
       },
@@ -50,9 +50,10 @@ const createTimeEntryRoute = (basePath: string): Router => {
       userId: z.string().uuid(),
       projectName: z.string(),
       description: z.string().optional().nullable(),
-      startDate: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
-      timeSpentMinutes: z.number().int(),
+      startTime: z.string().datetime(),
+      endTime: z.string().datetime(),
       isOvertime: z.boolean(),
+      isBillable: z.boolean(),
       createdAt: z.string().datetime().optional(),
     })
     .openapi({
@@ -62,9 +63,10 @@ const createTimeEntryRoute = (basePath: string): Router => {
         userId: '660e8400-e29b-41d4-a716-446655440001',
         projectName: 'Website Redesign',
         description: 'Worked on frontend components and responsive design',
-        startDate: '2025-12-16',
-        timeSpentMinutes: 120,
+        startTime: '2025-12-16T09:00:00Z',
+        endTime: '2025-12-16T11:00:00Z',
         isOvertime: false,
+        isBillable: false,
         createdAt: '2025-12-16T10:30:00Z',
       },
     });
@@ -74,14 +76,16 @@ const createTimeEntryRoute = (basePath: string): Router => {
     .object({
       projectName: z.string().optional(),
       description: z.string().optional(),
-      timeSpentMinutes: z.number().int().positive().max(480).optional(),
+      startTime: z.string().datetime({ message: 'Invalid start time format (must be ISO 8601)' }).optional(),
+      endTime: z.string().datetime({ message: 'Invalid end time format (must be ISO 8601)' }).optional(),
       isOvertime: z.boolean().optional(),
       isBillable: z.boolean().optional(),
     })
     .openapi({
       description: 'Update a time entry (all fields optional)',
       example: {
-        timeSpentMinutes: 180,
+        startTime: '2025-12-16T09:00:00Z',
+        endTime: '2025-12-16T12:00:00Z',
         isOvertime: true,
       },
     });

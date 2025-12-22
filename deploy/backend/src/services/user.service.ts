@@ -9,7 +9,15 @@ import { createUserInvite } from './userInvite.service';
  * Search users by name or email
  */
 export const searchUsers = async (searchQuery: string): Promise<any[]> => {
-  return userRepository.searchByNameOrEmail(searchQuery);
+  const users = await userRepository.searchByNameOrEmail(searchQuery);
+  return users.map(u => ({
+    ...u,
+    profileImageBlob: u.profileImageBlob
+      ? Buffer.isBuffer(u.profileImageBlob)
+        ? `data:image/jpeg;base64,${u.profileImageBlob.toString('base64')}`
+        : (u.profileImageBlob as any)
+      : undefined
+  }));
 };
 
 export type UserPublic = Pick<UserModel, 'id' | 'fullName' | 'email' | 'vacationDaysInit' | 'vacationDaysLeft'>;
@@ -18,7 +26,7 @@ export const findAll = async (query: QueryParams, excludeUserId?: string): Promi
   const page = query.pagination?.page || 1;
   const pageSize = query.pagination?.pageSize || 10;
   const activeResult = await findAllActivePaginated(page, pageSize, excludeUserId);
-  
+
   // Fetch teams for each user
   const usersWithTeams = await Promise.all(
     activeResult.data.map(async (u: any) => {
@@ -37,14 +45,19 @@ export const findAll = async (query: QueryParams, excludeUserId?: string): Promi
       };
     })
   );
-  
+
   return {
     data: activeResult.data.map((u: any) => ({
       id: u.id,
       fullName: u.fullName,
       email: u.email,
       vacationDaysInit: u.vacationDaysInit ?? 0,
-      vacationDaysLeft: u.vacationDaysLeft ?? 0
+      vacationDaysLeft: u.vacationDaysLeft ?? 0,
+      profileImageBlob: u.profileImageBlob
+        ? Buffer.isBuffer(u.profileImageBlob)
+          ? `data:image/jpeg;base64,${u.profileImageBlob.toString('base64')}`
+          : (u.profileImageBlob as any)
+        : undefined
     })),
     page: activeResult.page,
     pageSize: activeResult.pageSize,
