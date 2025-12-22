@@ -54,7 +54,8 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./deploy/tools/docker/database/init:/docker-entrypoint-initdb.d
+      # SQL init scripts removed - using Knex.js migrations instead
+      # To reinstate for debugging: ./deploy/tools/docker/database/init:/docker-entrypoint-initdb.d
     networks:
       - local_net
 

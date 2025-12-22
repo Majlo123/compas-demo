@@ -2,6 +2,7 @@ import app from 'app';
 import config from 'config/config';
 import logger from 'config/logger';
 import { initializeSocket } from 'config/socket';
+import { runMigrations, runSeeds } from 'database';
 import { createServer } from 'http';
 
 let server: any;
@@ -23,7 +24,25 @@ const unexpectedErrorHandler = (error: any): void => {
   exitHandler();
 };
 
+const initializeDatabase = async (): Promise<void> => {
+  try {
+    // Run pending migrations
+    await runMigrations();
+    
+    // Run seeds in development
+    if (config.env === 'development') {
+      await runSeeds();
+    }
+  } catch (error) {
+    logger.error('Database initialization failed:', error);
+    throw error;
+  }
+};
+
 const startServer = async (): Promise<void> => {
+  // Initialize database (run migrations and seeds)
+  await initializeDatabase();
+
   // Create HTTP server from Express app
   const httpServer = createServer(app);
 
