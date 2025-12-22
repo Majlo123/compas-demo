@@ -6,7 +6,8 @@ services:
     environment:
       CYPRESS_BASE_URL: http://proxy
     volumes:
-      - ./deploy/cypress:/e2e:cached
+      - ./deploy/cypress:/cypress
+      - /cypress/node_modules
     depends_on:
       frontend:
         condition: service_started

@@ -1,10 +1,10 @@
 FROM cypress/included:13.6.0
 
-WORKDIR /e2e
+WORKDIR /cypress
 
-COPY deploy/cypress/package.json deploy/cypress/package-lock.json* ./
+COPY deploy/cypress/package*.json ./
 
-RUN npm ci
+RUN npm install
 
 COPY deploy/cypress/ .
 
