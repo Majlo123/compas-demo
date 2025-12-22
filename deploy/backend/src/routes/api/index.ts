@@ -1,102 +1,16 @@
-import config from 'config/config';
-import * as Package from 'docs/package';
-import { swaggerDocs } from 'docs/swagger';
 import express from 'express';
-import { Router } from 'express-serve-static-core';
-import createOrganizationRoute from 'routes/api/organization.route';
-import createAuthRoute from 'routes/api/auth.route';
-import createLeaveRequestRoute from 'routes/api/leaveRequest.route';
-import createTeamRoute from 'routes/api/team.route';
-import createUserRoute from 'routes/api/user.route';
-import createUserInviteRoute from 'routes/api/userInvite.route';
-import createNotificationRoute from 'routes/api/notification.route';
-import createCollectiveDayOffRoute from 'routes/api/collectiveDayOff.route';
-import createWidgetRoute from 'routes/api/widget.route';
-import createTimeEntryRoute from 'routes/api/timeEntry.route';
-import createClientRoute from 'routes/api/client.route';
+import db from 'database';
 
 const apiRouter = express.Router();
 
-const defaultRoutes: { path: string; route: any }[] = [
-  {
-    path: '/auth',
-    route: createAuthRoute('/auth'),
-  },
-  {
-    path: '/organization',
-    route: createOrganizationRoute('/organization'),
-  },
-  {
-    path: '/leave-request',
-    route: createLeaveRequestRoute('/leave-request'),
-  },
-  {
-    path: '/team',
-    route: createTeamRoute('/team'),
-  },
-  {
-    path: '/user',
-    route: createUserRoute('/user'),
-  },
-  {
-    path: '/user-invite',
-    route: createUserInviteRoute('/user-invite'),
-  },
-  {
-    path: '/notifications',
-    route: createNotificationRoute('/notifications'),
-  },
-  {
-    path: '/collective-days-off',
-    route: createCollectiveDayOffRoute('/collective-days-off'),
-  },
-  {
-    path: '/widgets',
-    route: createWidgetRoute('/widgets'),
-  },
-  {
-    path: '/time-entries',
-    route: (() => {
-      try {
-        console.log('BEFORE calling createTimeEntryRoute');
-        const result = createTimeEntryRoute('/time-entries');
-        console.log('AFTER calling createTimeEntryRoute');
-        return result;
-      } catch (err) {
-        console.error('ERROR in createTimeEntryRoute:', err);
-        throw err;
-      }
-    })(),
-  },
-  {
-    path: '/clients',
-    route: createClientRoute('/clients'),
-  },
-];
-
-const addRoutes = (router: Router, routes: any[]): void => {
-  console.log('===== Adding routes count:', routes.length, '===== FORCE RELOAD');
-  routes.forEach((route) => {
-    console.log('Processing route path:', route.path);
-    if (Array.isArray(route.route)) {
-      // If the route has nested routes, recursively add them
-      const nestedRouter = express.Router();
-      addRoutes(nestedRouter, route.route);
-      router.use(route.path, nestedRouter);
-    } else {
-      console.log('Registering router for path:', route.path);
-      router.use(route.path, route.route);
-    }
-  });
-
-  swaggerDocs(router, {
-    title: 'Vacation Tracker API',
-    description: 'This is an API for Vacation Tracker',
-    version: Package.version(),
-    serverUrl: config.server.api_url,
-  });
-};
-
-addRoutes(apiRouter, defaultRoutes);
+apiRouter.get('/hello', async (req, res) => {
+  try {
+    const warningLevels = await db('warning_level').select('*');
+    res.json(warningLevels);
+  } catch (error) {
+    console.error('Error fetching warning levels:', error);
+    res.status(500).json({ error: 'Failed to fetch messages' });
+  }
+});
 
 export default apiRouter;

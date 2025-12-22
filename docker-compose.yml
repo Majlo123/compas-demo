@@ -49,13 +49,11 @@ services:
     environment:
       POSTGRES_USER: vt_user
       POSTGRES_PASSWORD: vt_password
-      POSTGRES_DB: vacationtracker
+      POSTGRES_DB: compas-demo
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      # SQL init scripts removed - using Knex.js migrations instead
-      # To reinstate for debugging: ./deploy/tools/docker/database/init:/docker-entrypoint-initdb.d
     networks:
       - local_net
 

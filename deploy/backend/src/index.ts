@@ -1,7 +1,6 @@
 import app from 'app';
 import config from 'config/config';
 import logger from 'config/logger';
-import { initializeSocket } from 'config/socket';
 import { runMigrations, runSeeds } from 'database';
 import { createServer } from 'http';
 
@@ -28,7 +27,7 @@ const initializeDatabase = async (): Promise<void> => {
   try {
     // Run pending migrations
     await runMigrations();
-    
+
     // Run seeds in development
     if (config.env === 'development') {
       await runSeeds();
@@ -45,9 +44,6 @@ const startServer = async (): Promise<void> => {
 
   // Create HTTP server from Express app
   const httpServer = createServer(app);
-
-  // Initialize Socket.IO
-  initializeSocket(httpServer);
 
   server = httpServer.listen(config.server.port, () => {
     logger.info(`Server started at port: ${config.server.port}`);

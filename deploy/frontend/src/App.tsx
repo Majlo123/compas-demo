@@ -1,44 +1,32 @@
-import '@/App.scss';
-import { FC, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
-import Router from '@/components/router/Router.tsx';
-import LoadingPage from '@/pages/loading-page/LoadingPage';
-import { ToastProvider } from '@/providers/ToastProvider.tsx';
-import { useAuthStore } from '@/stores/useAuthStore.ts';
-
-interface AppShellProps {
-  children: React.ReactNode;
-}
-
-const AppShell: FC<AppShellProps> = ({ children }) => {
-  return (
-    <div id="app" className="flex flex-col w-screen h-screen overflow-hidden">
-      {children}
-    </div>
-  );
-};
-
-const App: FC = () => {
-  const { initialize, isInitialized } = useAuthStore();
+function App() {
+  const [data, setData] = useState<any[] | null>(null);
 
   useEffect(() => {
-    initialize();
-  }, [initialize]);
-
-  if (!isInitialized) {
-    return (
-      <AppShell>
-        <LoadingPage />
-      </AppShell>
-    );
-  }
+    fetch('http://localhost:3000/api/hello')
+      .then((res) => res.json())
+      .then((data) => setData(data))
+      .catch((err) => console.error('Error fetching data:', err));
+  }, []);
 
   return (
-    <AppShell>
-      <Router />
-      <ToastProvider />
-    </AppShell>
+    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
+      <h1 className="text-4xl font-bold text-blue-600 mb-4">Warning Levels</h1>
+      {data ? (
+        <ul className="w-full max-w-md bg-white rounded-lg shadow overflow-hidden">
+          {data.map((item: any) => (
+            <li key={item.id} className="p-4 border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
+              <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>
+              <p className="text-gray-600">{item.description}</p>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-500">Loading data from backend...</p>
+      )}
+    </div>
   );
-};
+}
 
 export default App;
