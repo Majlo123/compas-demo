@@ -1,0 +1,25 @@
+name: E2E Cypress Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Start application stack
+        run: docker-compose up -d
+
+      - name: Run Cypress tests
+        run: docker-compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress
+
+      - name: Stop stack and cleanup
+        if: always()
+        run: docker-compose down -v
