@@ -14,6 +14,12 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Prepare CI env files
+        run: |
+          mkdir -p deploy/tools/env
+          echo "${{ vars.CY_FRONTEND_ENV }}" > deploy/tools/env/frontend.dev.env
+          echo "${{ vars.CY_BACKEND_ENV }}" > deploy/tools/env/backend.dev.env
+
       - name: Start application stack
         run: docker compose up -d
 
