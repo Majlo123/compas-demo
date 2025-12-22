@@ -43,7 +43,7 @@ services:
       - local_net
 
   database:
-    container_name: vacationtracker-database
+    container_name: compas-demo-database
     image: postgres:15
     restart: always
     environment:

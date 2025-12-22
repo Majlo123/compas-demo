@@ -3,7 +3,7 @@
   "configVersion": 0,
   "workspaces": {
     "": {
-      "name": "vacation-tracker-backend",
+      "name": "compas-demo-backend",
       "dependencies": {
         "@anatine/zod-openapi": "^2.2.8",
         "@faker-js/faker": "^8.2.0",

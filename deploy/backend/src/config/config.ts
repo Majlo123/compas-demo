@@ -24,7 +24,7 @@ const envVars = cleanEnv(
     SMTP_SECURE: str({ default: 'false' }),
     SMTP_USER: str({ default: '' }),
     SMTP_PASSWORD: str({ default: '' }),
-    SMTP_FROM: str({ default: '"Vacation Tracker" <noreply@vacationtracker.com>' }),
+    SMTP_FROM: str({ default: '"Compas Demo" <noreply@compas-demo.com>' }),
   },
   {
     reporter: ({ errors }) => {
