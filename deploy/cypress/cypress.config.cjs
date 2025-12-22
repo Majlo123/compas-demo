@@ -7,5 +7,10 @@ module.exports = defineConfig({
     specPattern: "src/e2e/**/*.cy.{js,ts}",
     supportFile: "src/support/e2e.ts",
     fixturesFolder: "src/fixtures",
+
+    setupNodeEvents(on, config) {
+      process.env.TS_NODE_PROJECT = "tsconfig.cypress.json";
+      return config;
+    },
   },
 });
