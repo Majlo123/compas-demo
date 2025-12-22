@@ -1,6 +1,8 @@
 {
   "name": "cypress",
   "private": true,
+  "type": "module",
+  "module": "es2015",
   "scripts": {
     "cy:dev": "CYPRESS_BASE_URL=http://localhost cypress open",
     "cy:headless": "CYPRESS_BASE_URL=http://localhost cypress run"
