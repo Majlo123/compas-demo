@@ -23,6 +23,9 @@ jobs:
       - name: Start application stack
         run: docker compose up -d
 
+      - name: Install Cypress dependencies
+        run: docker compose run --rm cypress npm ci
+
       - name: Run Cypress tests
         run: docker compose -f docker-compose.yml -f docker-compose.cypress.yml run --rm cypress
 
