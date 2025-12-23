@@ -1,6 +1,6 @@
 services:
   frontend:
-    container_name: frontend
+    container_name: compas-demo-frontend
     build:
       context: .
       dockerfile: deploy/tools/docker/frontend/Dockerfile
@@ -23,7 +23,7 @@ services:
       - local_net
 
   backend:
-    container_name: backend
+    container_name: compas-demo-backend
     build:
       context: .
       dockerfile: deploy/tools/docker/backend/Dockerfile
@@ -59,7 +59,7 @@ services:
 
   proxy:
     image: traefik:v3.1.2
-    container_name: proxy
+    container_name: compas-demo-proxy
     restart: always
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro

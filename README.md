@@ -1,8 +1,8 @@
-# VacationTracker
+# Compas Demo
 
 ## 📋 Project Overview
 
-VacationTracker is a full-stack web application for managing and tracking employee vacation time. The project uses a modern technology stack with TypeScript, React, and Express, containerized with Docker.
+This is a full-stack web application for managing par levels and warnings. The project uses a modern technology stack with TypeScript, React, and Express, containerized with Docker.
 
 ## 🏗️ Project Architecture
 
@@ -49,8 +49,8 @@ VacationTracker is a full-stack web application for managing and tracking employ
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Skipina/VacationTracker.git
-cd VacationTracker
+git clone https://github.com/2C-Solution/compas-demo
+cd compas-demo
 ```
 
 ### 2. Running the Development Environment
@@ -69,6 +69,18 @@ docker compose logs -f
 # Stop services
 docker compose down
 ```
+
+### 3. Running Storybook (Frontend)
+
+To develop UI components in isolation:
+
+```bash
+cd deploy/frontend
+bun install  # Install dependencies if not already done
+bun run storybook
+```
+
+Access Storybook at [http://localhost:6006](http://localhost:6006).
 
 ### 3. Environment Variables
 
