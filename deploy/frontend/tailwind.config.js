@@ -61,16 +61,6 @@ const config = {
       },
     },
   },
-  plugins: [
-    function ({ addUtilities }) {
-      addUtilities({
-        '.placeholder-up::placeholder': {
-          transform: 'translateY(-3px)',
-          display: 'inline-block',
-        },
-      });
-    },
-  ],
 };
 
 export default config;
