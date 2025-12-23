@@ -55,7 +55,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
       </button>
 
       {isOpen && (
-        <div className="absolute z-10 w-full mt-2 origin-top-right bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
+        <div className="absolute left-0 z-10 w-max min-w-full mt-2 origin-top-left bg-white rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
           <div className="py-1">
             {options.map((option) => (
               <button
