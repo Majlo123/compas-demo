@@ -1,29 +1,47 @@
+import { Filter, Search } from 'lucide-react';
 import React from 'react';
-import { twMerge } from 'tailwind-merge';
+import { tv, type VariantProps } from 'tailwind-variants';
 
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-    variant?: 'primary' | 'secondary' | 'danger';
+const button = tv({
+    base: 'px-6 py-3 rounded-full text-secondary text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2',
+    variants: {
+        variant: {
+            primary: 'bg-primary focus:ring-primary disabled:bg-primary/50',
+            secondary: 'bg-white border border-secondary focus:ring-gray-500',
+            black: 'bg-black focus:ring-black disabled:bg-disabled text-white',
+            round: 'rounded-full bg-primary focus:ring-primary disabled:bg-primary/50 p-4',
+        },
+    },
+    defaultVariants: {
+        variant: 'primary',
+    },
+});
+
+type IconType = 'search' | 'filter';
+
+const Icons: Record<IconType, React.ElementType> = {
+    search: Search,
+    filter: Filter,
+};
+
+interface ButtonProps
+    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+    VariantProps<typeof button> {
+    icon?: IconType;
 }
 
 export const Button: React.FC<ButtonProps> = ({
     children,
     className,
-    variant = 'primary',
+    variant,
+    icon,
     ...props
 }) => {
-    const baseStyles = 'px-4 py-2 rounded-md font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2';
-
-    const variants = {
-        primary: 'bg-primary text-white hover:bg-primary-hover focus:ring-primary',
-        secondary: 'bg-gray-200 text-gray-800 hover:bg-gray-300 focus:ring-gray-500',
-        danger: 'bg-rose-700 text-white hover:bg-rose-900 focus:ring-red-500',
-    };
+    const IconComponent = icon ? Icons[icon] : null;
 
     return (
-        <button
-            className={twMerge(baseStyles, variants[variant], className)}
-            {...props}
-        >
+        <button className={button({ variant, className })} {...props}>
+            {IconComponent && <IconComponent size={16} />}
             {children}
         </button>
     );
