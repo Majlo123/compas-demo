@@ -9,7 +9,9 @@ const meta = {
     },
     tags: ['autodocs'],
     argTypes: {
-        variant: { control: 'select', options: ['primary', 'secondary', 'danger'] },
+        variant: { control: 'select', options: ['primary', 'secondary', 'black', 'round'] },
+        disabled: { control: 'boolean' },
+        icon: { control: 'select', options: ['search', 'filter', undefined] },
     },
 } satisfies Meta<typeof Button>;
 
@@ -30,9 +32,24 @@ export const Secondary: Story = {
     },
 };
 
-export const Danger: Story = {
+export const Black: Story = {
     args: {
-        variant: 'danger',
-        children: 'Danger Button',
+        variant: 'black',
+        children: 'Black Button',
+    },
+};
+
+export const Round: Story = {
+    args: {
+        variant: 'round',
+        icon: 'search',
+    },
+};
+
+export const WithFilterIcon: Story = {
+    args: {
+        variant: 'secondary',
+        children: 'Filter',
+        icon: 'filter',
     },
 };

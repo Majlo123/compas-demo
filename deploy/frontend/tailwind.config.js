@@ -5,10 +5,11 @@ const config = {
     extend: {
       colors: {
         primary: '#FECD00',
-        secondary: '#FECD00',
+        secondary: '#333333',
         pureBlack: '#000000',
         surface: '#F8F8F8',
         indicator: '#131428',
+        disabled: '#999999'
       },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -39,7 +40,7 @@ const config = {
           { lineHeight: '100%', letterSpacing: '0', fontWeight: '400' },
         ],
         p2: [
-          '14px',
+          '12px',
           { lineHeight: '100%', letterSpacing: '0', fontWeight: '400' },
         ],
       },
