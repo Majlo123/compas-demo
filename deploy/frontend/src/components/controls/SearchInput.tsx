@@ -24,17 +24,16 @@ export const SearchInput: React.FC<SearchInputProps> = ({ className, onSearch, .
     <div className={twMerge("relative flex items-center w-full", className)}>
       <input
         type="text"
-        className="w-full py-1.5 pl-3 pr-14 text-p1 placeholder:text-p2 placeholder-up bg-surface rounded-full focus:outline-none focus:ring-2 focus:ring-primary border-none"
+        className="w-full py-3.5 pl-3 pr-14 text-p2 bg-surface rounded-full focus:outline-none focus:ring-2 focus:ring-primary border-none"
         onKeyDown={handleKeyDown}
         {...props}
       />
       <div className="absolute left-auto right-0">
-        <Button 
-            variant="round" 
-            icon="search"
-            onClick={handleSearch}
-            type="button"
-            className="p-2"
+        <Button
+          variant="round"
+          icon="search"
+          onClick={handleSearch}
+          type="button"
         />
       </div>
     </div>
