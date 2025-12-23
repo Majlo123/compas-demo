@@ -51,7 +51,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
             {selectedOption?.label}
           </span>
         </div>
-        <ChevronDown className={`w-4 h-4 ml-2 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown className={`w-6 h-6 ml-2 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
       </button>
 
       {isOpen && (
@@ -65,7 +65,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
                   setIsOpen(false);
                 }}
                 className={twMerge(
-                  'flex items-center w-full px-4 py-2 text-sm text-left transition-colors',
+                  'flex items-center w-full px-4 py-2 text-p2 text-left transition-colors',
                   option.id === selectedOptionId
                     ? 'bg-blue-50 text-blue-700 border border-blue-200'
                     : 'text-gray-700 hover:bg-gray-50 border border-transparent'
