@@ -9,9 +9,9 @@ const meta = {
     },
     tags: ['autodocs'],
     argTypes: {
-        variant: { control: 'select', options: ['primary', 'secondary', 'black', 'round'] },
+        variant: { control: 'select', options: ['primary', 'secondary', 'black', 'round', 'small'] },
         disabled: { control: 'boolean' },
-        icon: { control: 'select', options: ['search', 'filter', undefined] },
+        icon: { control: 'select', options: ['search', 'filter', 'plus', 'minus', undefined] },
     },
 } satisfies Meta<typeof Button>;
 
