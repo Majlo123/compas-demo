@@ -9,7 +9,7 @@ const button = tv({
             primary: 'bg-primary focus:ring-primary disabled:bg-primary/50',
             secondary: 'bg-white border border-secondary focus:ring-gray-500',
             black: 'bg-black focus:ring-black disabled:bg-disabled text-white',
-            round: 'rounded-full bg-primary focus:ring-primary disabled:bg-primary/50 p-4',
+            round: 'rounded-full bg-primary focus:ring-primary disabled:bg-primary/50 p-3',
         },
     },
     defaultVariants: {
