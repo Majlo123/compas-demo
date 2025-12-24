@@ -12,6 +12,12 @@ const config = {
         surface: '#F8F8F8',
         indicator: '#131428',
         disabled: '#999999',
+        status: {
+          ok: '#76C29B',
+          okBg: '#e8f5ef',
+          triggered: '#D32F2F',
+          triggeredBg: '#FFEBEE',
+        },
         category: {
           alcoholic: '#6A1B9A',
           bread: '#8D6E63',
