@@ -1,16 +1,18 @@
 import express from 'express';
-import db from 'database';
+import createWarningLevelRoute from 'routes/api/warningLevel.route';
 
 const apiRouter = express.Router();
 
-apiRouter.get('/hello', async (req, res) => {
-  try {
-    const warningLevels = await db('warning_level').select('*');
-    res.json(warningLevels);
-  } catch (error) {
-    console.error('Error fetching warning levels:', error);
-    res.status(500).json({ error: 'Failed to fetch messages' });
-  }
+// Health check endpoint
+apiRouter.get('/', (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: 'API is running',
+    timestamp: new Date().toISOString(),
+  });
 });
+
+// Warning Levels Routes
+apiRouter.use('/warning-levels', createWarningLevelRoute('/warning-levels'));
 
 export default apiRouter;

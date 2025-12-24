@@ -238,6 +238,15 @@ export const registerSwaggerPath = (meta: EndpointMeta): void => {
   }
 };
 
+export const setupSwagger = (
+  router: Router,
+  endpointsMeta: EndpointMeta[],
+): void => {
+  endpointsMeta.forEach((meta) => {
+    registerSwaggerPath(meta);
+  });
+};
+
 export const swaggerDocs = (
   app: Router,
   meta: {
