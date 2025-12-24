@@ -1,0 +1,52 @@
+import React from 'react';
+
+import { twMerge } from 'tailwind-merge';
+
+export const categoryStyles = {
+  'ALCOHOLIC BEVERAGE': 'text-category-alcoholic',
+  'BREAD PRODUCTS': 'text-category-bread',
+  'CLEANING MATERIALS': 'text-category-cleaning',
+  'COLD BEVERAGES': 'text-category-coldBeverages',
+  CONFECTIONERY: 'text-category-confectionery',
+  'CRISPS AND SNACKS': 'text-category-crisps',
+  'DAIRY AND CHEESE': 'text-category-dairy',
+  DISPOSABLES: 'text-category-disposables',
+  'FISH AND SEAFOOD': 'text-category-fish',
+  'FRUIT AND VEGETABLES': 'text-category-fruitVeg',
+  'GROCERIES AMBIENT': 'text-category-groceries',
+  'HOT BEVERAGES': 'text-category-hotBeverages',
+  'Ice Cubes': 'text-category-ice',
+  MEAT: 'text-category-meat',
+  'NON FOOD RETAIL': 'text-category-nonfood',
+  SANDWICHES: 'text-category-sandwiches',
+  'SAVOURY PRODUCTS': 'text-category-savoury',
+  'SWEET PRODUCTS': 'text-category-sweets',
+} as const;
+
+export type CommodityCategory = keyof typeof categoryStyles;
+
+interface LabelProps extends React.HTMLAttributes<HTMLSpanElement> {
+  category: CommodityCategory;
+  className?: string;
+}
+
+export const Label: React.FC<LabelProps> = ({
+  category,
+  className,
+  ...props
+}) => {
+  const styles = categoryStyles[category] || 'text-secondary';
+
+  return (
+    <span
+      className={twMerge(
+        'inline-flex items-center justify-center px-2 py-1 rounded text-xs font-bold uppercase bg-surface',
+        styles,
+        className
+      )}
+      {...props}
+    >
+      {category}
+    </span>
+  );
+};
