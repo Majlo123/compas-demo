@@ -22,6 +22,7 @@ const CounterWithState = (args: any) => {
             value={value}
             onIncrement={() => setValue(value + 1)}
             onDecrement={() => setValue(value - 1)}
+            onChange={(newValue) => setValue(newValue)}
         />
     );
 };
