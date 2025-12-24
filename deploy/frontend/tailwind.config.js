@@ -10,6 +10,12 @@ const config = {
         surface: '#F8F8F8',
         indicator: '#131428',
         disabled: '#999999',
+        status: {
+          ok: '#76C29B',
+          okBg: '#e8f5ef',
+          triggered: '#D32F2F',
+          triggeredBg: '#FFEBEE',
+        },
         category: {
           alcoholic: '#6A1B9A',
           bread: '#8D6E63',
@@ -29,7 +35,7 @@ const config = {
           sandwiches: '#B8860B',
           savoury: '#FF7043',
           sweets: '#C2185B',
-        }
+        },
       },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
@@ -77,7 +83,7 @@ const config = {
         xl: '32px',
       },
       borderRadius: {
-        'button': '10px',
+        button: '10px',
       },
     },
   },
