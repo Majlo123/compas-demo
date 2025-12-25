@@ -26,6 +26,7 @@ export type EndpointMeta = {
 
   params?: EndpointParam[];
   requestBodySchema?: ZodTypeAny;
+  requestBodyExample?: any;
   querySchema?: ZodTypeAny;
   responses?: {
     code: StatusCode;
@@ -227,15 +228,30 @@ export const registerSwaggerPath = (meta: EndpointMeta): void => {
   }
 
   if (meta.requestBodySchema) {
+    const requestBodyContent: any = {
+      schema: generateSchema(meta.requestBodySchema),
+    };
+
+    if (meta.requestBodyExample) {
+      requestBodyContent.example = meta.requestBodyExample;
+    }
+
     swaggerJson.paths[path][meta.method].requestBody = {
-      description: 'Default body',
+      description: 'Request body',
       content: {
-        'application/json': {
-          schema: generateSchema(meta.requestBodySchema),
-        },
+        'application/json': requestBodyContent,
       },
     };
   }
+};
+
+export const setupSwagger = (
+  router: Router,
+  endpointsMeta: EndpointMeta[],
+): void => {
+  endpointsMeta.forEach((meta) => {
+    registerSwaggerPath(meta);
+  });
 };
 
 export const swaggerDocs = (

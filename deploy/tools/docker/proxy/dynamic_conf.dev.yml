@@ -4,11 +4,13 @@ http:
       rule: "PathPrefix(`/`)"
       service: frontend
       entryPoints: [ "web" ]
+      priority: 1
 
     backend:
-      rule: "PathPrefix(`/api`)"
+      rule: "PathPrefix(`/api`) || PathPrefix(`/docs`)"
       service: backend
       entryPoints: [ "web" ]
+      priority: 2
 
   services:
     frontend:

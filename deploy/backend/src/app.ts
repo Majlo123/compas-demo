@@ -1,6 +1,7 @@
 import cors from 'cors';
 import express from 'express';
 import apiRouter from 'routes/api';
+import { swaggerDocs } from 'docs/swagger';
 
 const app = express();
 
@@ -17,6 +18,14 @@ app.use(
     credentials: true,
   }),
 );
+
+// Setup Swagger documentation
+swaggerDocs(app, {
+  title: 'Compas Demo API',
+  description: 'API documentation for Compas Demo',
+  version: '1.0.0',
+  serverUrl: process.env.API_URL || 'http://localhost/api',
+});
 
 app.use('/api', apiRouter);
 

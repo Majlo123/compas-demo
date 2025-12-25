@@ -11,7 +11,7 @@ export async function up(knex: Knex): Promise<void> {
   await knex.schema.createTable('warning_level', (table) => {
     table.uuid('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
     table.string('name', 255).notNullable();
-    table.string('description', 255).notNullable();
+    table.string('description', 255).nullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
   });
