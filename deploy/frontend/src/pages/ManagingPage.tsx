@@ -1,7 +1,14 @@
+import { TopBar } from '@/components/top_bar/TopBar';
+import { WarningLevel } from '@shared/types/warningLevel.types';
 import { useState } from 'react';
 
 const WarningsPage = () => {
   const [activeItem, setActiveItem] = useState<string | null>(null);
+  const [selectedGrouping, setSelectedGrouping] = useState<string | null>(null);
+  const [managingLevel, setManagingLevel] = useState<WarningLevel | null>({
+    name: 'Warning Level 1',
+    description: 'Warning Level 1 description',
+  });
 
   return (
     <div className="h-screen w-screen bg-surface px-8 py-4">
@@ -20,10 +27,13 @@ const WarningsPage = () => {
         </aside>
 
         {/* Main Panel */}
-        <main className="flex-1 flex flex-col overflow-hidden">
-          <div className="p-xl bg-white border-b border-gray-200 shadow-sm">
-            <h1 className="text-h1 text-secondary m-0">Managing: Level</h1>
-          </div>
+        <main className="flex-1 flex flex-col overflow-hidden gap-7 px-5 py-6 bg-white">
+          <TopBar
+            selectedGrouping={selectedGrouping}
+            onSearch={(searchTerm) => console.log(searchTerm)}
+            onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
+            managingLevel={managingLevel}
+          />
           <div className="flex-1 p-xl overflow-y-auto">
             {/* Empty main content area */}
             <div className="flex items-center justify-center h-full min-h-[400px]">

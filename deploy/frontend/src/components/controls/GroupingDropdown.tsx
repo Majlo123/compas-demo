@@ -43,7 +43,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full px-4 py-2 bg-white border border-gray-300 rounded-full shadow-sm hover:bg-gray-50 focus:outline-none transition-colors duration-200"
+        className="flex items-center justify-between w-[220px] px-4 py-2 bg-white border border-black rounded-full shadow-sm hover:bg-gray-50 focus:outline-none transition-colors duration-200"
       >
         <div className="flex items-center gap-2 overflow-hidden">
           <Grip className="w-4 h-4 text-gray-600 flex-shrink-0" />
