@@ -59,18 +59,18 @@ export const WarningLevelsSidePanel = ({
 
   return (
     <aside
-      className={`w-80 bg-surface rounded-[2rem] flex flex-col shadow-lg m-4 h-[calc(100vh-2rem)] ${className}`}
+      className={`w-96 bg-surface rounded-[2rem] flex flex-col shadow-lg m-4 h-[calc(100vh-2rem)] ${className}`}
     >
-      <div className="px-lg py-md">
-        <h3 className="text-h3 text-secondary m-0 mb-2 font-bold">
+      <div className="pl-3 pr-4 pt-6 pb-6">
+        <h3 className="text-h3 text-secondary m-0 mb-3 font-bold">
           PAR Level Management
         </h3>
-        <p className="text-p2 text-secondary font-medium m-0 leading-relaxed">
+        <p className="text-p2 text-indicator font-medium m-0 leading-relaxed">
           Create or select a warning level to configure automated stock level
           alerts
         </p>
       </div>
-      <nav className="flex-1 overflow-y-auto p-sm space-y-2">
+      <nav className="flex-1 overflow-y-auto px-3 pb-4">
         {isLoading && (
           <div className="flex items-center justify-center py-8">
             <p className="text-p2 text-disabled">Loading warning levels...</p>
@@ -95,15 +95,15 @@ export const WarningLevelsSidePanel = ({
             <button
               key={level.id}
               onClick={() => handleLevelSelect(level)}
-              className={`w-full text-left px-md py-4 rounded-xl transition-colors flex items-start gap-3 ${
+              className={`w-full text-left pr-2 rounded-lg transition-all flex items-start gap-3 mb-md last:mb-0 ${
                 selectedLevelId === level.id
-                  ? 'bg-secondary text-white shadow-md'
-                  : 'text-secondary hover:bg-gray-200'
+                  ? 'pl-3 py-4 bg-secondary text-white shadow-md'
+                  : 'pl-0 py-2 text-secondary hover:bg-gray-100'
               }`}
             >
               {/* Indicator Dot */}
               <div className="flex-shrink-0 mt-1">
-                <div className="w-4 h-4 rounded-full bg-[#ffa500]" />
+                <div className="w-4 h-4 rounded-full bg-warning" />
               </div>
 
               {/* Content */}
