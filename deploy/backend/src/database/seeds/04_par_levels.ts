@@ -15,7 +15,7 @@ export async function seed(knex: Knex): Promise<void> {
   console.log(`Found ${warningLevels.length} warning levels.`);
 
   // Get products from live_stock to ensure they exist
-  const liveStockProducts = await knex('live_stock').select('prod_id').limit(17);
+  const liveStockProducts = await knex('live_stock').select('prod_id').limit(27);
 
   if (liveStockProducts.length === 0) {
     console.log('No products in live_stock. Cannot create PAR levels.');
