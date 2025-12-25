@@ -47,7 +47,7 @@ export const WarningLevelsSidePanel = ({
 
   return (
     <aside
-      className={`w-96 bg-surface rounded-[2rem] flex flex-col shadow-lg m-4 h-[calc(100vh-2rem)] ${className}`}
+      className={`w-96 bg-surface flex flex-col ${className}`}
     >
       <div className="pl-3 pr-4 pt-6 pb-6">
         <h3 className="text-h3 text-secondary m-0 mb-3 font-bold">

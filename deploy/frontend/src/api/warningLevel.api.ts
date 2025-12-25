@@ -1,17 +1,14 @@
 import { config } from '@/config/config';
+import type { WarningLevel } from '@shared/types/warningLevel.types';
+export type { WarningLevel } from '@shared/types/warningLevel.types';
 
-export interface WarningLevel {
-  id: string;
-  name: string;
-  description?: string | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-export interface WarningLevelsResponse {
-  success: boolean;
-  content: WarningLevel[];
-}
+const toSharedWarningLevel = (raw: any): WarningLevel => ({
+  id: raw.id,
+  name: raw.name,
+  description: raw.description ?? null,
+  createdAt: raw.createdAt ? new Date(raw.createdAt) : undefined,
+  updatedAt: raw.updatedAt ? new Date(raw.updatedAt) : undefined,
+});
 
 export const warningLevelApi = {
   /**
@@ -24,8 +21,11 @@ export const warningLevelApi = {
       throw new Error(`Failed to fetch warning levels: ${response.statusText}`);
     }
 
-    const data: WarningLevelsResponse = await response.json();
-    return data.content;
+    const data = (await response.json()) as {
+      success: boolean;
+      content: any[];
+    };
+    return (data.content ?? []).map(toSharedWarningLevel);
   },
 
   /**
@@ -40,7 +40,7 @@ export const warningLevelApi = {
       throw new Error(`Failed to fetch warning level: ${response.statusText}`);
     }
 
-    const data = await response.json();
-    return data.content;
+    const data = (await response.json()) as { success: boolean; content: any };
+    return toSharedWarningLevel(data.content);
   },
 };
