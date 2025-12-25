@@ -15,7 +15,9 @@ export const WarningLevelsSidePanel = ({
   const [warningLevels, setWarningLevels] = useState<WarningLevel[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [internalSelectedLevelId, setInternalSelectedLevelId] = useState<string | null>(null);
+  const [internalSelectedLevelId, setInternalSelectedLevelId] = useState<
+    string | null
+  >(null);
 
   // Use external selection if provided, otherwise use internal state
   const selectedLevelId =
@@ -31,7 +33,9 @@ export const WarningLevelsSidePanel = ({
         const levels = await warningLevelApi.getAll();
         setWarningLevels(levels);
       } catch (err) {
-        setError(err instanceof Error ? err.message : 'Failed to fetch warning levels');
+        setError(
+          err instanceof Error ? err.message : 'Failed to fetch warning levels'
+        );
       } finally {
         setIsLoading(false);
       }
@@ -55,13 +59,13 @@ export const WarningLevelsSidePanel = ({
 
   return (
     <aside
-      className={`w-80 bg-surface border-r border-gray-200 flex flex-col shadow-sm ${className}`}
+      className={`w-80 bg-surface rounded-[2rem] flex flex-col shadow-lg m-4 h-[calc(100vh-2rem)] ${className}`}
     >
-      <div className="px-lg py-md border-b border-gray-200">
-        <h2 className="text-h2 text-secondary m-0 mb-2 font-bold">
+      <div className="px-lg py-md">
+        <h3 className="text-h3 text-secondary m-0 mb-2 font-bold">
           PAR Level Management
-        </h2>
-        <p className="text-p2 text-disabled m-0 leading-relaxed">
+        </h3>
+        <p className="text-p2 text-secondary font-medium m-0 leading-relaxed">
           Create or select a warning level to configure automated stock level
           alerts
         </p>
@@ -85,47 +89,61 @@ export const WarningLevelsSidePanel = ({
           </div>
         )}
 
-        {!isLoading && !error && warningLevels.map((level) => (
-          <button
-            key={level.id}
-            onClick={() => handleLevelSelect(level)}
-            className={`w-full text-left px-md py-4 rounded-lg transition-colors flex items-start gap-3 ${
-              selectedLevelId === level.id
-                ? 'bg-secondary text-white shadow-md'
-                : 'text-secondary hover:bg-gray-200'
-            }`}
-          >
-            {/* Indicator Dot */}
-            <div className="flex-shrink-0 mt-1">
-              <div className="w-4 h-4 rounded-full bg-primary" />
-            </div>
+        {!isLoading &&
+          !error &&
+          warningLevels.map((level) => (
+            <button
+              key={level.id}
+              onClick={() => handleLevelSelect(level)}
+              className={`w-full text-left px-md py-4 rounded-xl transition-colors flex items-start gap-3 ${
+                selectedLevelId === level.id
+                  ? 'bg-secondary text-white shadow-md'
+                  : 'text-secondary hover:bg-gray-200'
+              }`}
+            >
+              {/* Indicator Dot */}
+              <div className="flex-shrink-0 mt-1">
+                <div className="w-4 h-4 rounded-full bg-[#ffa500]" />
+              </div>
 
-            {/* Content */}
-            <div className="flex-1 min-w-0">
-              <div className="flex flex-col">
-                <span className={`text-h4 font-bold leading-tight ${
-                  selectedLevelId === level.id ? 'text-white' : 'text-secondary'
-                }`}>
-                  {level.name}
-                </span>
-                
-                <span className={`text-sm mt-0.5 ${
-                  selectedLevelId === level.id ? 'text-gray-300' : 'text-secondary'
-                }`}>
-                  Level {extractLevelNumber(level.name)}
-                </span>
+              {/* Content */}
+              <div className="flex-1 min-w-0">
+                <div className="flex flex-col">
+                  <span
+                    className={`text-h4 font-bold leading-tight ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
+                  >
+                    {level.name}
+                  </span>
 
-                <div className={`flex items-center gap-2 mt-1 font-bold ${
-                  selectedLevelId === level.id ? 'text-white' : 'text-secondary'
-                }`}>
-                  <span>0%</span>
-                  <span className="font-normal">|</span>
-                  <span>0 Products</span>
+                  <span
+                    className={`text-sm mt-0.5 ${
+                      selectedLevelId === level.id
+                        ? 'text-gray-300'
+                        : 'text-secondary'
+                    }`}
+                  >
+                    Level {extractLevelNumber(level.name)}
+                  </span>
+
+                  <div
+                    className={`flex items-center gap-2 mt-1 font-bold ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
+                  >
+                    <span>0%</span>
+                    <span className="font-normal">|</span>
+                    <span>0 Products</span>
+                  </div>
                 </div>
               </div>
-            </div>
-          </button>
-        ))}
+            </button>
+          ))}
       </nav>
     </aside>
   );
