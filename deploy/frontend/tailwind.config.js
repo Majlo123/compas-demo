@@ -1,3 +1,5 @@
+import plugin from 'tailwindcss/plugin';
+
 const config = {
   darkMode: 'class',
   content: ['./src/**/*.{js,jsx,ts,tsx}'],
@@ -69,6 +71,10 @@ const config = {
           '12px',
           { lineHeight: '100%', letterSpacing: '0', fontWeight: '400' },
         ],
+        p3: [
+          '10px',
+          { lineHeight: '100%', letterSpacing: '0', fontWeight: '400' },
+        ],
       },
       padding: {
         sm: '8px',
@@ -87,6 +93,41 @@ const config = {
       },
     },
   },
+  plugins: [
+    plugin(function ({ addComponents }) {
+      addComponents({
+        '.toggle-group': {
+          '@apply flex items-center justify-center gap-1': {},
+        },
+        '.toggle-group-item': {
+          '@apply inline-flex items-center justify-center rounded-full text-p2 uppercase transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 ring-offset-surface whitespace-nowrap':
+            {},
+        },
+        '.toggle-group-item-outline': {
+          '@apply border border-black bg-white text-black hover:bg-gray-100':
+            {},
+          '&[data-state="on"]': {
+            '@apply bg-black text-white border-black': {},
+          },
+        },
+        '.toggle-group-item-ghost': {
+          '@apply hover:bg-gray-100 hover:text-black': {},
+          '&[data-state="on"]': {
+            '@apply bg-gray-100 text-black': {},
+          },
+        },
+        '.toggle-group-item-default': {
+          '@apply h-5 px-2.5 py-1.5': {},
+        },
+        '.toggle-group-item-sm': {
+          '@apply h-8 px-3': {},
+        },
+        '.toggle-group-item-lg': {
+          '@apply h-10 px-8': {},
+        },
+      });
+    }),
+  ],
 };
 
 export default config;
