@@ -20,8 +20,6 @@ export const findById = async (id: string): Promise<any | null> => {
 export const create = async (data: {
   name: string;
   description?: string | null;
-  level: number;
-  color?: string | null;
 }): Promise<any> => {
   // Check if name already exists
   const existing = await warningLevelRepository.findByName(data.name);
@@ -40,8 +38,6 @@ export const update = async (
   data: {
     name?: string;
     description?: string | null;
-    level?: number;
-    color?: string | null;
   }
 ): Promise<any> => {
   const existing = await warningLevelRepository.findById(id);

@@ -7,8 +7,6 @@ export type WarningLevel = {
   id?: string;
   name: string;
   description?: string | null;
-  level: number;
-  color?: string | null;
   createdAt?: Date;
   updatedAt?: Date;
 };
@@ -20,8 +18,6 @@ export const create = async (data: CreateWarningLevel): Promise<WarningLevel> =>
     .insert({
       name: data.name,
       description: data.description || null,
-      level: data.level,
-      color: data.color || null,
       created_at: new Date(),
       updated_at: new Date(),
     })
@@ -40,7 +36,7 @@ export const findById = async (id: string): Promise<WarningLevel | null> => {
 
 export const findAll = async (): Promise<WarningLevel[]> => {
   const results = await db('warning_level')
-    .orderBy('level', 'asc')
+    .orderBy('name', 'asc')
     .select('*');
 
   return results.map(mapToWarningLevel);
@@ -61,8 +57,6 @@ export const updateById = async (id: string, data: Partial<CreateWarningLevel>):
 
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description || null;
-  if (data.level !== undefined) updateData.level = data.level;
-  if (data.color !== undefined) updateData.color = data.color || null;
 
   const [result] = await db('warning_level')
     .where({ id })
@@ -84,7 +78,7 @@ export const search = async (query: string): Promise<WarningLevel[]> => {
   const results = await db('warning_level')
     .where('name', 'ilike', `%${query}%`)
     .orWhere('description', 'ilike', `%${query}%`)
-    .orderBy('level', 'asc')
+    .orderBy('name', 'asc')
     .select('*');
 
   return results.map(mapToWarningLevel);
@@ -95,8 +89,6 @@ const mapToWarningLevel = (row: any): WarningLevel => {
     id: row.id,
     name: row.name,
     description: row.description || null,
-    level: Number(row.level),
-    color: row.color || null,
     createdAt: row.created_at ? new Date(row.created_at) : undefined,
     updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
   };

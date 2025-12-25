@@ -36,7 +36,7 @@ export const getWarningLevelById = catchAsync(async (req: Request, res: Response
 });
 
 export const createWarningLevel = catchAsync(async (req: Request, res: Response) => {
-  const { name, description, level, color } = req.body;
+  const { name, description } = req.body;
 
   if (!name || typeof name !== 'string' || name.trim() === '') {
     res.status(httpStatus.BAD_REQUEST).send({
@@ -46,28 +46,10 @@ export const createWarningLevel = catchAsync(async (req: Request, res: Response)
     return;
   }
 
-  if (typeof level !== 'number' || level < 0 || level > 100) {
-    res.status(httpStatus.BAD_REQUEST).send({
-      success: false,
-      error: { message: 'Level must be a number between 0 and 100' },
-    });
-    return;
-  }
-
-  if (color && !/^#[0-9A-F]{6}$/i.test(color)) {
-    res.status(httpStatus.BAD_REQUEST).send({
-      success: false,
-      error: { message: 'Color must be a valid hex color code (e.g., #FF0000)' },
-    });
-    return;
-  }
-
   try {
     const result = await warningLevelService.create({
       name: name.trim(),
       description: description || null,
-      level,
-      color: color || null,
     });
 
     res.status(httpStatus.CREATED).send({
@@ -84,30 +66,12 @@ export const createWarningLevel = catchAsync(async (req: Request, res: Response)
 
 export const updateWarningLevel = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
-  const { name, description, level, color } = req.body;
-
-  if (level !== undefined && (typeof level !== 'number' || level < 0 || level > 100)) {
-    res.status(httpStatus.BAD_REQUEST).send({
-      success: false,
-      error: { message: 'Level must be a number between 0 and 100' },
-    });
-    return;
-  }
-
-  if (color && !/^#[0-9A-F]{6}$/i.test(color)) {
-    res.status(httpStatus.BAD_REQUEST).send({
-      success: false,
-      error: { message: 'Color must be a valid hex color code (e.g., #FF0000)' },
-    });
-    return;
-  }
+  const { name, description } = req.body;
 
   try {
     const updateData: any = {};
     if (name !== undefined) updateData.name = name.trim();
     if (description !== undefined) updateData.description = description;
-    if (level !== undefined) updateData.level = level;
-    if (color !== undefined) updateData.color = color;
 
     const result = await warningLevelService.update(id, updateData);
 

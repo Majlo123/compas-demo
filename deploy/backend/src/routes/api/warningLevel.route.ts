@@ -73,6 +73,10 @@ const createWarningLevelRoute = (basePath: string): Router => {
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
       requestBodySchema: CreateWarningLevelSchema,
+      requestBodyExample: {
+        name: 'Critical',
+        description: 'Critical warning level for immediate attention',
+      },
       responses: [
         { code: httpStatus.CREATED, desc: 'Warning level created', schema: CreateWarningLevelResponseSchema },
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid input data' },
@@ -90,6 +94,10 @@ const createWarningLevelRoute = (basePath: string): Router => {
       allowedRoles: [RoleEnum.Admin],
       params: [{ name: 'id', in: 'path', type: 'string', required: true }],
       requestBodySchema: UpdateWarningLevelSchema,
+      requestBodyExample: {
+        name: 'High Priority',
+        description: 'Updated description for high priority warnings',
+      },
       responses: [
         { code: httpStatus.OK, desc: 'Warning level updated', schema: GetWarningLevelResponseSchema },
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid input data' },
