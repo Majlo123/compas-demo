@@ -36,14 +36,14 @@ export const Counter: React.FC<CounterProps> = ({
 
     const handleBlur = () => {
         let newValue = parseInt(localValue, 10);
-        
+
         if (isNaN(newValue)) {
             newValue = value; // Revert to prop value if invalid
         } else {
             if (min !== undefined && newValue < min) newValue = min;
             if (max !== undefined && newValue > max) newValue = max;
         }
-        
+
         setLocalValue(newValue.toString());
         if (onChange && newValue !== value) {
             onChange(newValue);
@@ -57,7 +57,7 @@ export const Counter: React.FC<CounterProps> = ({
     };
 
     return (
-        <div className={twMerge('flex items-center justify-between border border-gray-200 rounded-lg p-1.5 w-fit gap-4 bg-white', className)}>
+        <div className={twMerge('flex items-center justify-between border border-gray-200 rounded-lg p-1 w-fit gap-1 bg-white', className)}>
             <Button
                 variant="small"
                 icon="minus"
@@ -68,7 +68,7 @@ export const Counter: React.FC<CounterProps> = ({
             <input
                 type="text"
                 inputMode="numeric"
-                className="text-p1 font-bold text-secondary w-5 text-center bg-transparent border-none focus:outline-none focus:ring-0 p-0"
+                className="text-p2 font-bold text-secondary w-6 text-center bg-transparent border-none focus:outline-none focus:ring-0 p-0"
                 value={localValue}
                 onChange={handleInputChange}
                 onBlur={handleBlur}
