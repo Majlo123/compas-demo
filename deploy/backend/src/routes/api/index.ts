@@ -1,5 +1,6 @@
 import express from 'express';
 import createWarningLevelRoute from 'routes/api/warningLevel.route';
+import createParLevelRoute from 'routes/api/parLevel.route';
 
 const apiRouter = express.Router();
 
@@ -14,5 +15,8 @@ apiRouter.get('/', (req, res) => {
 
 // Warning Levels Routes
 apiRouter.use('/warning-levels', createWarningLevelRoute('/warning-levels'));
+
+// PAR Levels Routes
+apiRouter.use('/par-levels', createParLevelRoute('/par-levels'));
 
 export default apiRouter;
