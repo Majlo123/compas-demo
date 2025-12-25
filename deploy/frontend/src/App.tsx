@@ -1,34 +1,15 @@
 import '@/App.scss';
-import { useEffect, useState } from 'react';
-import { Button } from './components/controls/Button';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import ManagingPage from './pages/ManagingPage';
 
 function App() {
-  const [data, setData] = useState<any[] | null>(null);
-
-  useEffect(() => {
-    fetch('http://localhost:3000/api/hello')
-      .then((res) => res.json())
-      .then((data) => setData(data))
-      .catch((err) => console.error('Error fetching data:', err));
-  }, []);
-
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold text-blue-600 mb-4">Warning Levels</h1>
-      <Button variant="primary">Primary</Button>
-      {data ? (
-        <ul className="w-full max-w-md bg-white rounded-lg shadow overflow-hidden">
-          {data.map((item: any) => (
-            <li key={item.id} className="p-4 border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
-              <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>
-              <p className="text-gray-600">{item.description}</p>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p className="text-gray-500">Loading data from backend...</p>
-      )}
-    </div>
+    <Router>
+      <Routes>
+        <Route path="/" element={<ManagingPage />} />
+        <Route path="/managing" element={<ManagingPage />} />
+      </Routes>
+    </Router>
   );
 }
 
