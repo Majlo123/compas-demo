@@ -1,12 +1,22 @@
 {
   "ts-node": {
-    "require": ["tsconfig-paths/register"]
+    "require": [
+      "tsconfig-paths/register"
+    ]
   },
   "compilerOptions": {
     "target": "es2017",
     "module": "commonjs",
-    "types": ["node", "express"],
-    "lib": ["dom", "es6", "es2017", "esnext"],
+    "types": [
+      "node",
+      "express"
+    ],
+    "lib": [
+      "dom",
+      "es6",
+      "es2017",
+      "esnext"
+    ],
     "skipLibCheck": true,
     "sourceMap": true,
     "outDir": "./dist",
@@ -26,8 +36,22 @@
     "experimentalDecorators": true,
     "resolveJsonModule": true,
     "baseUrl": "./src",
-    "typeRoots": ["./src/types", "./src/shared/types", "./node_modules/@types"],
+    "paths": {
+      "@shared/*": [
+        "../../shared/*"
+      ]
+    },
+    "typeRoots": [
+      "./src/types",
+      "./src/shared/types",
+      "./node_modules/@types"
+    ],
   },
-  "exclude": ["node_modules"],
-  "include": ["./src/**/*.ts", "./src/types/**/*.d.ts"]
+  "exclude": [
+    "node_modules"
+  ],
+  "include": [
+    "./src/**/*.ts",
+    "./src/types/**/*.d.ts"
+  ]
 }

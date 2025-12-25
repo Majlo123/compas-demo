@@ -1,17 +1,9 @@
 import knex from 'knex';
 import knexConfig from '../../knexfile';
 
+import { WarningLevel, CreateWarningLevel } from '@shared/types/warningLevel.types';
+
 const db = knex(knexConfig.development);
-
-export type WarningLevel = {
-  id?: string;
-  name: string;
-  description?: string | null;
-  createdAt?: Date;
-  updatedAt?: Date;
-};
-
-export type CreateWarningLevel = Omit<WarningLevel, 'id' | 'createdAt' | 'updatedAt'>;
 
 export const create = async (data: CreateWarningLevel): Promise<WarningLevel> => {
   const [result] = await db('warning_level')
