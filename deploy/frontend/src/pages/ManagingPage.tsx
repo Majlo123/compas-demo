@@ -18,7 +18,7 @@ const WarningsPage = () => {
 
   return (
     <div className="flex h-screen bg-surface pt-6 px-12 pb-0 box-border">
-      <div className="flex flex-1 bg-white rounded-t-3xl overflow-hidden shadow-xl">
+      <div className="flex flex-1 bg-white rounded-t-3xl overflow-hidden shadow-xl-top">
         <WarningLevelsSidePanel
           className="h-full"
           selectedLevelId={selectedLevel?.id}
