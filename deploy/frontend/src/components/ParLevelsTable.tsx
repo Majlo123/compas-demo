@@ -23,11 +23,11 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({ parLevels }) => 
             <Table>
                 <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow>
-                        <TableHead>Product</TableHead>
-                        <TableHead>Commodity Group</TableHead>
-                        <TableHead>Stock Level</TableHead>
-                        <TableHead>Threshold</TableHead>
-                        <TableHead className="w-32">Status</TableHead>
+                        <TableHead>PRODUCT</TableHead>
+                        <TableHead>COMMODITY GROUP</TableHead>
+                        <TableHead>STOCK LEVEL</TableHead>
+                        <TableHead>THRESHOLD</TableHead>
+                        <TableHead className="w-32">STATUS</TableHead>
                     </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -37,7 +37,7 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({ parLevels }) => 
                                 <div className="flex gap-2 flex-col">
                                     <p className="text-p2 m-0 font-bold">{level.product_name}</p>
                                     <div className="flex gap-1">
-                                        <p className="text-p2 text-disabled m-0">{level.product_id}</p>
+                                        <p className="text-p2 m-0">{level.product_id}</p>
                                         <button className="p-0"><CopyIcon size={12} /></button>
                                     </div>
                                 </div>
