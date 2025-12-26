@@ -1,6 +1,12 @@
 import { config } from '@/config/config';
-import type { WarningLevel } from '@shared/types/warningLevel.types';
-export type { WarningLevel } from '@shared/types/warningLevel.types';
+import type {
+  WarningLevel,
+  CreateWarningLevel,
+} from '@shared/types/warningLevel.types';
+export type {
+ WarningLevel,
+  CreateWarningLevel,
+} from '@shared/types/warningLevel.types';
 
 export type WarningLevelWithCount = WarningLevel & { productCount: number };
 
@@ -45,6 +51,29 @@ export const warningLevelApi = {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch warning level: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as { success: boolean; content: any };
+    return toSharedWarningLevel(data.content);
+  },
+
+  /**
+   * Create a new warning level
+   */
+  create: async (input: CreateWarningLevel): Promise<WarningLevel> => {
+    const response = await fetch(`${config.backend.apiUrl}/warning-levels`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(input),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(
+        errorData.error?.message || `Failed to create warning level: ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as { success: boolean; content: any };

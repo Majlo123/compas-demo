@@ -98,6 +98,9 @@ const config = {
       borderRadius: {
         button: '10px',
       },
+      minHeight: {
+        'textarea': '80px',
+      },
     },
   },
   plugins: [

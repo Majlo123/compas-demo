@@ -1,5 +1,10 @@
 import { useState, useEffect } from 'react';
-import { warningLevelApi, type WarningLevelWithCount, type WarningLevel } from '@/api/warningLevel.api';
+import {
+  warningLevelApi,
+  type WarningLevel,
+  type WarningLevelWithCount,
+} from '@/api/warningLevel.api';
+import { CreateWarningLevelDialog } from '../dialog/CreateWarningLevelDialog';
 
 interface WarningLevelsSidePanelProps {
   onLevelSelect?: (level: WarningLevel) => void;
@@ -12,7 +17,9 @@ export const WarningLevelsSidePanel = ({
   onLevelSelect,
   className = '',
 }: WarningLevelsSidePanelProps) => {
-  const [warningLevels, setWarningLevels] = useState<WarningLevelWithCount[]>([]);
+  const [warningLevels, setWarningLevels] = useState<WarningLevelWithCount[]>(
+    []
+  );
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -36,8 +43,13 @@ export const WarningLevelsSidePanel = ({
   }, []);
 
   const handleLevelSelect = (level: WarningLevelWithCount) => {
-    // Pass along; consumer expects base WarningLevel (extra field is fine)
     onLevelSelect?.(level);
+  };
+
+  const handleCreateSuccess = async (newLevel: WarningLevel) => {
+    const levels = await warningLevelApi.getAll();
+    setWarningLevels(levels);
+    onLevelSelect?.(newLevel);
   };
 
   // Extract level number from name (e.g., "Level 5" -> 5)
@@ -47,9 +59,7 @@ export const WarningLevelsSidePanel = ({
   };
 
   return (
-    <aside
-      className={`w-96 bg-surface flex flex-col ${className}`}
-    >
+    <aside className={`w-96 bg-surface flex flex-col ${className}`}>
       <div className="pl-3 pr-4 pt-6 pb-6">
         <h3 className="text-h3 text-secondary m-0 mb-3 font-bold">
           PAR Level Management
@@ -84,10 +94,11 @@ export const WarningLevelsSidePanel = ({
             <button
               key={level.id}
               onClick={() => handleLevelSelect(level)}
-              className={`w-full text-left pr-2 rounded-lg transition-all flex items-start gap-3 mb-md last:mb-0 ${selectedLevelId === level.id
-                ? 'pl-3 py-4 bg-secondary text-white shadow-md'
-                : 'pl-0 py-2 text-secondary hover:bg-gray-100'
-                }`}
+              className={`w-full text-left pr-2 rounded-lg transition-all flex items-start gap-3 mb-md last:mb-0 ${
+                selectedLevelId === level.id
+                  ? 'pl-3 py-4 bg-secondary text-white shadow-md'
+                  : 'pl-0 py-2 text-secondary hover:bg-gray-100'
+              }`}
             >
               {/* Indicator Dot */}
               <div className="flex-shrink-0 mt-1">
@@ -98,28 +109,31 @@ export const WarningLevelsSidePanel = ({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col">
                   <span
-                    className={`text-h4 font-bold leading-tight ${selectedLevelId === level.id
-                      ? 'text-white'
-                      : 'text-secondary'
-                      }`}
+                    className={`text-h4 font-bold leading-tight ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
                   >
                     {level.name}
                   </span>
 
                   <span
-                    className={`text-sm mt-0.5 ${selectedLevelId === level.id
-                      ? 'text-gray-300'
-                      : 'text-secondary'
-                      }`}
+                    className={`text-sm mt-0.5 ${
+                      selectedLevelId === level.id
+                        ? 'text-gray-300'
+                        : 'text-secondary'
+                    }`}
                   >
                     Level {extractLevelNumber(level.name)}
                   </span>
 
                   <div
-                    className={`flex items-center gap-2 mt-1 font-bold ${selectedLevelId === level.id
-                      ? 'text-white'
-                      : 'text-secondary'
-                      }`}
+                    className={`flex items-center gap-2 mt-1 font-bold ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
                   >
                     <span>0%</span>
                     <span className="font-normal">|</span>
@@ -130,6 +144,11 @@ export const WarningLevelsSidePanel = ({
             </button>
           ))}
       </nav>
+
+      {/* Create Warning Level Button */}
+      <div className="p-3 pt-0">
+        <CreateWarningLevelDialog onSuccess={handleCreateSuccess} />
+      </div>
     </aside>
   );
 };
