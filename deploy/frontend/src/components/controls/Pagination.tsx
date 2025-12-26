@@ -57,32 +57,36 @@ export function Pagination<T>({ data, itemsPerPage = 5, onChange }: PaginationPr
     };
 
     return (
-        <ShadcnPagination>
-            <PaginationContent>
-                <PaginationItem>
-                    <PaginationFirst href="#" onClick={handleFirstPage} />
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationPrevious href="#" onClick={handlePreviousPage} />
-                </PaginationItem>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                    <PaginationItem key={page}>
-                        <PaginationLink
-                            href="#"
-                            isActive={currentPage === page}
-                            onClick={handlePageClick(page)}
-                        >
-                            {page}
-                        </PaginationLink>
-                    </PaginationItem>
-                ))}
-                <PaginationItem>
-                    <PaginationNext href="#" onClick={handleNextPage} />
-                </PaginationItem>
-                <PaginationItem>
-                    <PaginationLast href="#" onClick={handleLastPage} />
-                </PaginationItem>
-            </PaginationContent>
-        </ShadcnPagination>
+        <>
+            {totalPages > 1 ?
+                <ShadcnPagination>
+                    <PaginationContent>
+                        <PaginationItem>
+                            <PaginationFirst href="#" onClick={handleFirstPage} />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationPrevious href="#" onClick={handlePreviousPage} />
+                        </PaginationItem>
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                            <PaginationItem key={page}>
+                                <PaginationLink
+                                    href="#"
+                                    isActive={currentPage === page}
+                                    onClick={handlePageClick(page)}
+                                >
+                                    {page}
+                                </PaginationLink>
+                            </PaginationItem>
+                        ))}
+                        <PaginationItem>
+                            <PaginationNext href="#" onClick={handleNextPage} />
+                        </PaginationItem>
+                        <PaginationItem>
+                            <PaginationLast href="#" onClick={handleLastPage} />
+                        </PaginationItem>
+                    </PaginationContent>
+                </ShadcnPagination>
+                : null}
+        </>
     );
 }
