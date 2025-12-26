@@ -6,6 +6,8 @@ import {
     PaginationLink,
     PaginationNext,
     PaginationPrevious,
+    PaginationFirst,
+    PaginationLast,
 } from '@/components/ui/Pagination';
 
 interface PaginationProps<T> {
@@ -29,6 +31,11 @@ export function Pagination<T>({ data, itemsPerPage = 5, onChange }: PaginationPr
         onChange(paginatedData);
     }, [paginatedData, onChange]);
 
+    const handleFirstPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        setCurrentPage(1);
+    };
+
     const handlePreviousPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         setCurrentPage((prev) => Math.max(1, prev - 1));
@@ -39,6 +46,11 @@ export function Pagination<T>({ data, itemsPerPage = 5, onChange }: PaginationPr
         setCurrentPage((prev) => Math.min(totalPages, prev + 1));
     };
 
+    const handleLastPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+        e.preventDefault();
+        setCurrentPage(totalPages);
+    };
+
     const handlePageClick = (page: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
         setCurrentPage(page);
@@ -47,6 +59,9 @@ export function Pagination<T>({ data, itemsPerPage = 5, onChange }: PaginationPr
     return (
         <ShadcnPagination>
             <PaginationContent>
+                <PaginationItem>
+                    <PaginationFirst href="#" onClick={handleFirstPage} />
+                </PaginationItem>
                 <PaginationItem>
                     <PaginationPrevious href="#" onClick={handlePreviousPage} />
                 </PaginationItem>
@@ -63,6 +78,9 @@ export function Pagination<T>({ data, itemsPerPage = 5, onChange }: PaginationPr
                 ))}
                 <PaginationItem>
                     <PaginationNext href="#" onClick={handleNextPage} />
+                </PaginationItem>
+                <PaginationItem>
+                    <PaginationLast href="#" onClick={handleLastPage} />
                 </PaginationItem>
             </PaginationContent>
         </ShadcnPagination>

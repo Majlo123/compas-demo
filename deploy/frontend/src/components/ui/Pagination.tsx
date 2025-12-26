@@ -1,5 +1,5 @@
 import * as React from "react"
-import { ChevronLeft, ChevronRight, MoreHorizontal } from "lucide-react"
+import { ChevronLeft, ChevronRight, ChevronsLeft, ChevronsRight, MoreHorizontal } from "lucide-react"
 
 import { cn } from "@/utils/cn"
 
@@ -63,10 +63,10 @@ const PaginationPrevious = ({
 }: React.ComponentProps<typeof PaginationLink>) => (
     <PaginationLink
         aria-label="Go to previous page"
-        className={cn("gap-1 pl-2.5", className)}
+        className={cn("gap-1 pl-2.5 h-11 w-11", className)}
         {...props}
     >
-        <ChevronLeft className="h-4 w-4" />
+        <ChevronLeft className="h-7 w-7" />
     </PaginationLink>
 )
 PaginationPrevious.displayName = "PaginationPrevious"
@@ -77,13 +77,41 @@ const PaginationNext = ({
 }: React.ComponentProps<typeof PaginationLink>) => (
     <PaginationLink
         aria-label="Go to next page"
-        className={cn("gap-1 pr-2.5", className)}
+        className={cn("gap-1 pr-2.5 h-11 w-11", className)}
         {...props}
     >
-        <ChevronRight className="h-4 w-4" />
+        <ChevronRight className="h-7 w-7" />
     </PaginationLink>
 )
 PaginationNext.displayName = "PaginationNext"
+
+const PaginationLast = ({
+    className,
+    ...props
+}: React.ComponentProps<typeof PaginationLink>) => (
+    <PaginationLink
+        aria-label="Go to last page"
+        className={cn("gap-1 pr-2.5 h-11 w-11", className)}
+        {...props}
+    >
+        <ChevronsRight className="h-7 w-7" />
+    </PaginationLink>
+)
+PaginationLast.displayName = "PaginationLast"
+
+const PaginationFirst = ({
+    className,
+    ...props
+}: React.ComponentProps<typeof PaginationLink>) => (
+    <PaginationLink
+        aria-label="Go to first page"
+        className={cn("gap-1 pr-2.5 h-11 w-11", className)}
+        {...props}
+    >
+        <ChevronsLeft className="h-7 w-7" />
+    </PaginationLink>
+)
+PaginationFirst.displayName = "PaginationFirst"
 
 const PaginationEllipsis = ({
     className,
@@ -107,5 +135,7 @@ export {
     PaginationItem,
     PaginationPrevious,
     PaginationNext,
+    PaginationLast,
+    PaginationFirst,
     PaginationEllipsis,
 }
