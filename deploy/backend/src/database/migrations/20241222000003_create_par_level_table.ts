@@ -20,7 +20,7 @@ export async function up(knex: Knex): Promise<void> {
     table.foreign('warning_level_id').references('id').inTable('warning_level');
     
     // Check constraint to ensure threshold is positive
-    table.check('treshold > 0');
+    table.check('treshold >= 0');
   });
 
   // Create indexes for faster queries

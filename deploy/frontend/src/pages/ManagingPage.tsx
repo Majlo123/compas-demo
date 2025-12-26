@@ -4,7 +4,7 @@ import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSideP
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 
 import { FiltersDialog } from '@/components/dialog/FiltersDialog';
-import { ParLevelsTable } from '@/components/ParLevelsTable';
+import { ParLevelsTable, GroupingType } from '@/components/ParLevelsTable';
 import { ParLevel } from '@/types/parLevel.types';
 import { Pagination } from '@/components/controls/Pagination';
 import { parLevelApi } from '@/api/parLevel.api';
@@ -117,16 +117,25 @@ const WarningsPage = () => {
                   <p className="text-gray-500">Loading PAR levels...</p>
                 </div>
               ) : (
-                <ParLevelsTable parLevels={paginatedData} />
+                <ParLevelsTable
+                  parLevels={
+                    selectedGrouping && selectedGrouping !== 'no-grouping'
+                      ? allParLevels
+                      : paginatedData
+                  }
+                  grouping={selectedGrouping as GroupingType}
+                />
               )}
             </div>
-            <div className="py-4">
-              <Pagination
-                data={allParLevels}
-                itemsPerPage={50}
-                onChange={setPaginatedData}
-              />
-            </div>
+            {(!selectedGrouping || selectedGrouping === 'no-grouping') && (
+              <div className="py-4">
+                <Pagination
+                  data={allParLevels}
+                  itemsPerPage={50}
+                  onChange={setPaginatedData}
+                />
+              </div>
+            )}
           </div>
         </main>
       </div>

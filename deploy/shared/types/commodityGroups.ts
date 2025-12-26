@@ -10,6 +10,7 @@ export const commodityGroups = [
   'DISPOSABLES',
   'FISH AND SEAFOOD',
   'SWEET PRODUCTS',
+  'ICE CUBES',
 ] as const;
 
 export type CommodityGroup = (typeof commodityGroups)[number];
