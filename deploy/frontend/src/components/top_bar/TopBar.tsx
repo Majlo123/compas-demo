@@ -21,10 +21,14 @@ export const TopBar: React.FC<TopBarProps> = ({ selectedGrouping, onSearch, onGr
 
     return (
         <div className="flex flex-col gap-4">
-            <div className="flex gap-3 items-center">
+            {managingLevel ? <div className="flex gap-3 items-center">
                 <h1 className="text-h3 text-secondary m-0 font-bold">Managing: {managingLevel?.name}</h1>
                 <p className="text-p2 text-disabled m-0">{managingLevel?.description}</p>
-            </div>
+            </div> :
+                <div>
+                    <p className="text-p2 text-disabled m-0">Select a warning level to manage</p>
+                </div>
+            }
             <div className="flex gap-10 items-center">
                 <SearchInput placeholder="Search Products, Codes or Categories" onSearch={onSearch} />
                 <div className="flex gap-5">
