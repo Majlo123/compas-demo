@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { warningLevelApi, WarningLevel } from '@/api/warningLevel.api';
+import { warningLevelApi, type WarningLevelWithCount, type WarningLevel } from '@/api/warningLevel.api';
 
 interface WarningLevelsSidePanelProps {
   onLevelSelect?: (level: WarningLevel) => void;
@@ -12,7 +12,7 @@ export const WarningLevelsSidePanel = ({
   onLevelSelect,
   className = '',
 }: WarningLevelsSidePanelProps) => {
-  const [warningLevels, setWarningLevels] = useState<WarningLevel[]>([]);
+  const [warningLevels, setWarningLevels] = useState<WarningLevelWithCount[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +35,8 @@ export const WarningLevelsSidePanel = ({
     fetchWarningLevels();
   }, []);
 
-  const handleLevelSelect = (level: WarningLevel) => {
+  const handleLevelSelect = (level: WarningLevelWithCount) => {
+    // Pass along; consumer expects base WarningLevel (extra field is fine)
     onLevelSelect?.(level);
   };
 
@@ -126,7 +127,7 @@ export const WarningLevelsSidePanel = ({
                   >
                     <span>0%</span>
                     <span className="font-normal">|</span>
-                    <span>0 Products</span>
+                    <span>{level.productCount} Products</span>
                   </div>
                 </div>
               </div>
