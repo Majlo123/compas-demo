@@ -88,26 +88,43 @@ export const CreateWarningLevelDialog = ({
               {createError}
             </div>
           )}
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.5 relative">
+            {!formData.name && (
+              <label
+                htmlFor="name"
+                className="absolute left-2 top-1.5 text-xs text-gray-400 pointer-events-none"
+              >
+                Warning Level Name{' '}
+                <span className="text-status-triggered">*</span>
+              </label>
+            )}
             <input
               id="name"
               value={formData.name}
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
-              placeholder="Warning Level Name *"
+              placeholder=""
               className="flex h-8 w-full rounded-md border border-gray-500 bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isSubmitting}
             />
           </div>
-          <div className="grid gap-1.5">
+          <div className="grid gap-1.5 relative">
+            {!formData.description && (
+              <label
+                htmlFor="description"
+                className="absolute left-2 top-1.5 text-xs text-gray-400 pointer-events-none"
+              >
+                Description <span className="text-status-triggered">*</span>
+              </label>
+            )}
             <textarea
               id="description"
               value={formData.description || ''}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
-              placeholder="Description *"
+              placeholder=""
               className="flex min-h-[80px] w-full rounded-md border border-gray-500 bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               disabled={isSubmitting}
             />
