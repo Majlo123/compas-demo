@@ -4,6 +4,7 @@ import { useState } from 'react';
 
 import { ParLevelsTable } from '@/components/ParLevelsTable';
 import { ParLevel } from '@/types/parLevel.types';
+import { Pagination } from '@/components/controls/Pagination';
 export const mockParLevels: ParLevel[] = [
   {
     product_name: 'Coca Cola 330ml',
@@ -94,6 +95,7 @@ const WarningsPage = () => {
     name: 'Warning Level 1',
     description: 'Warning Level 1 description',
   });
+  const [paginatedData, setPaginatedData] = useState<ParLevel[]>(mockParLevels);
 
   return (
     <div className="h-screen w-screen bg-surface px-8 py-4">
@@ -119,8 +121,17 @@ const WarningsPage = () => {
             onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
             managingLevel={managingLevel}
           />
-          <div className="flex-1 overflow-y-auto">
-            <ParLevelsTable parLevels={mockParLevels} />
+          <div className="flex-1 overflow-y-auto flex flex-col">
+            <div className="flex-1">
+              <ParLevelsTable parLevels={paginatedData} />
+            </div>
+            <div className="py-4">
+              <Pagination
+                data={mockParLevels}
+                itemsPerPage={5}
+                onChange={setPaginatedData}
+              />
+            </div>
           </div>
         </main>
       </div>
