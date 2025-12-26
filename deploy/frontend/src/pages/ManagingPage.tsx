@@ -33,8 +33,10 @@ const WarningsPage = () => {
             onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
             managingLevel={selectedLevel ?? undefined}
           />
-          <div className="flex-1 overflow-y-auto flex flex-col justify-between">
-            <ParLevelsTable parLevels={paginatedData} />
+          <div className="flex flex-col max-h-screen overflow-y-auto">
+            <div className="flex-1">
+              <ParLevelsTable parLevels={paginatedData} />
+            </div>
             <div className="py-4">
               <Pagination
                 data={mockParLevels}

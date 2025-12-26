@@ -19,7 +19,7 @@ interface ParLevelsTableProps {
 
 export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({ parLevels }) => {
     return (
-        <div className="relative w-full h-full overflow-auto">
+        <div className="relative w-full h-full">
             <Table>
                 <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow>
