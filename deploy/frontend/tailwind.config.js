@@ -98,6 +98,14 @@ const config = {
       borderRadius: {
         button: '10px',
       },
+      width: {
+        'dialog-sm': '320px',
+        'button-md': '200px',
+        'button-lg': '280px',
+      },
+      minHeight: {
+        'textarea': '80px',
+      },
     },
   },
   plugins: [
