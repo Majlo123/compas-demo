@@ -42,9 +42,23 @@ export const findByWarningLevelId = async (warningLevelId: string): Promise<ParL
   return results.map(mapToParLevel);
 };
 
-export const findAll = async (): Promise<ParLevel[]> => {
-  const results = await db('par_level').orderBy('prod_id', 'asc').select('*');
+export const findAll = async (commodityGroups?: string[]): Promise<ParLevel[]> => {
+  let query = db('par_level')
+    .leftJoin('products', 'par_level.prod_id', 'products.prod_id')
+    .orderBy('par_level.prod_id', 'asc')
+    .select(
+      'par_level.*',
+      'products.description as product_description',
+      'products.commodity_group',
+      'products.commodity_group_id'
+    );
 
+  // Apply commodity group filtering if provided
+  if (commodityGroups && commodityGroups.length > 0) {
+    query = query.whereIn('products.commodity_group', commodityGroups);
+  }
+
+  const results = await query;
   return results.map(mapToParLevel);
 };
 

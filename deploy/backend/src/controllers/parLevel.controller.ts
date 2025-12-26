@@ -5,7 +5,19 @@ import catchAsync from 'shared/utils/CatchAsync';
 import ApiError from 'shared/error/ApiError';
 
 export const getAllParLevels = catchAsync(async (req: Request, res: Response) => {
-  const result = await parLevelService.findAll();
+  const { commodityGroups } = req.query;
+  
+  // Parse commodity groups from query string
+  const filters: string[] = [];
+  if (commodityGroups) {
+    if (Array.isArray(commodityGroups)) {
+      filters.push(...commodityGroups as string[]);
+    } else {
+      filters.push(commodityGroups as string);
+    }
+  }
+  
+  const result = await parLevelService.findAll(filters.length > 0 ? filters : undefined);
   res.status(httpStatus.OK).send({
     success: true,
     content: result,

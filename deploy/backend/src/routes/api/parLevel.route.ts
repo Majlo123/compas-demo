@@ -25,11 +25,21 @@ const createParLevelRoute = (basePath: string): Router => {
   const endpointsMeta: EndpointMeta[] = [
     {
       name: 'Get All PAR Levels',
-      desc: 'Retrieve all PAR level configurations',
+      desc: 'Retrieve all PAR level configurations. Supports filtering by commodity groups.',
       path: '/',
       method: 'get',
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
+            params: [
+              {
+                name: 'commodityGroups',
+                in: 'query',
+                type: 'array',
+                items: { type: 'string' },
+                required: false,
+                description: 'Filter by commodity group names (e.g., CRISPS AND SNACKS, ALCOHOLIC BEVERAGE). Multiple values can be provided.',
+              },
+            ],
       responses: [
         { code: httpStatus.OK, desc: 'All PAR levels', schema: GetParLevelResponseSchema },
       ],
