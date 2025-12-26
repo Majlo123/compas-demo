@@ -18,13 +18,22 @@ export type ParLevelDTO = {
 export const parLevelApi = {
   /**
    * Fetch all PAR levels from the API
+   * @param commodityGroups - Optional array of commodity groups to filter by
+   * @param search - Optional search term to filter by product description or ID
    */
-  getAll: async (commodityGroups?: string[]): Promise<ParLevel[]> => {
-    let url = `${config.backend.apiUrl}/par-levels`;
+  getAll: async (commodityGroups?: string[], search?: string): Promise<ParLevel[]> => {
+    const params = new URLSearchParams();
     
     if (commodityGroups && commodityGroups.length > 0) {
-      const params = new URLSearchParams();
       commodityGroups.forEach(group => params.append('commodityGroups', group));
+    }
+    
+    if (search && search.trim()) {
+      params.append('search', search.trim());
+    }
+
+    let url = `${config.backend.apiUrl}/par-levels`;
+    if (params.toString()) {
       url += `?${params.toString()}`;
     }
 
