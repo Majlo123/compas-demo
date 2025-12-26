@@ -64,7 +64,7 @@ export const CreateWarningLevelDialog = ({
       <DialogTrigger asChild>
         <Button
           variant="primary"
-          className="mx-auto flex items-center justify-center w-button-lg rounded-full font-black text-sm text-black tracking-wide py-2.5 mb-4"
+          className="mx-auto flex items-center justify-center w-[280px] rounded-full font-black text-sm text-black tracking-wide py-2.5 mb-4"
           onClick={() => {
             setFormData({ name: '', description: '' });
             setCreateError(null);
@@ -73,7 +73,7 @@ export const CreateWarningLevelDialog = ({
           Create Warning Level
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-dialog-sm p-0 gap-0 !rounded-3xl overflow-hidden border-none">
+      <DialogContent className="sm:max-w-[320px] p-0 gap-0 !rounded-3xl overflow-hidden border-none">
         <DialogHeader className="bg-primary !px-6 !py-4 !rounded-t-none">
           <DialogTitle className="text-base font-bold text-black text-left">
             Create New Level
@@ -96,7 +96,7 @@ export const CreateWarningLevelDialog = ({
                 setFormData({ ...formData, name: e.target.value })
               }
               placeholder="Warning Level Name *"
-              className="flex h-8 w-full rounded-md border border-secondary bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              className="flex h-8 w-full rounded-md border border-gray-500 bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
               disabled={isSubmitting}
             />
           </div>
@@ -108,7 +108,7 @@ export const CreateWarningLevelDialog = ({
                 setFormData({ ...formData, description: e.target.value })
               }
               placeholder="Description *"
-              className="flex min-h-textarea w-full rounded-md border border-secondary bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none"
+              className="flex min-h-[80px] w-full rounded-md border border-gray-500 bg-white px-2 py-1 text-xs placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50 resize-none"
               disabled={isSubmitting}
             />
           </div>
@@ -117,7 +117,7 @@ export const CreateWarningLevelDialog = ({
         <DialogFooter className="!px-4 !pb-6 !pt-2 !flex !flex-col !items-center !justify-center !space-x-0 gap-3">
           <Button
             variant="black"
-            className="w-button-md border-none h-9 text-xs font-bold rounded-full"
+            className="w-[200px] border-none h-9 text-xs font-bold rounded-full"
             onClick={handleCreateWarningLevel}
             disabled={!isFormValid || isSubmitting}
           >
@@ -126,7 +126,7 @@ export const CreateWarningLevelDialog = ({
           <DialogClose asChild>
             <Button
               variant="secondary"
-              className="w-button-md rounded-full h-9 text-xs font-bold border-pureBlack text-pureBlack hover:bg-gray-50"
+              className="w-[200px] rounded-full h-9 text-xs font-bold border-pureBlack text-pureBlack hover:bg-gray-50"
               disabled={isSubmitting}
             >
               Cancel
