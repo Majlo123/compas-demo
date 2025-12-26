@@ -5,9 +5,11 @@ import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import {
   WarningLevelSchema,
+  WarningLevelWithCountSchema,
   CreateWarningLevelSchema,
   UpdateWarningLevelSchema,
   SearchWarningLevelResponseSchema,
+  SearchWarningLevelWithCountResponseSchema,
   GetWarningLevelResponseSchema,
   CreateWarningLevelResponseSchema,
 } from 'types/zod/warningLevel.schema';
@@ -45,7 +47,7 @@ const createWarningLevelRoute = (basePath: string): Router => {
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
       responses: [
-        { code: httpStatus.OK, desc: 'All warning levels', schema: SearchWarningLevelResponseSchema },
+        { code: httpStatus.OK, desc: 'All warning levels with productCount', schema: SearchWarningLevelWithCountResponseSchema },
       ],
       functionName: WarningLevelFunctions.getAllWarningLevels,
       basePath,

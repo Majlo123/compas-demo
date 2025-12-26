@@ -34,6 +34,31 @@ export const findAll = async (): Promise<WarningLevel[]> => {
   return results.map(mapToWarningLevel);
 };
 
+/**
+ * Find all warning levels and include productCount for each level.
+ * productCount = number of products with PAR level threshold > 0 associated to the warning level.
+ */
+export const findAllWithProductCount = async (): Promise<(WarningLevel & { productCount: number })[]> => {
+  const results = await db('warning_level as wl')
+    .leftJoin('par_level as pl', 'wl.id', 'pl.warning_level_id')
+    .select(
+      'wl.id',
+      'wl.name',
+      'wl.description',
+      'wl.created_at',
+      'wl.updated_at',
+      // Sum of rows with treshold > 0; COALESCE to 0 when no rows
+      db.raw('COALESCE(SUM(CASE WHEN pl.treshold > 0 THEN 1 ELSE 0 END), 0) as product_count'),
+    )
+    .groupBy('wl.id', 'wl.name', 'wl.description', 'wl.created_at', 'wl.updated_at')
+    .orderBy('wl.name', 'asc');
+
+  return results.map((row: any) => ({
+    ...mapToWarningLevel(row),
+    productCount: typeof row.product_count === 'string' ? parseInt(row.product_count, 10) : Number(row.product_count) || 0,
+  }));
+};
+
 export const findByName = async (name: string): Promise<WarningLevel | null> => {
   const result = await db('warning_level')
     .where({ name })

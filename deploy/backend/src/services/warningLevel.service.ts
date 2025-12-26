@@ -1,10 +1,10 @@
 import * as warningLevelRepository from 'repos/warningLevel.model';
 
 /**
- * Get all warning levels
+ * Get all warning levels (includes productCount)
  */
 export const findAll = async (): Promise<any[]> => {
-  return warningLevelRepository.findAll();
+  return warningLevelRepository.findAllWithProductCount();
 };
 
 /**
