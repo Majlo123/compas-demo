@@ -4,7 +4,10 @@ import ManagingPage from './pages/ManagingPage';
 
 function App() {
   return (
-    <Router>
+    <Router future={{
+      v7_startTransition: true,
+      v7_relativeSplatPath: true,
+    }}>
       <Routes>
         <Route path="/" element={<ManagingPage />} />
         <Route path="/managing" element={<ManagingPage />} />

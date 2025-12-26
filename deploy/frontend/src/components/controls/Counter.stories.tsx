@@ -31,6 +31,9 @@ export const Default: Story = {
     render: (args) => <CounterWithState {...args} />,
     args: {
         value: 4,
+        onIncrement: () => { },
+        onDecrement: () => { },
+        onChange: () => { },
     },
 };
 
@@ -40,5 +43,8 @@ export const MinMax: Story = {
         value: 5,
         min: 0,
         max: 10,
+        onIncrement: () => { },
+        onDecrement: () => { },
+        onChange: () => { },
     },
 };

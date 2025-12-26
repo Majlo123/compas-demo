@@ -19,13 +19,13 @@ const SearchInputWithState = () => {
 
   return (
     <div className="w-[600px]">
-        <div></div>
-        <SearchInput
-            placeholder="Search Products, Codes or Categories"
-            value={value}
-            onChange={(e) => setValue(e.target.value)}
-            onSearch={(val) => alert(`Searching for: ${val}`)}
-        />
+      <div></div>
+      <SearchInput
+        placeholder="Search Products, Codes or Categories"
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        onSearch={(val) => alert(`Searching for: ${val}`)}
+      />
     </div>
   );
 };
