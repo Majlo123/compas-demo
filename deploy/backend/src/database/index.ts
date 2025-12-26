@@ -15,7 +15,7 @@ export const runMigrations = async (): Promise<void> => {
   try {
     logger.info('Running database migrations...');
     const [batchNo, migrations] = await db.migrate.latest();
-    
+
     if (migrations.length === 0) {
       logger.info('Database is up to date. No migrations were run.');
     } else {
@@ -25,7 +25,7 @@ export const runMigrations = async (): Promise<void> => {
       });
     }
   } catch (error) {
-    logger.error('Migration failed:', error);
+    logger.error(error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 };
@@ -37,7 +37,7 @@ export const rollbackMigrations = async (): Promise<void> => {
   try {
     logger.info('Rolling back migrations...');
     const [batchNo, migrations] = await db.migrate.rollback();
-    
+
     if (migrations.length === 0) {
       logger.info('No migrations to rollback.');
     } else {
@@ -47,7 +47,7 @@ export const rollbackMigrations = async (): Promise<void> => {
       });
     }
   } catch (error) {
-    logger.error('Rollback failed:', error);
+    logger.error(error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 };
@@ -60,13 +60,13 @@ export const runSeeds = async (): Promise<void> => {
     logger.warn('Seeds are disabled in production environment.');
     return;
   }
-  
+
   try {
     logger.info('Running database seeds...');
     await db.seed.run();
     logger.info('Seeds completed successfully.');
   } catch (error) {
-    logger.error('Seeding failed:', error);
+    logger.error(error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 };
@@ -77,18 +77,18 @@ export const runSeeds = async (): Promise<void> => {
 export const getMigrationStatus = async (): Promise<void> => {
   try {
     const [completed, pending] = await db.migrate.list();
-    
+
     logger.info('Completed migrations:');
     completed.forEach((migration: string) => {
       logger.info(`  ✓ ${migration}`);
     });
-    
+
     logger.info('Pending migrations:');
     pending.forEach((migration: { name: string }) => {
       logger.info(`  ○ ${migration.name}`);
     });
   } catch (error) {
-    logger.error('Failed to get migration status:', error);
+    logger.error(error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 };

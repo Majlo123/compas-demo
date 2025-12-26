@@ -4,8 +4,6 @@ import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import {
-  WarningLevelSchema,
-  WarningLevelWithCountSchema,
   CreateWarningLevelSchema,
   UpdateWarningLevelSchema,
   SearchWarningLevelResponseSchema,

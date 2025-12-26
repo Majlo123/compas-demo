@@ -12,7 +12,8 @@ import { Role } from '../../../shared/auth.types';
 export type EndpointParam = {
   name: string;
   in?: 'path' | 'query';
-  type?: 'string' | 'number' | 'boolean' | 'integer';
+  type?: 'string' | 'number' | 'boolean' | 'integer' | 'array';
+  items?: { type: string };
   required?: boolean;
   description?: string;
 };
@@ -246,7 +247,7 @@ export const registerSwaggerPath = (meta: EndpointMeta): void => {
 };
 
 export const setupSwagger = (
-  router: Router,
+  _router: Router,
   endpointsMeta: EndpointMeta[],
 ): void => {
   endpointsMeta.forEach((meta) => {
