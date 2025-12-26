@@ -6,10 +6,11 @@ import knexConfig from '../../knexfile';
 const db = knex(knexConfig.development);
 
 /**
- * Get all PAR levels
+ * Get all PAR levels with optional commodity group filtering
+ * @param commodityGroups - Optional array of commodity group names to filter by
  */
-export const findAll = async (): Promise<any[]> => {
-  return parLevelRepository.findAll();
+export const findAll = async (commodityGroups?: string[]): Promise<any[]> => {
+  return parLevelRepository.findAll(commodityGroups);
 };
 
 /**
