@@ -39,7 +39,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
   }, []);
 
   return (
-    <div className={twMerge('relative inline-block text-left', className)} ref={dropdownRef}>
+    <div className={twMerge('relative inline-block text-left z-50', className)} ref={dropdownRef}>
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}

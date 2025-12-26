@@ -40,6 +40,12 @@ const config = {
           sweets: '#C2185B',
         },
       },
+      boxShadow: {
+        'xl-top': `
+          0 -15px 20px -5px rgb(0 0 0 / 0.1),
+          0 -10px 20px -6px rgb(0 0 0 / 0.1)
+        `,
+      },
       fontFamily: {
         sans: ['Nunito', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
