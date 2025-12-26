@@ -25,11 +25,11 @@ const GroupingDropdownWithState = () => {
 
   return (
     <div className="w-64">
-        <GroupingDropdown
-            options={options}
-            selectedOptionId={selected}
-            onSelect={(opt) => setSelected(opt.id)}
-        />
+      <GroupingDropdown
+        options={options}
+        selectedOptionId={selected}
+        onSelect={(opt) => setSelected(opt.id)}
+      />
     </div>
   );
 };

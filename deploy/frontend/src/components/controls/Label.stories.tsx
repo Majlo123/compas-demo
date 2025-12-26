@@ -28,10 +28,15 @@ export const Default: Story = {
 };
 
 export const AllCategories: Story = {
+  args: {
+    category: 'FRUIT AND VEGETABLES',
+  },
   render: () => (
     <div className="flex flex-wrap gap-4 max-w-2xl">
       {categoryOptions.map((category) => (
-        <Label key={category} category={category} />
+        <Label key={category} category={category}>
+          {category}
+        </Label>
       ))}
     </div>
   ),

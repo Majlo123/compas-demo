@@ -33,19 +33,22 @@ interface ButtonProps
     icon?: IconType;
 }
 
-export const Button: React.FC<ButtonProps> = ({
-    children,
-    className,
-    variant,
-    icon,
-    ...props
-}) => {
+export const Button = React.forwardRef<
+    HTMLButtonElement,
+    ButtonProps
+>(({ children, className, variant, icon, ...props }, ref) => {
     const IconComponent = icon ? Icons[icon] : null;
 
     return (
-        <button className={button({ variant, className })} {...props}>
+        <button
+            ref={ref}
+            className={button({ variant, className })}
+            {...props}
+        >
             {IconComponent && <IconComponent size={16} />}
             {children}
         </button>
     );
-};
+});
+
+Button.displayName = "Button";

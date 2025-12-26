@@ -28,6 +28,9 @@ export const Default: Story = {
 };
 
 export const AllStatuses: Story = {
+  args: {
+    status: 'OK',
+  },
   render: () => (
     <div className="flex flex-wrap gap-4">
       {statusOptions.map((status) => (

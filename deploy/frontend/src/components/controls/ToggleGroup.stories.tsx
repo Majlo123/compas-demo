@@ -15,6 +15,12 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Categories: Story = {
+  args: {
+    type: 'single',
+    variant: 'outline',
+    className: 'flex flex-wrap justify-start gap-2 max-w-md',
+    defaultValue: 'CRISPS AND SNACKS',
+  },
   render: () => (
     <ToggleGroup
       type="single"
