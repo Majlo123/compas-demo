@@ -57,7 +57,7 @@ export const Counter: React.FC<CounterProps> = ({
     };
 
     return (
-        <div className={twMerge('flex items-center justify-between border border-gray-200 rounded-lg p-1 w-fit gap-1 bg-white', className)}>
+        <div className={twMerge('flex items-center justify-between border border-gray-200 rounded-md p-1 w-fit gap-2 bg-white', className)}>
             <Button
                 variant="small"
                 icon="minus"
