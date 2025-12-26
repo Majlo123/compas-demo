@@ -8,6 +8,7 @@ const config = {
       colors: {
         primary: '#FECD00',
         secondary: '#333333',
+        warning: '#ffa500',
         pureBlack: '#000000',
         surface: '#F8F8F8',
         indicator: '#131428',
