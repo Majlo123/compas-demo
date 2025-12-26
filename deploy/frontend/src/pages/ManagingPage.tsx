@@ -107,6 +107,7 @@ const WarningsPage = () => {
             onSearch={handleSearch}
             onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
             managingLevel={selectedLevel ?? undefined}
+            filterCount={(selectedFilters.length > 0 || (searchTerm.trim().length > 0)) ? allParLevels.length : undefined}
             onFilterClick={() => setIsFiltersOpen(true)}
           />
           <div className="flex flex-col max-h-screen overflow-y-auto">

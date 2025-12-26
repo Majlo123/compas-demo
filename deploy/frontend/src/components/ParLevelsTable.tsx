@@ -38,11 +38,11 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
               <TableCell className="font-medium">
                 <div className="flex gap-2 flex-col">
                   <p className="text-p2 m-0 font-bold">{level.product_name}</p>
-                  <div className="flex gap-1">
-                    <p className="text-p2 m-0">{level.product_id}</p>
+                  <div className="flex gap-1 items-center">
                     <button className="p-0">
                       <CopyIcon size={12} />
                     </button>
+                    <p className="text-p2 m-0">{level.product_id}</p>
                   </div>
                 </div>
               </TableCell>

@@ -1,19 +1,7 @@
 import { config } from '@/config/config';
-import { ParLevel, mapParLevelDTOToParLevel } from '@/types/parLevel.types';
+import { ParLevel, mapParLevelDTOToParLevel, ParLevelDTO } from '@/types/parLevel.types';
 
 export type { ParLevel } from '@/types/parLevel.types';
-
-export type ParLevelDTO = {
-  prodId: string;
-  threshold: number;
-  warningLevelId: string;
-  createdAt?: Date;
-  updatedAt?: Date;
-  product_description?: string;
-  commodity_group?: string;
-  commodity_group_id?: string;
-  quantity?: number;
-};
 
 export const parLevelApi = {
   /**

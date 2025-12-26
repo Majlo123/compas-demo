@@ -10,9 +10,10 @@ interface TopBarProps {
     onGroupingChange?: (grouping: string) => void;
     managingLevel?: WarningLevel;
     onFilterClick?: () => void;
+    filterCount?: number;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ selectedGrouping, onSearch, onGroupingChange, managingLevel, onFilterClick }) => {
+export const TopBar: React.FC<TopBarProps> = ({ selectedGrouping, onSearch, onGroupingChange, managingLevel, onFilterClick, filterCount }) => {
 
     const options: GroupingOption[] = [
         { id: 'no-grouping', label: 'No Grouping' },
@@ -38,7 +39,9 @@ export const TopBar: React.FC<TopBarProps> = ({ selectedGrouping, onSearch, onGr
                         selectedOptionId={selectedGrouping}
                         onSelect={(opt) => onGroupingChange(opt.id)}
                     />
-                    <Button icon='filter' variant="secondary" onClick={onFilterClick}>Filter</Button>
+                    <Button icon='filter' variant="secondary" onClick={onFilterClick} className="w-36 justify-start pl-7">
+                        {typeof filterCount === 'number' ? `Filters (${filterCount})` : 'Filter'}
+                    </Button>
                 </div>
             </div>
         </div>
