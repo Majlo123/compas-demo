@@ -1,5 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react';
 import { ToggleGroup, ToggleGroupItem } from './ToggleGroup';
+import { commodityGroups } from '@shared/types/commodityGroups';
 
 const meta = {
   title: 'Controls/ToggleGroup',
@@ -12,20 +13,6 @@ const meta = {
 
 export default meta;
 type Story = StoryObj<typeof meta>;
-
-const categories = [
-  'CRISPS AND SNACKS',
-  'ALCOHOLIC BEVERAGE',
-  'FRUIT AND VEGETABLES',
-  'CLEANING MATERIALS',
-  'GROCERIES AMBIENT',
-  'NON FOOD RETAIL',
-  'COLD BEVERAGES',
-  'BREAD PRODUCTS',
-  'DISPOSABLES',
-  'FISH AND SEAFOOD',
-  'SWEET PRODUCTS',
-];
 
 export const Categories: Story = {
   args: {
@@ -41,7 +28,7 @@ export const Categories: Story = {
       className="flex flex-wrap justify-start gap-2 max-w-md"
       defaultValue="CRISPS AND SNACKS"
     >
-      {categories.map((category) => (
+      {commodityGroups.map((category) => (
         <ToggleGroupItem
           key={category}
           value={category}

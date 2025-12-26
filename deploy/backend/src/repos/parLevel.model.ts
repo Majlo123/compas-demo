@@ -45,12 +45,14 @@ export const findByWarningLevelId = async (warningLevelId: string): Promise<ParL
 export const findAll = async (commodityGroups?: string[]): Promise<ParLevel[]> => {
   let query = db('par_level')
     .leftJoin('products', 'par_level.prod_id', 'products.prod_id')
+    .leftJoin('live_stock', 'par_level.prod_id', 'live_stock.prod_id')
     .orderBy('par_level.prod_id', 'asc')
     .select(
       'par_level.*',
       'products.description as product_description',
       'products.commodity_group',
-      'products.commodity_group_id'
+      'products.commodity_group_id',
+      'live_stock.quantity'
     );
 
   // Apply commodity group filtering if provided
@@ -59,7 +61,17 @@ export const findAll = async (commodityGroups?: string[]): Promise<ParLevel[]> =
   }
 
   const results = await query;
-  return results.map(mapToParLevel);
+  return results.map(row => ({
+    prodId: row.prod_id,
+    threshold: row.treshold,
+    warningLevelId: row.warning_level_id,
+    createdAt: row.created_at ? new Date(row.created_at) : undefined,
+    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+    product_description: row.product_description,
+    commodity_group: row.commodity_group,
+    commodity_group_id: row.commodity_group_id,
+    quantity: row.quantity,
+  }));
 };
 
 export const updateByProdId = async (
