@@ -1,13 +1,14 @@
 import { config } from '@/config/config';
-import type { WarningLevel } from '@shared/types/warningLevel.types';
-export type { WarningLevel } from '@shared/types/warningLevel.types';
+import type {
+  WarningLevel,
+  CreateWarningLevel,
+} from '@shared/types/warningLevel.types';
+export type {
+ WarningLevel,
+  CreateWarningLevel,
+} from '@shared/types/warningLevel.types';
 
 export type WarningLevelWithCount = WarningLevel & { productCount: number };
-
-export type CreateWarningLevelInput = {
-  name: string;
-  description?: string | null;
-};
 
 const toSharedWarningLevel = (raw: any): WarningLevel => ({
   id: raw.id,
@@ -59,7 +60,7 @@ export const warningLevelApi = {
   /**
    * Create a new warning level
    */
-  create: async (input: CreateWarningLevelInput): Promise<WarningLevel> => {
+  create: async (input: CreateWarningLevel): Promise<WarningLevel> => {
     const response = await fetch(`${config.backend.apiUrl}/warning-levels`, {
       method: 'POST',
       headers: {

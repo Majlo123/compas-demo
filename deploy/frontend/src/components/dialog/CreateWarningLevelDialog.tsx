@@ -2,7 +2,7 @@ import { useState } from 'react';
 import {
   warningLevelApi,
   type WarningLevel,
-  type CreateWarningLevelInput,
+  type CreateWarningLevel,
 } from '@/api/warningLevel.api';
 import { Button } from '@/components/controls/Button';
 import {
@@ -23,7 +23,7 @@ export const CreateWarningLevelDialog = ({
   onSuccess,
 }: CreateWarningLevelDialogProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [formData, setFormData] = useState<CreateWarningLevelInput>({
+  const [formData, setFormData] = useState<CreateWarningLevel>({
     name: '',
     description: '',
   });
