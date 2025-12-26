@@ -4,7 +4,6 @@ import { Router, RequestHandler } from 'express';
 import httpStatus from 'http-status';
 import registerEndpointRoutes from 'routes/registerEndpointRoutes';
 import {
-  ParLevelSchema,
   CreateParLevelSchema,
   UpdateParLevelSchema,
   GetParLevelResponseSchema,
@@ -30,16 +29,16 @@ const createParLevelRoute = (basePath: string): Router => {
       method: 'get',
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
-            params: [
-              {
-                name: 'commodityGroups',
-                in: 'query',
-                type: 'array',
-                items: { type: 'string' },
-                required: false,
-                description: 'Filter by commodity group names (e.g., CRISPS AND SNACKS, ALCOHOLIC BEVERAGE). Multiple values can be provided.',
-              },
-            ],
+      params: [
+        {
+          name: 'commodityGroups',
+          in: 'query',
+          type: 'array',
+          items: { type: 'string' },
+          required: false,
+          description: 'Filter by commodity group names (e.g., CRISPS AND SNACKS, ALCOHOLIC BEVERAGE). Multiple values can be provided.',
+        },
+      ],
       responses: [
         { code: httpStatus.OK, desc: 'All PAR levels', schema: GetParLevelResponseSchema },
       ],

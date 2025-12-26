@@ -1,7 +1,5 @@
-import { Request, Response, Router, RequestHandler } from 'express';
-import httpStatus from 'http-status';
+import { Router, RequestHandler } from 'express';
 import { setupSwagger, EndpointMeta } from 'docs/swagger';
-import ApiError from 'shared/error/ApiError';
 
 /**
  * Register endpoint routes with Swagger documentation

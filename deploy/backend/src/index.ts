@@ -33,7 +33,7 @@ const initializeDatabase = async (): Promise<void> => {
       await runSeeds();
     }
   } catch (error) {
-    logger.error('Database initialization failed:', error);
+    logger.error(error instanceof Error ? error : new Error(String(error)));
     throw error;
   }
 };

@@ -5,7 +5,7 @@ import createParLevelRoute from 'routes/api/parLevel.route';
 const apiRouter = express.Router();
 
 // Health check endpoint
-apiRouter.get('/', (req, res) => {
+apiRouter.get('/', (_req, res) => {
   res.status(200).json({
     success: true,
     message: 'API is running',

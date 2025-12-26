@@ -13,7 +13,7 @@ export const searchWarningLevels = catchAsync(async (req: Request, res: Response
   });
 });
 
-export const getAllWarningLevels = catchAsync(async (req: Request, res: Response) => {
+export const getAllWarningLevels = catchAsync(async (_req: Request, res: Response) => {
   const result = await warningLevelService.findAll();
   res.status(httpStatus.OK).send({
     success: true,
