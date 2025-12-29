@@ -16,6 +16,7 @@ services:
     volumes:
       - ./deploy/frontend/node_modules:/frontend/node_modules
       - ./deploy/frontend/src:/frontend/src
+      - ./deploy/shared:/shared
       - ./deploy/frontend/index.html:/frontend/index.html
       - ./deploy/frontend/tailwind.config.js:/frontend/tailwind.config.js
       - ./deploy/frontend/public:/frontend/public

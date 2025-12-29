@@ -1,7 +1,4 @@
-import {
-  commodityGroups,
-  type CommodityGroup,
-} from '@shared/types/commodityGroups';
+import { type CommodityGroup, commodityGroups } from '@/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 import { useState, useEffect, useRef } from 'react';
 
@@ -48,8 +45,8 @@ const WarningsPage = () => {
 
         const data = idsByWarning
           ? detailed.filter((p) =>
-              idsByWarning.some((x) => x.prodId === p.product_id)
-            )
+            idsByWarning.some((x) => x.prodId === p.product_id)
+          )
           : detailed;
 
         setAllParLevels(data);
@@ -91,10 +88,10 @@ const WarningsPage = () => {
       prev.map((p) =>
         p.product_id === prodId
           ? {
-              ...p,
-              threshhold: newThreshold,
-              status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-            }
+            ...p,
+            threshhold: newThreshold,
+            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+          }
           : p
       )
     );
@@ -102,10 +99,10 @@ const WarningsPage = () => {
       prev.map((p) =>
         p.product_id === prodId
           ? {
-              ...p,
-              threshhold: newThreshold,
-              status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-            }
+            ...p,
+            threshhold: newThreshold,
+            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+          }
           : p
       )
     );

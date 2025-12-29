@@ -18,6 +18,9 @@ export default defineConfig({
     hmr: {
       host: 'localhost',
     },
+    fs: {
+      allow: ['../shared'],
+    },
   },
   resolve: {
     alias: {

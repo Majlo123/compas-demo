@@ -1,4 +1,4 @@
-import { commodityGroups } from '@shared/types/commodityGroups';
+import { commodityGroups } from '@/types/commodityGroups';
 import type { Meta, StoryObj } from '@storybook/react';
 
 import { ToggleGroup, ToggleGroupItem } from './ToggleGroup';

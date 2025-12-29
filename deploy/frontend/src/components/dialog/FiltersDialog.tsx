@@ -1,4 +1,4 @@
-import type { CommodityGroup } from '@shared/types/commodityGroups';
+import type { CommodityGroup } from '@/types/commodityGroups';
 
 import { Button } from '@/components/controls/Button';
 import {
