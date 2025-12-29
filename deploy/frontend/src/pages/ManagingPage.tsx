@@ -1,4 +1,4 @@
-import { commodityGroups } from '@shared/types/commodityGroups';
+import { commodityGroups, type CommodityGroup } from '@shared/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 import { useState, useEffect, useRef } from 'react';
 
@@ -17,7 +17,7 @@ const WarningsPage = () => {
   const [selectedGrouping, setSelectedGrouping] = useState<string | null>(null);
   const [paginatedData, setPaginatedData] = useState<ParLevel[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
-  const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [selectedFilters, setSelectedFilters] = useState<CommodityGroup[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [allParLevels, setAllParLevels] = useState<ParLevel[]>([]);

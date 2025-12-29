@@ -32,7 +32,7 @@ export const mapParLevelDTOToParLevel = (dto: ParLevelDTO): ParLevel => {
   return {
     product_name: dto.product_description || `Product ${dto.prodId}`,
     product_id: dto.prodId,
-    comodity_group: (dto.commodity_group as CommodityCategory) || 'OTHERS',
+    comodity_group: (dto.commodity_group as CommodityCategory) || 'GROCERIES AMBIENT',
     stockLevel,
     threshhold: threshold,
     status,

@@ -15,8 +15,8 @@ import {
 export type FiltersDialogProps = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  categories: CommodityGroup[];
-  selectedFilters: CommodityGroup[];
+  categories: ReadonlyArray<CommodityGroup>;
+  selectedFilters: ReadonlyArray<CommodityGroup>;
   onFiltersChange: (next: CommodityGroup[]) => void;
   onApply: () => void;
   onClear: () => void;
@@ -32,7 +32,10 @@ export const FiltersDialog = ({
   onClear,
 }: FiltersDialogProps) => {
   const handleValueChange = (value: string[] | string) => {
-    const next = Array.isArray(value) ? value : value ? [value] : [];
+    const raw = Array.isArray(value) ? value : value ? [value] : [];
+    const next = raw.filter((v): v is CommodityGroup =>
+      categories.includes(v as CommodityGroup)
+    );
     onFiltersChange(next);
   };
 
@@ -64,7 +67,7 @@ export const FiltersDialog = ({
               type="multiple"
               variant="outline"
               className="flex flex-wrap justify-start gap-2 max-w-md"
-              value={selectedFilters}
+              value={Array.from(selectedFilters)}
               onValueChange={handleValueChange}
             >
               {categories.map((category) => (
