@@ -1,6 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { StatusLabel, statusStyles, StatusType } from './StatusLabel';
+import {
+  StatusLabel,
+  statusStyles,
+  StatusType,
+} from '@/components/controls/StatusLabel';
 
 const statusOptions = Object.keys(statusStyles) as StatusType[];
 

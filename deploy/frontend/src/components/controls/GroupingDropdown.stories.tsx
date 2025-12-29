@@ -1,7 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { GroupingDropdown, GroupingOption } from './GroupingDropdown';
+import {
+  GroupingDropdown,
+  GroupingOption,
+} from '@/components/controls/GroupingDropdown';
 
 const meta: Meta<typeof GroupingDropdown> = {
   title: 'Controls/GroupingDropdown',
@@ -21,7 +24,7 @@ const options: GroupingOption[] = [
   { id: 'commodity-group', label: 'Group by Commodity Group' },
 ];
 
-const GroupingDropdownWithState = () => {
+const GroupingDropdownWithState = (): JSX.Element => {
   const [selected, setSelected] = useState('no-grouping');
 
   return (

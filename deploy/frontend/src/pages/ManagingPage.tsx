@@ -13,7 +13,7 @@ import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSideP
 import { TopBar } from '@/components/top_bar/TopBar';
 import { ParLevel } from '@/types/parLevel.types';
 
-const WarningsPage = () => {
+const WarningsPage = (): JSX.Element => {
   const [selectedLevel, setSelectedLevel] = useState<SharedWarningLevel | null>(
     null
   );
@@ -30,7 +30,7 @@ const WarningsPage = () => {
 
   // Fetch PAR levels from backend API (supports selected warning level)
   useEffect(() => {
-    const fetchParLevels = async () => {
+    const fetchParLevels = async (): Promise<void> => {
       try {
         setIsLoading(true);
         setError(null);
@@ -58,6 +58,7 @@ const WarningsPage = () => {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to fetch PAR levels';
         setError(errorMessage);
+        // eslint-disable-next-line no-console
         console.error('Error fetching PAR levels:', err);
       } finally {
         setIsLoading(false);
@@ -67,7 +68,7 @@ const WarningsPage = () => {
     fetchParLevels();
   }, [selectedFilters, searchTerm, selectedLevel?.id]);
 
-  const handleSearch = (term: string) => {
+  const handleSearch = (term: string): void => {
     // Debounce the search; only update state after delay
     if (searchDebounceTimer.current) {
       clearTimeout(searchDebounceTimer.current);
@@ -79,14 +80,17 @@ const WarningsPage = () => {
 
   // Clear pending debounce on unmount
   useEffect(() => {
-    return () => {
+    return (): void => {
       if (searchDebounceTimer.current) {
         clearTimeout(searchDebounceTimer.current);
       }
     };
   }, []);
 
-  const applyLocalParLevelChange = (prodId: string, newThreshold: number) => {
+  const applyLocalParLevelChange = (
+    prodId: string,
+    newThreshold: number
+  ): void => {
     setAllParLevels((prev) =>
       prev.map((p) =>
         p.product_id === prodId
@@ -111,11 +115,14 @@ const WarningsPage = () => {
     );
   };
 
-  const persistParLevelDebounced = (prodId: string, newThreshold: number) => {
+  const persistParLevelDebounced = (
+    prodId: string,
+    newThreshold: number
+  ): void => {
     const existingTimer = updateTimersRef.current[prodId];
     if (existingTimer) clearTimeout(existingTimer);
 
-    updateTimersRef.current[prodId] = setTimeout(async () => {
+    updateTimersRef.current[prodId] = setTimeout(async (): Promise<void> => {
       try {
         const updated = await parLevelApi.updateThreshold(prodId, newThreshold);
         if (!updated && selectedLevel?.id) {
@@ -123,6 +130,7 @@ const WarningsPage = () => {
           await parLevelApi.create(prodId, newThreshold, selectedLevel.id);
         }
       } catch (err) {
+        // eslint-disable-next-line no-console
         console.error('Failed to persist PAR level', err);
         // Optionally: refetch or show toast; for now, leave optimistic value
       } finally {
@@ -131,18 +139,18 @@ const WarningsPage = () => {
     }, 500); // debounce rapid clicks
   };
 
-  const handleThresholdChange = (prodId: string, newValue: number) => {
+  const handleThresholdChange = (prodId: string, newValue: number): void => {
     const clamped = Math.max(0, Math.round(newValue));
     applyLocalParLevelChange(prodId, clamped);
     persistParLevelDebounced(prodId, clamped);
   };
 
-  const handleApplyFilters = () => {
+  const handleApplyFilters = (): void => {
     setIsFiltersOpen(false);
     // Filters are automatically applied through useEffect dependency
   };
 
-  const handleClearFilters = () => {
+  const handleClearFilters = (): void => {
     setSelectedFilters([]);
     setPaginatedData(allParLevels);
   };

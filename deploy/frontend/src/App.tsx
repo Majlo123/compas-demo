@@ -1,9 +1,9 @@
 import '@/App.scss';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
-import ManagingPage from './pages/ManagingPage';
+import ManagingPage from '@/pages/ManagingPage';
 
-function App() {
+function App(): JSX.Element {
   return (
     <Router
       future={{

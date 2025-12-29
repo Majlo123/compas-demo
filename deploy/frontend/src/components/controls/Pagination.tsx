@@ -21,7 +21,7 @@ export function Pagination<T>({
   data,
   itemsPerPage = 5,
   onChange,
-}: PaginationProps<T>) {
+}: PaginationProps<T>): JSX.Element | null {
   const [currentPage, setCurrentPage] = useState(1);
 
   const totalPages = Math.ceil(data.length / itemsPerPage);
@@ -36,63 +36,60 @@ export function Pagination<T>({
     onChange(paginatedData);
   }, [paginatedData, onChange]);
 
-  const handleFirstPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleFirstPage = (e: React.MouseEvent<HTMLAnchorElement>): void => {
     e.preventDefault();
     setCurrentPage(1);
   };
 
-  const handlePreviousPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handlePreviousPage = (e: React.MouseEvent<HTMLAnchorElement>): void => {
     e.preventDefault();
     setCurrentPage((prev) => Math.max(1, prev - 1));
   };
 
-  const handleNextPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleNextPage = (e: React.MouseEvent<HTMLAnchorElement>): void => {
     e.preventDefault();
     setCurrentPage((prev) => Math.min(totalPages, prev + 1));
   };
 
-  const handleLastPage = (e: React.MouseEvent<HTMLAnchorElement>) => {
+  const handleLastPage = (e: React.MouseEvent<HTMLAnchorElement>): void => {
     e.preventDefault();
     setCurrentPage(totalPages);
   };
 
   const handlePageClick =
-    (page: number) => (e: React.MouseEvent<HTMLAnchorElement>) => {
+    (page: number) =>
+    (e: React.MouseEvent<HTMLAnchorElement>): void => {
       e.preventDefault();
       setCurrentPage(page);
     };
 
-  return (
-    <>
-      {totalPages > 1 ? (
-        <ShadcnPagination>
-          <PaginationContent>
-            <PaginationItem>
-              <PaginationFirst href="#" onClick={handleFirstPage} />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationPrevious href="#" onClick={handlePreviousPage} />
-            </PaginationItem>
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  href="#"
-                  isActive={currentPage === page}
-                  onClick={handlePageClick(page)}
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-            <PaginationItem>
-              <PaginationNext href="#" onClick={handleNextPage} />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLast href="#" onClick={handleLastPage} />
-            </PaginationItem>
-          </PaginationContent>
-        </ShadcnPagination>
-      ) : null}
-    </>
-  );
+  return totalPages > 1 ? (
+    <ShadcnPagination>
+      <PaginationContent>
+        <PaginationItem>
+          <PaginationFirst href="#" onClick={handleFirstPage} />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationPrevious href="#" onClick={handlePreviousPage} />
+        </PaginationItem>
+        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+          <PaginationItem key={page}>
+            <PaginationLink
+              href="#"
+              isActive={currentPage === page}
+              onClick={handlePageClick(page)}
+            >
+              {page}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+        <PaginationItem>
+          <PaginationNext href="#" onClick={handleNextPage} />
+        </PaginationItem>
+        <PaginationItem>
+          <PaginationLast href="#" onClick={handleLastPage} />
+        </PaginationItem>
+      </PaginationContent>
+    </ShadcnPagination>
+  ) : null;
 }

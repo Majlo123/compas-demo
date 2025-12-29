@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { Counter } from './Counter';
+import { Counter } from '@/components/controls/Counter';
 
 const meta = {
   title: 'Controls/Counter',
@@ -15,15 +15,18 @@ const meta = {
 export default meta;
 type Story = StoryObj<typeof meta>;
 
-const CounterWithState = (args: any) => {
-  const [value, setValue] = useState(args.value || 4);
+const CounterWithState = ({
+  value: initialValue,
+  ...args
+}: any): JSX.Element => {
+  const [value, setValue] = useState(initialValue || 4);
   return (
     <Counter
       {...args}
       value={value}
-      onIncrement={() => setValue(value + 1)}
-      onDecrement={() => setValue(value - 1)}
-      onChange={(newValue) => setValue(newValue)}
+      onIncrement={(): void => setValue(value + 1)}
+      onDecrement={(): void => setValue(value - 1)}
+      onChange={(newValue): void => setValue(newValue)}
     />
   );
 };

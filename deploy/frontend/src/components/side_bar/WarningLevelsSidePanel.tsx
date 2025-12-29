@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
 
-import { CreateWarningLevelDialog } from '../dialog/CreateWarningLevelDialog';
-
 import {
   warningLevelApi,
   type WarningLevel,
   type WarningLevelWithCount,
 } from '@/api/warningLevel.api';
+import { CreateWarningLevelDialog } from '@/components/dialog/CreateWarningLevelDialog';
 
 interface WarningLevelsSidePanelProps {
   onLevelSelect?: (level: WarningLevel) => void;
@@ -18,7 +17,7 @@ export const WarningLevelsSidePanel = ({
   selectedLevelId,
   onLevelSelect,
   className = '',
-}: WarningLevelsSidePanelProps) => {
+}: WarningLevelsSidePanelProps): JSX.Element => {
   const [warningLevels, setWarningLevels] = useState<WarningLevelWithCount[]>(
     []
   );
@@ -26,7 +25,7 @@ export const WarningLevelsSidePanel = ({
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchWarningLevels = async () => {
+    const fetchWarningLevels = async (): Promise<void> => {
       try {
         setIsLoading(true);
         setError(null);
@@ -44,11 +43,11 @@ export const WarningLevelsSidePanel = ({
     fetchWarningLevels();
   }, []);
 
-  const handleLevelSelect = (level: WarningLevelWithCount) => {
+  const handleLevelSelect = (level: WarningLevelWithCount): void => {
     onLevelSelect?.(level);
   };
 
-  const handleCreateSuccess = async (newLevel: WarningLevel) => {
+  const handleCreateSuccess = async (newLevel: WarningLevel): Promise<void> => {
     const levels = await warningLevelApi.getAll();
     setWarningLevels(levels);
     onLevelSelect?.(newLevel);
