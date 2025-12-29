@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { Label, CommodityCategory, categoryStyles } from './Label';
 
 const categoryOptions = Object.keys(categoryStyles) as CommodityCategory[];

@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect } from 'react';
 import { Grip, ChevronDown } from 'lucide-react';
+import React, { useState, useRef, useEffect } from 'react';
 import { twMerge } from 'tailwind-merge';
 
 export interface GroupingOption {
@@ -23,11 +23,15 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
-  const selectedOption = options.find((opt) => opt.id === selectedOptionId) || options[0];
+  const selectedOption =
+    options.find((opt) => opt.id === selectedOptionId) || options[0];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+      if (
+        dropdownRef.current &&
+        !dropdownRef.current.contains(event.target as Node)
+      ) {
         setIsOpen(false);
       }
     };
@@ -39,7 +43,10 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
   }, []);
 
   return (
-    <div className={twMerge('relative inline-block text-left z-50', className)} ref={dropdownRef}>
+    <div
+      className={twMerge('relative inline-block text-left z-50', className)}
+      ref={dropdownRef}
+    >
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
@@ -47,11 +54,16 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
       >
         <div className="flex items-center gap-2 overflow-hidden">
           <Grip className="w-4 h-4 text-gray-600 flex-shrink-0" />
-          <span className="text-sm font-medium text-gray-700 truncate max-w-[150px]" title={selectedOption?.label}>
+          <span
+            className="text-sm font-medium text-gray-700 truncate max-w-[150px]"
+            title={selectedOption?.label}
+          >
             {selectedOption?.label}
           </span>
         </div>
-        <ChevronDown className={`w-6 h-6 ml-2 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`} />
+        <ChevronDown
+          className={`w-6 h-6 ml-2 text-gray-500 transition-transform duration-200 ${isOpen ? 'rotate-180' : ''}`}
+        />
       </button>
 
       {isOpen && (

@@ -1,10 +1,12 @@
-import { config } from '@/config/config';
 import type {
   WarningLevel,
   CreateWarningLevel,
 } from '@shared/types/warningLevel.types';
+
+import { config } from '@/config/config';
+
 export type {
- WarningLevel,
+  WarningLevel,
   CreateWarningLevel,
 } from '@shared/types/warningLevel.types';
 
@@ -72,7 +74,8 @@ export const warningLevelApi = {
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
       throw new Error(
-        errorData.error?.message || `Failed to create warning level: ${response.statusText}`
+        errorData.error?.message ||
+          `Failed to create warning level: ${response.statusText}`
       );
     }
 

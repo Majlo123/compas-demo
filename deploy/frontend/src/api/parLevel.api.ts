@@ -1,5 +1,9 @@
 import { config } from '@/config/config';
-import { ParLevel, mapParLevelDTOToParLevel, ParLevelDTO } from '@/types/parLevel.types';
+import {
+  ParLevel,
+  mapParLevelDTOToParLevel,
+  ParLevelDTO,
+} from '@/types/parLevel.types';
 
 export type { ParLevel } from '@/types/parLevel.types';
 
@@ -9,13 +13,18 @@ export const parLevelApi = {
    * @param commodityGroups - Optional array of commodity groups to filter by
    * @param search - Optional search term to filter by product description or ID
    */
-  getAll: async (commodityGroups?: string[], search?: string): Promise<ParLevel[]> => {
+  getAll: async (
+    commodityGroups?: string[],
+    search?: string
+  ): Promise<ParLevel[]> => {
     const params = new URLSearchParams();
-    
+
     if (commodityGroups && commodityGroups.length > 0) {
-      commodityGroups.forEach(group => params.append('commodityGroups', group));
+      commodityGroups.forEach((group) =>
+        params.append('commodityGroups', group)
+      );
     }
-    
+
     if (search && search.trim()) {
       params.append('search', search.trim());
     }
@@ -35,24 +44,30 @@ export const parLevelApi = {
       success: boolean;
       content: ParLevelDTO[];
     };
-    
+
     return (data.content ?? []).map(mapParLevelDTOToParLevel);
   },
 
   /**
    * Fetch PAR levels by warning level id (returns minimal rows: prodId, threshold, etc.)
    */
-  getByWarningLevelId: async (warningLevelId: string): Promise<{
-    prodId: string;
-    threshold: number;
-    warningLevelId: string;
-  }[]> => {
+  getByWarningLevelId: async (
+    warningLevelId: string
+  ): Promise<
+    {
+      prodId: string;
+      threshold: number;
+      warningLevelId: string;
+    }[]
+  > => {
     const response = await fetch(
       `${config.backend.apiUrl}/par-levels/warning-level/${warningLevelId}`
     );
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch by warning level: ${response.statusText}`);
+      throw new Error(
+        `Failed to fetch by warning level: ${response.statusText}`
+      );
     }
 
     const data = (await response.json()) as {
@@ -86,7 +101,7 @@ export const parLevelApi = {
       success: boolean;
       content: ParLevelDTO;
     };
-    
+
     return data.content ? mapParLevelDTOToParLevel(data.content) : null;
   },
 
@@ -95,7 +110,7 @@ export const parLevelApi = {
    */
   updateThreshold: async (
     prodId: string,
-    threshold: number,
+    threshold: number
   ): Promise<ParLevel | null> => {
     const response = await fetch(
       `${config.backend.apiUrl}/par-levels/${prodId}`,
@@ -126,16 +141,13 @@ export const parLevelApi = {
   create: async (
     prodId: string,
     threshold: number,
-    warningLevelId: string,
+    warningLevelId: string
   ): Promise<ParLevel> => {
-    const response = await fetch(
-      `${config.backend.apiUrl}/par-levels`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prodId, threshold, warningLevelId }),
-      }
-    );
+    const response = await fetch(`${config.backend.apiUrl}/par-levels`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ prodId, threshold, warningLevelId }),
+    });
 
     if (!response.ok) {
       const text = await response.text();

@@ -1,3 +1,5 @@
+import type { CommodityGroup } from '@shared/types/commodityGroups';
+
 import { Button } from '@/components/controls/Button';
 import {
   Dialog,
@@ -5,8 +7,10 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/controls/Dialog';
-import { ToggleGroup, ToggleGroupItem } from '@/components/controls/ToggleGroup';
-import type { CommodityGroup } from '@shared/types/commodityGroups';
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from '@/components/controls/ToggleGroup';
 
 export type FiltersDialogProps = {
   open: boolean;
@@ -28,11 +32,7 @@ export const FiltersDialog = ({
   onClear,
 }: FiltersDialogProps) => {
   const handleValueChange = (value: string[] | string) => {
-    const next = Array.isArray(value)
-      ? value
-      : value
-      ? [value]
-      : [];
+    const next = Array.isArray(value) ? value : value ? [value] : [];
     onFiltersChange(next);
   };
 

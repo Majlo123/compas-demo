@@ -1,3 +1,10 @@
+import { ChevronDown, ChevronUp, CopyIcon } from 'lucide-react';
+import React, { useState } from 'react';
+
+import { Counter } from './controls/Counter';
+import { Label } from './controls/Label';
+import { StatusLabel } from './controls/StatusLabel';
+
 import {
   Table,
   TableBody,
@@ -7,11 +14,6 @@ import {
   TableRow,
 } from '@/components/ui/Table';
 import { ParLevel } from '@/types/parLevel.types';
-import React, { useState } from 'react';
-import { StatusLabel } from './controls/StatusLabel';
-import { Counter } from './controls/Counter';
-import { Label } from './controls/Label';
-import { ChevronDown, ChevronUp, CopyIcon } from 'lucide-react';
 
 export type GroupingType = 'no-grouping' | 'threshold' | 'commodity-group';
 
@@ -21,7 +23,10 @@ interface ParLevelsTableProps {
   onThresholdChange?: (prodId: string, newValue: number) => void;
 }
 
-const ParLevelList: React.FC<{ parLevels: ParLevel[]; onThresholdChange?: (prodId: string, newValue: number) => void; }> = ({ parLevels, onThresholdChange }) => (
+const ParLevelList: React.FC<{
+  parLevels: ParLevel[];
+  onThresholdChange?: (prodId: string, newValue: number) => void;
+}> = ({ parLevels, onThresholdChange }) => (
   <Table>
     <TableHeader className="sticky top-0 bg-white z-10">
       <TableRow>
@@ -55,9 +60,25 @@ const ParLevelList: React.FC<{ parLevels: ParLevel[]; onThresholdChange?: (prodI
           <TableCell>
             <Counter
               value={level.threshhold}
-              onIncrement={() => onThresholdChange && onThresholdChange(level.product_id, Math.max(0, level.threshhold + 1))}
-              onDecrement={() => onThresholdChange && onThresholdChange(level.product_id, Math.max(0, level.threshhold - 1))}
-              onChange={onThresholdChange ? (v) => onThresholdChange(level.product_id, Math.max(0, v)) : undefined}
+              onIncrement={() =>
+                onThresholdChange &&
+                onThresholdChange(
+                  level.product_id,
+                  Math.max(0, level.threshhold + 1)
+                )
+              }
+              onDecrement={() =>
+                onThresholdChange &&
+                onThresholdChange(
+                  level.product_id,
+                  Math.max(0, level.threshhold - 1)
+                )
+              }
+              onChange={
+                onThresholdChange
+                  ? (v) => onThresholdChange(level.product_id, Math.max(0, v))
+                  : undefined
+              }
               min={0}
             />{' '}
           </TableCell>
@@ -111,28 +132,37 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
         <GroupSection
           title="With Threshold"
           count={withThreshold.length}
-          defaultOpen={true}
+          defaultOpen
         >
-          <ParLevelList parLevels={withThreshold} onThresholdChange={onThresholdChange} />
+          <ParLevelList
+            parLevels={withThreshold}
+            onThresholdChange={onThresholdChange}
+          />
         </GroupSection>
         <GroupSection
           title="No Threshold"
           count={noThreshold.length}
-          defaultOpen={true}
+          defaultOpen
         >
-          <ParLevelList parLevels={noThreshold} onThresholdChange={onThresholdChange} />
+          <ParLevelList
+            parLevels={noThreshold}
+            onThresholdChange={onThresholdChange}
+          />
         </GroupSection>
       </div>
     );
   }
 
   if (grouping === 'commodity-group') {
-    const groups = parLevels.reduce((acc, level) => {
-      const group = level.comodity_group || 'Other';
-      if (!acc[group]) acc[group] = [];
-      acc[group].push(level);
-      return acc;
-    }, {} as Record<string, ParLevel[]>);
+    const groups = parLevels.reduce(
+      (acc, level) => {
+        const group = level.comodity_group || 'Other';
+        if (!acc[group]) acc[group] = [];
+        acc[group].push(level);
+        return acc;
+      },
+      {} as Record<string, ParLevel[]>
+    );
 
     return (
       <div className="w-full h-full overflow-y-auto pb-4">
@@ -141,9 +171,12 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
             key={groupName}
             title={groupName}
             count={levels.length}
-            defaultOpen={true}
+            defaultOpen
           >
-            <ParLevelList parLevels={levels} onThresholdChange={onThresholdChange} />
+            <ParLevelList
+              parLevels={levels}
+              onThresholdChange={onThresholdChange}
+            />
           </GroupSection>
         ))}
       </div>
@@ -152,7 +185,10 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
 
   return (
     <div className="relative w-full h-full">
-      <ParLevelList parLevels={parLevels} onThresholdChange={onThresholdChange} />
+      <ParLevelList
+        parLevels={parLevels}
+        onThresholdChange={onThresholdChange}
+      />
     </div>
   );
 };

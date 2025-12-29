@@ -1,15 +1,14 @@
-import { TopBar } from '@/components/top_bar/TopBar';
-import { useState, useEffect, useRef } from 'react';
-import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSidePanel';
+import { commodityGroups } from '@shared/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
+import { useState, useEffect, useRef } from 'react';
 
+import { parLevelApi } from '@/api/parLevel.api';
+import { Pagination } from '@/components/controls/Pagination';
 import { FiltersDialog } from '@/components/dialog/FiltersDialog';
 import { ParLevelsTable, GroupingType } from '@/components/ParLevelsTable';
+import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSidePanel';
+import { TopBar } from '@/components/top_bar/TopBar';
 import { ParLevel } from '@/types/parLevel.types';
-import { Pagination } from '@/components/controls/Pagination';
-import { parLevelApi } from '@/api/parLevel.api';
-import { commodityGroups } from '@shared/types/commodityGroups';
-
 
 const WarningsPage = () => {
   const [selectedLevel, setSelectedLevel] = useState<SharedWarningLevel | null>(
@@ -45,13 +44,16 @@ const WarningsPage = () => {
         ]);
 
         const data = idsByWarning
-          ? detailed.filter((p) => idsByWarning.some((x) => x.prodId === p.product_id))
+          ? detailed.filter((p) =>
+              idsByWarning.some((x) => x.prodId === p.product_id)
+            )
           : detailed;
 
         setAllParLevels(data);
         setPaginatedData(data);
       } catch (err) {
-        const errorMessage = err instanceof Error ? err.message : 'Failed to fetch PAR levels';
+        const errorMessage =
+          err instanceof Error ? err.message : 'Failed to fetch PAR levels';
         setError(errorMessage);
         console.error('Error fetching PAR levels:', err);
       } finally {
@@ -82,24 +84,28 @@ const WarningsPage = () => {
   }, []);
 
   const applyLocalParLevelChange = (prodId: string, newThreshold: number) => {
-    setAllParLevels(prev => prev.map(p =>
-      p.product_id === prodId
-        ? {
-            ...p,
-            threshhold: newThreshold,
-            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-          }
-        : p
-    ));
-    setPaginatedData(prev => prev.map(p =>
-      p.product_id === prodId
-        ? {
-            ...p,
-            threshhold: newThreshold,
-            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-          }
-        : p
-    ));
+    setAllParLevels((prev) =>
+      prev.map((p) =>
+        p.product_id === prodId
+          ? {
+              ...p,
+              threshhold: newThreshold,
+              status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+            }
+          : p
+      )
+    );
+    setPaginatedData((prev) =>
+      prev.map((p) =>
+        p.product_id === prodId
+          ? {
+              ...p,
+              threshhold: newThreshold,
+              status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+            }
+          : p
+      )
+    );
   };
 
   const persistParLevelDebounced = (prodId: string, newThreshold: number) => {
@@ -143,7 +149,9 @@ const WarningsPage = () => {
       <div className="flex h-screen bg-surface pt-6 px-12 pb-0 box-border">
         <div className="flex flex-1 bg-white rounded-t-3xl overflow-hidden shadow-xl-top items-center justify-center">
           <div className="text-center">
-            <p className="text-red-600 font-semibold">Error loading PAR levels</p>
+            <p className="text-red-600 font-semibold">
+              Error loading PAR levels
+            </p>
             <p className="text-gray-600">{error}</p>
           </div>
         </div>
@@ -167,7 +175,11 @@ const WarningsPage = () => {
             onSearch={handleSearch}
             onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
             managingLevel={selectedLevel ?? undefined}
-            filterCount={(selectedFilters.length > 0 || (searchTerm.trim().length > 0)) ? allParLevels.length : undefined}
+            filterCount={
+              selectedFilters.length > 0 || searchTerm.trim().length > 0
+                ? allParLevels.length
+                : undefined
+            }
             onFilterClick={() => setIsFiltersOpen(true)}
           />
           <div className="flex flex-col max-h-screen overflow-y-auto">

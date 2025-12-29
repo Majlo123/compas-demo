@@ -1,4 +1,5 @@
 import type { Meta, StoryObj } from '@storybook/react';
+
 import { StatusLabel, statusStyles, StatusType } from './StatusLabel';
 
 const statusOptions = Object.keys(statusStyles) as StatusType[];

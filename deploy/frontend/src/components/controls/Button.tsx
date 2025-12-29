@@ -3,52 +3,49 @@ import React from 'react';
 import { tv, type VariantProps } from 'tailwind-variants';
 
 const button = tv({
-    base: 'px-6 py-3 rounded-full text-secondary text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2',
-    variants: {
-        variant: {
-            primary: 'bg-primary focus:ring-primary disabled:bg-primary/50',
-            secondary: 'bg-white border border-secondary focus:ring-gray-500',
-            black: 'bg-black focus:ring-black disabled:bg-disabled text-white',
-            round: 'rounded-full bg-primary focus:ring-primary disabled:bg-primary/50 p-3',
-            small: 'px-1 py-1 rounded-md bg-primary focus:ring-primary disabled:bg-primary/50',
-        },
+  base: 'px-6 py-3 rounded-full text-secondary text-xs font-bold transition-colors focus:outline-none focus:ring-2 focus:ring-offset-2 flex items-center justify-center gap-2',
+  variants: {
+    variant: {
+      primary: 'bg-primary focus:ring-primary disabled:bg-primary/50',
+      secondary: 'bg-white border border-secondary focus:ring-gray-500',
+      black: 'bg-black focus:ring-black disabled:bg-disabled text-white',
+      round:
+        'rounded-full bg-primary focus:ring-primary disabled:bg-primary/50 p-3',
+      small:
+        'px-1 py-1 rounded-md bg-primary focus:ring-primary disabled:bg-primary/50',
     },
-    defaultVariants: {
-        variant: 'primary',
-    },
+  },
+  defaultVariants: {
+    variant: 'primary',
+  },
 });
 
 type IconType = 'search' | 'filter' | 'plus' | 'minus';
 
 const Icons: Record<IconType, React.ElementType> = {
-    search: Search,
-    filter: Filter,
-    plus: Plus,
-    minus: Minus,
+  search: Search,
+  filter: Filter,
+  plus: Plus,
+  minus: Minus,
 };
 
 interface ButtonProps
-    extends React.ButtonHTMLAttributes<HTMLButtonElement>,
+  extends React.ButtonHTMLAttributes<HTMLButtonElement>,
     VariantProps<typeof button> {
-    icon?: IconType;
+  icon?: IconType;
 }
 
-export const Button = React.forwardRef<
-    HTMLButtonElement,
-    ButtonProps
->(({ children, className, variant, icon, ...props }, ref) => {
+export const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
+  ({ children, className, variant, icon, ...props }, ref) => {
     const IconComponent = icon ? Icons[icon] : null;
 
     return (
-        <button
-            ref={ref}
-            className={button({ variant, className })}
-            {...props}
-        >
-            {IconComponent && <IconComponent size={16} />}
-            {children}
-        </button>
+      <button ref={ref} className={button({ variant, className })} {...props}>
+        {IconComponent && <IconComponent size={16} />}
+        {children}
+      </button>
     );
-});
+  }
+);
 
-Button.displayName = "Button";
+Button.displayName = 'Button';

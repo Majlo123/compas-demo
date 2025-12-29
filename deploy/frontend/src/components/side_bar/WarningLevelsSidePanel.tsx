@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
+
+import { CreateWarningLevelDialog } from '../dialog/CreateWarningLevelDialog';
+
 import {
   warningLevelApi,
   type WarningLevel,
   type WarningLevelWithCount,
 } from '@/api/warningLevel.api';
-import { CreateWarningLevelDialog } from '../dialog/CreateWarningLevelDialog';
 
 interface WarningLevelsSidePanelProps {
   onLevelSelect?: (level: WarningLevel) => void;
@@ -94,10 +96,11 @@ export const WarningLevelsSidePanel = ({
             <button
               key={level.id}
               onClick={() => handleLevelSelect(level)}
-              className={`w-full text-left pr-2 rounded-lg transition-all flex items-start gap-3 mb-md last:mb-0 ${selectedLevelId === level.id
-                ? 'pl-3 py-4 bg-secondary text-white shadow-md'
-                : 'pl-0 py-2 text-secondary hover:bg-gray-100'
-                }`}
+              className={`w-full text-left pr-2 rounded-lg transition-all flex items-start gap-3 mb-md last:mb-0 ${
+                selectedLevelId === level.id
+                  ? 'pl-3 py-4 bg-secondary text-white shadow-md'
+                  : 'pl-0 py-2 text-secondary hover:bg-gray-100'
+              }`}
             >
               {/* Indicator Dot */}
               <div className="flex-shrink-0 mt-1">
@@ -108,28 +111,31 @@ export const WarningLevelsSidePanel = ({
               <div className="flex-1 min-w-0">
                 <div className="flex flex-col">
                   <span
-                    className={`text-h4 font-bold leading-tight ${selectedLevelId === level.id
-                      ? 'text-white'
-                      : 'text-secondary'
-                      }`}
+                    className={`text-h4 font-bold leading-tight ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
                   >
                     {level.name}
                   </span>
 
                   <span
-                    className={`text-sm mt-0.5 ${selectedLevelId === level.id
-                      ? 'text-gray-300'
-                      : 'text-secondary'
-                      }`}
+                    className={`text-sm mt-0.5 ${
+                      selectedLevelId === level.id
+                        ? 'text-gray-300'
+                        : 'text-secondary'
+                    }`}
                   >
                     Level {extractLevelNumber(level.name)}
                   </span>
 
                   <div
-                    className={`flex items-center gap-2 mt-1 font-bold ${selectedLevelId === level.id
-                      ? 'text-white'
-                      : 'text-secondary'
-                      }`}
+                    className={`flex items-center gap-2 mt-1 font-bold ${
+                      selectedLevelId === level.id
+                        ? 'text-white'
+                        : 'text-secondary'
+                    }`}
                   >
                     <span>0%</span>
                     <span className="font-normal">|</span>

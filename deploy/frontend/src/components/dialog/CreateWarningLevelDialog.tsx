@@ -1,4 +1,5 @@
 import { useState } from 'react';
+
 import {
   warningLevelApi,
   type WarningLevel,
@@ -130,7 +131,7 @@ export const CreateWarningLevelDialog = ({
             />
           </div>
         </div>
-        <br></br>
+        <br />
         <DialogFooter className="!px-4 !pb-6 !pt-2 !flex !flex-col !items-center !justify-center !space-x-0 gap-3">
           <Button
             variant="black"

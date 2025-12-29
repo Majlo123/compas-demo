@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { SearchInput } from './SearchInput';
 import { useState } from 'react';
+
+import { SearchInput } from './SearchInput';
 
 const meta: Meta<typeof SearchInput> = {
   title: 'Controls/SearchInput',
@@ -19,7 +20,7 @@ const SearchInputWithState = () => {
 
   return (
     <div className="w-[600px]">
-      <div></div>
+      <div />
       <SearchInput
         placeholder="Search Products, Codes or Categories"
         value={value}

@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { GroupingDropdown, GroupingOption } from './GroupingDropdown';
 import { useState } from 'react';
+
+import { GroupingDropdown, GroupingOption } from './GroupingDropdown';
 
 const meta: Meta<typeof GroupingDropdown> = {
   title: 'Controls/GroupingDropdown',
