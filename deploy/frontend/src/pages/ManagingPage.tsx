@@ -1,4 +1,7 @@
-import { commodityGroups, type CommodityGroup } from '@shared/types/commodityGroups';
+import {
+  commodityGroups,
+  type CommodityGroup,
+} from '@shared/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 import { useState, useEffect, useRef } from 'react';
 
