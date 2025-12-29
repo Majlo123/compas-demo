@@ -61,4 +61,64 @@ export const parLevelApi = {
     
     return data.content ? mapParLevelDTOToParLevel(data.content) : null;
   },
+
+  /**
+   * Update an existing PAR level threshold
+   */
+  updateThreshold: async (
+    prodId: string,
+    threshold: number,
+  ): Promise<ParLevel | null> => {
+    const response = await fetch(
+      `${config.backend.apiUrl}/par-levels/${prodId}`,
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ threshold }),
+      }
+    );
+
+    if (!response.ok) {
+      if (response.status === 404) return null;
+      const text = await response.text();
+      throw new Error(`Failed to update PAR level: ${response.status} ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      success: boolean;
+      content: ParLevelDTO;
+    };
+
+    return data.content ? mapParLevelDTOToParLevel(data.content) : null;
+  },
+
+  /**
+   * Create a new PAR level entry
+   */
+  create: async (
+    prodId: string,
+    threshold: number,
+    warningLevelId: string,
+  ): Promise<ParLevel> => {
+    const response = await fetch(
+      `${config.backend.apiUrl}/par-levels`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ prodId, threshold, warningLevelId }),
+      }
+    );
+
+    if (!response.ok) {
+      const text = await response.text();
+      throw new Error(`Failed to create PAR level: ${response.status} ${text}`);
+    }
+
+    const data = (await response.json()) as {
+      success: boolean;
+      content: ParLevelDTO;
+    };
+
+    return mapParLevelDTOToParLevel(data.content);
+  },
 };

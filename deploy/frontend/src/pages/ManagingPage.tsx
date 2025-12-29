@@ -24,6 +24,7 @@ const WarningsPage = () => {
   const [allParLevels, setAllParLevels] = useState<ParLevel[]>([]);
   const [error, setError] = useState<string | null>(null);
   const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
+  const updateTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
 
   // Fetch PAR levels from backend API
   useEffect(() => {
@@ -67,6 +68,53 @@ const WarningsPage = () => {
       }
     };
   }, []);
+
+  const applyLocalParLevelChange = (prodId: string, newThreshold: number) => {
+    setAllParLevels(prev => prev.map(p =>
+      p.product_id === prodId
+        ? {
+            ...p,
+            threshhold: newThreshold,
+            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+          }
+        : p
+    ));
+    setPaginatedData(prev => prev.map(p =>
+      p.product_id === prodId
+        ? {
+            ...p,
+            threshhold: newThreshold,
+            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+          }
+        : p
+    ));
+  };
+
+  const persistParLevelDebounced = (prodId: string, newThreshold: number) => {
+    const existingTimer = updateTimersRef.current[prodId];
+    if (existingTimer) clearTimeout(existingTimer);
+
+    updateTimersRef.current[prodId] = setTimeout(async () => {
+      try {
+        const updated = await parLevelApi.updateThreshold(prodId, newThreshold);
+        if (!updated && selectedLevel?.id) {
+          // If not found, try create (upsert behavior)
+          await parLevelApi.create(prodId, newThreshold, selectedLevel.id);
+        }
+      } catch (err) {
+        console.error('Failed to persist PAR level', err);
+        // Optionally: refetch or show toast; for now, leave optimistic value
+      } finally {
+        delete updateTimersRef.current[prodId];
+      }
+    }, 500); // debounce rapid clicks
+  };
+
+  const handleThresholdChange = (prodId: string, newValue: number) => {
+    const clamped = Math.max(0, Math.round(newValue));
+    applyLocalParLevelChange(prodId, clamped);
+    persistParLevelDebounced(prodId, clamped);
+  };
 
   const handleApplyFilters = () => {
     setIsFiltersOpen(false);
@@ -124,6 +172,7 @@ const WarningsPage = () => {
                       : paginatedData
                   }
                   grouping={selectedGrouping as GroupingType}
+                  onThresholdChange={handleThresholdChange}
                 />
               )}
             </div>

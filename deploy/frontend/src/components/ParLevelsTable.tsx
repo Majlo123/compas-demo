@@ -18,9 +18,10 @@ export type GroupingType = 'no-grouping' | 'threshold' | 'commodity-group';
 interface ParLevelsTableProps {
   parLevels: ParLevel[];
   grouping?: GroupingType;
+  onThresholdChange?: (prodId: string, newValue: number) => void;
 }
 
-const ParLevelList: React.FC<{ parLevels: ParLevel[] }> = ({ parLevels }) => (
+const ParLevelList: React.FC<{ parLevels: ParLevel[]; onThresholdChange?: (prodId: string, newValue: number) => void; }> = ({ parLevels, onThresholdChange }) => (
   <Table>
     <TableHeader className="sticky top-0 bg-white z-10">
       <TableRow>
@@ -54,8 +55,10 @@ const ParLevelList: React.FC<{ parLevels: ParLevel[] }> = ({ parLevels }) => (
           <TableCell>
             <Counter
               value={level.threshhold}
-              onIncrement={() => {}}
-              onDecrement={() => {}}
+              onIncrement={() => onThresholdChange && onThresholdChange(level.product_id, Math.max(0, level.threshhold + 1))}
+              onDecrement={() => onThresholdChange && onThresholdChange(level.product_id, Math.max(0, level.threshhold - 1))}
+              onChange={onThresholdChange ? (v) => onThresholdChange(level.product_id, Math.max(0, v)) : undefined}
+              min={0}
             />{' '}
           </TableCell>
           <TableCell>
@@ -98,6 +101,7 @@ const GroupSection: React.FC<{
 export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
   parLevels,
   grouping = 'no-grouping',
+  onThresholdChange,
 }) => {
   if (grouping === 'threshold') {
     const withThreshold = parLevels.filter((l) => l.threshhold > 0);
@@ -109,14 +113,14 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
           count={withThreshold.length}
           defaultOpen={true}
         >
-          <ParLevelList parLevels={withThreshold} />
+          <ParLevelList parLevels={withThreshold} onThresholdChange={onThresholdChange} />
         </GroupSection>
         <GroupSection
           title="No Threshold"
           count={noThreshold.length}
           defaultOpen={true}
         >
-          <ParLevelList parLevels={noThreshold} />
+          <ParLevelList parLevels={noThreshold} onThresholdChange={onThresholdChange} />
         </GroupSection>
       </div>
     );
@@ -139,7 +143,7 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
             count={levels.length}
             defaultOpen={true}
           >
-            <ParLevelList parLevels={levels} />
+            <ParLevelList parLevels={levels} onThresholdChange={onThresholdChange} />
           </GroupSection>
         ))}
       </div>
@@ -148,7 +152,7 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
 
   return (
     <div className="relative w-full h-full">
-      <ParLevelList parLevels={parLevels} />
+      <ParLevelList parLevels={parLevels} onThresholdChange={onThresholdChange} />
     </div>
   );
 };
