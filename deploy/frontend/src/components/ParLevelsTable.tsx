@@ -81,7 +81,7 @@ const GroupSection: React.FC<{
         className="flex items-center gap-2 w-full p-4 bg-gray-100 rounded-t-lg hover:bg-gray-200 transition-colors text-left"
       >
         <span className="font-bold text-lg">{title}</span>
-        <span className="bg-black text-white rounded-full px-2 text-sm font-bold min-w-[24px] text-center">
+        <span className="bg-black text-white rounded-full flex items-center justify-center text-sm font-bold min-w-[24px] h-6 px-1">
           {count}
         </span>
         {isOpen ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
