@@ -94,7 +94,7 @@ export const deleteWarningLevel = catchAsync(async (req: Request, res: Response)
   const { id } = req.params;
 
   try {
-    const success = await warningLevelService.delete_(id);
+    const success = await warningLevelService.deleteWarningLevel(id);
 
     res.status(httpStatus.OK).send({
       success: true,

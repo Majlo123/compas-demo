@@ -9,7 +9,10 @@ import * as React from 'react';
 
 import { cn } from '@/utils/cn';
 
-const Pagination = ({ className, ...props }: React.ComponentProps<'nav'>) => (
+const Pagination = ({
+  className,
+  ...props
+}: React.ComponentProps<'nav'>): JSX.Element => (
   <nav
     role="navigation"
     aria-label="pagination"
@@ -47,9 +50,12 @@ const PaginationLink = ({
   className,
   isActive,
   ...props
-}: PaginationLinkProps) => (
+}: PaginationLinkProps): JSX.Element => (
   <a
     aria-current={isActive ? 'page' : undefined}
+    aria-label={
+      props['aria-label'] || (isActive ? 'Current page' : 'Go to page')
+    }
     className={cn(
       'inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50',
       'h-9 w-9',
@@ -66,7 +72,7 @@ PaginationLink.displayName = 'PaginationLink';
 const PaginationPrevious = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}: React.ComponentProps<typeof PaginationLink>): JSX.Element => (
   <PaginationLink
     aria-label="Go to previous page"
     className={cn('gap-1 pl-2.5 h-11 w-11', className)}
@@ -80,7 +86,7 @@ PaginationPrevious.displayName = 'PaginationPrevious';
 const PaginationNext = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}: React.ComponentProps<typeof PaginationLink>): JSX.Element => (
   <PaginationLink
     aria-label="Go to next page"
     className={cn('gap-1 pr-2.5 h-11 w-11', className)}
@@ -94,7 +100,7 @@ PaginationNext.displayName = 'PaginationNext';
 const PaginationLast = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}: React.ComponentProps<typeof PaginationLink>): JSX.Element => (
   <PaginationLink
     aria-label="Go to last page"
     className={cn('gap-1 pr-2.5 h-11 w-11', className)}
@@ -108,7 +114,7 @@ PaginationLast.displayName = 'PaginationLast';
 const PaginationFirst = ({
   className,
   ...props
-}: React.ComponentProps<typeof PaginationLink>) => (
+}: React.ComponentProps<typeof PaginationLink>): JSX.Element => (
   <PaginationLink
     aria-label="Go to first page"
     className={cn('gap-1 pr-2.5 h-11 w-11', className)}
@@ -122,7 +128,7 @@ PaginationFirst.displayName = 'PaginationFirst';
 const PaginationEllipsis = ({
   className,
   ...props
-}: React.ComponentProps<'span'>) => (
+}: React.ComponentProps<'span'>): JSX.Element => (
   <span
     aria-hidden
     className={cn('flex h-9 w-9 items-center justify-center', className)}

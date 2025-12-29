@@ -1,8 +1,19 @@
 import { WarningLevel, CreateWarningLevel } from '@shared/types/warningLevel.types';
 import knex from 'knex';
+// eslint-disable-next-line no-restricted-imports
 import knexConfig from '../../knexfile';
 
 const db = knex(knexConfig.development);
+
+const mapToWarningLevel = (row: any): WarningLevel => {
+  return {
+    id: row.id,
+    name: row.name,
+    description: row.description,
+    createdAt: row.created_at ? new Date(row.created_at) : undefined,
+    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+  };
+};
 
 export const create = async (data: CreateWarningLevel): Promise<WarningLevel> => {
   const [result] = await db('warning_level')
@@ -95,14 +106,4 @@ export const search = async (query: string): Promise<WarningLevel[]> => {
     .select('*');
 
   return results.map(mapToWarningLevel);
-};
-
-const mapToWarningLevel = (row: any): WarningLevel => {
-  return {
-    id: row.id,
-    name: row.name,
-    description: row.description || null,
-    createdAt: row.created_at ? new Date(row.created_at) : undefined,
-    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
-  };
 };

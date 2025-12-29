@@ -27,7 +27,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
     options.find((opt) => opt.id === selectedOptionId) || options[0];
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (event: MouseEvent): void => {
       if (
         dropdownRef.current &&
         !dropdownRef.current.contains(event.target as Node)
@@ -37,7 +37,7 @@ export const GroupingDropdown: React.FC<GroupingDropdownProps> = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => {
+    return (): void => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
   }, []);

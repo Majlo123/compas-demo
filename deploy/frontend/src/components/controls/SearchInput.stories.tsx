@@ -1,7 +1,7 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 import { useState } from 'react';
 
-import { SearchInput } from './SearchInput';
+import { SearchInput } from '@/components/controls/SearchInput';
 
 const meta: Meta<typeof SearchInput> = {
   title: 'Controls/SearchInput',
@@ -15,7 +15,7 @@ const meta: Meta<typeof SearchInput> = {
 export default meta;
 type Story = StoryObj<typeof SearchInput>;
 
-const SearchInputWithState = () => {
+const SearchInputWithState = (): JSX.Element => {
   const [value, setValue] = useState('');
 
   return (
@@ -25,7 +25,10 @@ const SearchInputWithState = () => {
         placeholder="Search Products, Codes or Categories"
         value={value}
         onChange={(e) => setValue(e.target.value)}
-        onSearch={(val) => alert(`Searching for: ${val}`)}
+        onSearch={(val) => {
+          // eslint-disable-next-line no-console
+          console.log(`Searching for: ${val}`);
+        }}
       />
     </div>
   );

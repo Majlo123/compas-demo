@@ -1,6 +1,10 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Label, CommodityCategory, categoryStyles } from './Label';
+import {
+  Label,
+  CommodityCategory,
+  categoryStyles,
+} from '@/components/controls/Label';
 
 const categoryOptions = Object.keys(categoryStyles) as CommodityCategory[];
 

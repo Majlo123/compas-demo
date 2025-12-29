@@ -30,21 +30,26 @@ export const FiltersDialog = ({
   onFiltersChange,
   onApply,
   onClear,
-}: FiltersDialogProps) => {
-  const handleValueChange = (value: string[] | string) => {
-    const raw = Array.isArray(value) ? value : value ? [value] : [];
+}: FiltersDialogProps): JSX.Element => {
+  const handleValueChange = (value: string[] | string): void => {
+    let raw: string[];
+    if (Array.isArray(value)) {
+      raw = value;
+    } else {
+      raw = value ? [value] : [];
+    }
     const next = raw.filter((v): v is CommodityGroup =>
       categories.includes(v as CommodityGroup)
     );
     onFiltersChange(next);
   };
 
-  const handleApply = () => {
+  const handleApply = (): void => {
     onApply();
     onOpenChange(false);
   };
 
-  const handleClear = () => {
+  const handleClear = (): void => {
     onFiltersChange([]);
     onClear();
   };

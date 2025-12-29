@@ -11,6 +11,7 @@ import {
   GetWarningLevelResponseSchema,
   CreateWarningLevelResponseSchema,
 } from 'types/zod/warningLevel.schema';
+// eslint-disable-next-line no-restricted-imports
 import { RoleEnum } from '../../../../shared/auth.types';
 
 enum WarningLevelFunctions {

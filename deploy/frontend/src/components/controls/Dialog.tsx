@@ -34,25 +34,27 @@ const content = tv({
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   React.ComponentPropsWithoutRef<typeof DialogPrimitive.Content>
->(({ className, children, ...props }, ref) => (
-  <DialogPortal>
-    <DialogOverlay />
-    <DialogPrimitive.Content
-      ref={ref}
-      className={content({ className })}
-      {...props}
-    >
-      {children}
-    </DialogPrimitive.Content>
-  </DialogPortal>
-));
+>(
+  ({ className, children, ...props }, ref): JSX.Element => (
+    <DialogPortal>
+      <DialogOverlay />
+      <DialogPrimitive.Content
+        ref={ref}
+        className={content({ className })}
+        {...props}
+      >
+        {children}
+      </DialogPrimitive.Content>
+    </DialogPortal>
+  )
+);
 DialogContent.displayName = DialogPrimitive.Content.displayName;
 
 const DialogHeader = ({
   className,
   children,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+}: React.HTMLAttributes<HTMLDivElement>): JSX.Element => (
   <div
     className={`flex flex-row items-center justify-between bg-[#FFD700] px-6 py-4 sm:rounded-t-lg ${className}`}
     {...props}
@@ -69,7 +71,7 @@ DialogHeader.displayName = 'DialogHeader';
 const DialogFooter = ({
   className,
   ...props
-}: React.HTMLAttributes<HTMLDivElement>) => (
+}: React.HTMLAttributes<HTMLDivElement>): JSX.Element => (
   <div
     className={`flex flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 p-6 ${className}`}
     {...props}

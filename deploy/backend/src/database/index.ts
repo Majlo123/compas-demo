@@ -1,5 +1,7 @@
 import knex, { Knex } from 'knex';
+// eslint-disable-next-line no-restricted-imports
 import knexConfig from '../../knexfile';
+// eslint-disable-next-line no-restricted-imports
 import logger from '../config/logger';
 
 const environment = process.env.NODE_ENV || 'development';

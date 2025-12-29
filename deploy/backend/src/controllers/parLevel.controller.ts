@@ -18,7 +18,10 @@ export const getAllParLevels = catchAsync(async (req: Request, res: Response) =>
   }
 
   // Parse search term
-  const searchTerm = search ? (Array.isArray(search) ? search[0] : search) : undefined;
+  let searchTerm: string | undefined;
+  if (search) {
+    searchTerm = Array.isArray(search) ? (search[0] as string) : (search as string);
+  }
 
   const result = await parLevelService.findAll(
     filters.length > 0 ? filters : undefined,

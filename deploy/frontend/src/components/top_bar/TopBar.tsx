@@ -1,9 +1,12 @@
 import { WarningLevel } from '@shared/types/warningLevel.types';
 import React from 'react';
 
-import { Button } from '../controls/Button';
-import { GroupingDropdown, GroupingOption } from '../controls/GroupingDropdown';
-import { SearchInput } from '../controls/SearchInput';
+import { Button } from '@/components/controls/Button';
+import {
+  GroupingDropdown,
+  GroupingOption,
+} from '@/components/controls/GroupingDropdown';
+import { SearchInput } from '@/components/controls/SearchInput';
 
 interface TopBarProps {
   selectedGrouping?: string;

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { Button } from './Button';
+import { Button } from '@/components/controls/Button';
 
 interface CounterProps {
   value: number;
@@ -28,17 +28,17 @@ export const Counter: React.FC<CounterProps> = ({
     setLocalValue(value.toString());
   }, [value]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     // Allow only numbers and empty string
     if (e.target.value === '' || /^-?\d*$/.test(e.target.value)) {
       setLocalValue(e.target.value);
     }
   };
 
-  const handleBlur = () => {
+  const handleBlur = (): void => {
     let newValue = parseInt(localValue, 10);
 
-    if (isNaN(newValue)) {
+    if (Number.isNaN(newValue)) {
       newValue = value; // Revert to prop value if invalid
     } else {
       if (min !== undefined && newValue < min) newValue = min;
@@ -51,7 +51,7 @@ export const Counter: React.FC<CounterProps> = ({
     }
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
       e.currentTarget.blur();
     }

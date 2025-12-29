@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { twMerge } from 'tailwind-merge';
 
-import { Button } from './Button';
+import { Button } from '@/components/controls/Button';
 
 interface SearchInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   onSearch?: (value: string) => void;
@@ -17,19 +17,19 @@ export const SearchInput: React.FC<SearchInputProps> = ({
   const currentValue =
     typeof props.value === 'string' ? (props.value as string) : value;
 
-  const handleSearch = () => {
+  const handleSearch = (): void => {
     const term = (currentValue || '').trim();
     if (onSearch) {
       onSearch(term);
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>): void => {
     setValue(e.target.value);
     props.onChange?.(e);
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>): void => {
     if (e.key === 'Enter') {
       handleSearch();
     }

@@ -1,4 +1,5 @@
 import { Pool } from 'pg';
+// eslint-disable-next-line no-restricted-imports
 import config from './config';
 
 // Create PostgreSQL connection pool

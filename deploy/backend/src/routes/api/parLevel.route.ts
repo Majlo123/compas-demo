@@ -9,6 +9,7 @@ import {
   GetParLevelResponseSchema,
   CreateParLevelResponseSchema,
 } from 'types/zod/parLevel.schema';
+// eslint-disable-next-line no-restricted-imports
 import { RoleEnum } from '../../../../shared/auth.types';
 
 enum ParLevelFunctions {

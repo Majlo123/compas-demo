@@ -56,7 +56,7 @@ export const update = async (
 /**
  * Delete warning level
  */
-export const delete_ = async (id: string): Promise<boolean> => {
+export const deleteWarningLevel = async (id: string): Promise<boolean> => {
   const existing = await warningLevelRepository.findById(id);
   if (!existing) {
     throw new Error('Warning level not found');

@@ -1,6 +1,6 @@
-import type { Meta, StoryObj } from '@storybook/react';
+import type { Meta, StoryObj } from '@storybook/react-vite';
 
-import { Button } from './Button';
+import { Button } from '@/components/controls/Button';
 import {
   Dialog,
   DialogClose,
@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from './Dialog';
+} from '@/components/controls/Dialog';
 
 const meta = {
   title: 'Controls/Dialog',
@@ -62,24 +62,20 @@ export const FormExample: Story = {
         </DialogHeader>
         <div className="p-6 grid gap-4">
           <div className="grid gap-2">
-            <label htmlFor="name" className="text-sm font-medium text-gray-700">
-              Warning Level Name <span className="text-red-500">*</span>
-            </label>
             <input
               id="name"
+              type="text"
+              placeholder="Warning Level Name *"
               className="flex h-10 w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Warning Level Name"
             />
           </div>
           <div className="grid gap-2">
-            <label
-              htmlFor="description"
-              className="text-sm font-medium text-gray-700"
-            >
-              Description <span className="text-red-500">*</span>
-            </label>
             <textarea
               id="description"
+              placeholder="Description *"
               className="flex min-h-[100px] w-full rounded-md border border-gray-300 bg-white px-3 py-2 text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent disabled:cursor-not-allowed disabled:opacity-50"
+              aria-label="Description"
             />
           </div>
         </div>

@@ -1,5 +1,6 @@
 import { extendZodWithOpenApi } from '@anatine/zod-openapi';
 import { z } from 'zod';
+// eslint-disable-next-line no-restricted-imports
 import { PaginatedResponseSchema } from './shared.schema';
 
 extendZodWithOpenApi(z);

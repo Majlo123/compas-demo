@@ -1,10 +1,9 @@
 import { ChevronDown, ChevronUp, CopyIcon } from 'lucide-react';
 import React, { useState } from 'react';
 
-import { Counter } from './controls/Counter';
-import { Label } from './controls/Label';
-import { StatusLabel } from './controls/StatusLabel';
-
+import { Counter } from '@/components/controls/Counter';
+import { Label } from '@/components/controls/Label';
+import { StatusLabel } from '@/components/controls/StatusLabel';
 import {
   Table,
   TableBody,
@@ -76,7 +75,8 @@ const ParLevelList: React.FC<{
               }
               onChange={
                 onThresholdChange
-                  ? (v) => onThresholdChange(level.product_id, Math.max(0, v))
+                  ? (v): void =>
+                      onThresholdChange(level.product_id, Math.max(0, v))
                   : undefined
               }
               min={0}
@@ -96,7 +96,7 @@ const GroupSection: React.FC<{
   count: number;
   children: React.ReactNode;
   defaultOpen?: boolean;
-}> = ({ title, count, children, defaultOpen = false }) => {
+}> = ({ title, count, children, defaultOpen = false }): JSX.Element => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
   return (
     <div className="mb-4">
@@ -157,9 +157,10 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
     const groups = parLevels.reduce(
       (acc, level) => {
         const group = level.comodity_group || 'Other';
-        if (!acc[group]) acc[group] = [];
-        acc[group].push(level);
-        return acc;
+        return {
+          ...acc,
+          [group]: [...(acc[group] || []), level],
+        };
       },
       {} as Record<string, ParLevel[]>
     );

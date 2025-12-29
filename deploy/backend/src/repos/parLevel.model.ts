@@ -1,4 +1,5 @@
 import knex from 'knex';
+// eslint-disable-next-line no-restricted-imports
 import knexConfig from '../../knexfile';
 
 const db = knex(knexConfig.development);
@@ -12,6 +13,16 @@ export type ParLevel = {
 };
 
 export type CreateParLevel = Omit<ParLevel, 'createdAt' | 'updatedAt'>;
+
+const mapToParLevel = (row: any): ParLevel => {
+  return {
+    prodId: row.prod_id,
+    threshold: row.treshold,
+    warningLevelId: row.warning_level_id,
+    createdAt: row.created_at ? new Date(row.created_at) : undefined,
+    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
+  };
+};
 
 export const create = async (data: CreateParLevel): Promise<ParLevel> => {
   const [result] = await db('par_level')
@@ -108,14 +119,4 @@ export const deleteByProdId = async (prodId: string): Promise<boolean> => {
   const result = await db('par_level').where({ prod_id: prodId }).delete();
 
   return result > 0;
-};
-
-const mapToParLevel = (row: any): ParLevel => {
-  return {
-    prodId: row.prod_id,
-    threshold: row.treshold,
-    warningLevelId: row.warning_level_id,
-    createdAt: row.created_at ? new Date(row.created_at) : undefined,
-    updatedAt: row.updated_at ? new Date(row.updated_at) : undefined,
-  };
 };

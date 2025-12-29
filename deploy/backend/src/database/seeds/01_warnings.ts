@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 
+// eslint-disable-next-line import/prefer-default-export
 export async function seed(knex: Knex): Promise<void> {
   // Check if users already exist (avoid duplicates)
   const existingWarningLevels = await knex('warning_level').select('name');

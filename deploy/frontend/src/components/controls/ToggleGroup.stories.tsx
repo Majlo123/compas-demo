@@ -1,7 +1,10 @@
 import { commodityGroups } from '@/types/commodityGroups';
 import type { Meta, StoryObj } from '@storybook/react';
 
-import { ToggleGroup, ToggleGroupItem } from './ToggleGroup';
+import {
+  ToggleGroup,
+  ToggleGroupItem,
+} from '@/components/controls/ToggleGroup';
 
 const meta = {
   title: 'Controls/ToggleGroup',
