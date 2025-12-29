@@ -5,7 +5,7 @@ import ApiError from 'shared/error/ApiError';
 import catchAsync from 'shared/utils/CatchAsync';
 
 export const getAllParLevels = catchAsync(async (req: Request, res: Response) => {
-  const { commodityGroups, search } = req.query;
+  const { commodityGroups, search, warningLevelId } = req.query;
 
   // Parse commodity groups from query string
   const filters: string[] = [];
@@ -26,6 +26,7 @@ export const getAllParLevels = catchAsync(async (req: Request, res: Response) =>
   const result = await parLevelService.findAll(
     filters.length > 0 ? filters : undefined,
     searchTerm,
+    warningLevelId as string,
   );
 
   res.status(httpStatus.OK).send({

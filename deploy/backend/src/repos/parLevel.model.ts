@@ -53,7 +53,7 @@ export const findByWarningLevelId = async (warningLevelId: string): Promise<ParL
   return results.map(mapToParLevel);
 };
 
-export const findAll = async (commodityGroups?: string[], search?: string): Promise<ParLevel[]> => {
+export const findAll = async (commodityGroups?: string[], search?: string, warningLevelId?: string): Promise<ParLevel[]> => {
   let query = db('par_level')
     .leftJoin('products', 'par_level.prod_id', 'products.prod_id')
     .leftJoin('live_stock', 'par_level.prod_id', 'live_stock.prod_id')
@@ -80,6 +80,10 @@ export const findAll = async (commodityGroups?: string[], search?: string): Prom
         [searchTerm],
       );
     });
+  }
+
+  if (warningLevelId && warningLevelId.trim()) {
+    query = query.where({ warning_level_id: warningLevelId });
   }
 
   const results = await query;

@@ -33,24 +33,16 @@ const WarningsPage = (): JSX.Element => {
         setError(null);
 
         // Always fetch detailed rows through getAll, applying current filters/search
-        const [detailed, idsByWarning] = await Promise.all([
+        const [detailed] = await Promise.all([
           parLevelApi.getAll(
             selectedFilters.length > 0 ? selectedFilters : undefined,
-            searchTerm.trim() ? searchTerm.trim() : undefined
+            searchTerm.trim() ? searchTerm.trim() : undefined,
+            selectedLevel?.id,
           ),
-          selectedLevel?.id
-            ? parLevelApi.getByWarningLevelId(selectedLevel.id)
-            : Promise.resolve(null),
         ]);
 
-        const data = idsByWarning
-          ? detailed.filter((p) =>
-            idsByWarning.some((x) => x.prodId === p.product_id)
-          )
-          : detailed;
-
-        setAllParLevels(data);
-        setPaginatedData(data);
+        setAllParLevels(detailed);
+        setPaginatedData(detailed);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to fetch PAR levels';

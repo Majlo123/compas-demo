@@ -15,7 +15,8 @@ export const parLevelApi = {
    */
   getAll: async (
     commodityGroups?: string[],
-    search?: string
+    search?: string,
+    warningLevelId?: string
   ): Promise<ParLevel[]> => {
     const params = new URLSearchParams();
 
@@ -27,6 +28,10 @@ export const parLevelApi = {
 
     if (search && search.trim()) {
       params.append('search', search.trim());
+    }
+
+    if (warningLevelId && warningLevelId.trim()) {
+      params.append('warningLevelId', warningLevelId.trim());
     }
 
     let url = `${config.backend.apiUrl}/par-levels`;
