@@ -15,13 +15,13 @@ export async function seed(knex: Knex): Promise<void> {
     const defaultWarningLevelId = warningLevels[0].id;
 
   const parLevels = [
-    { prod_id: '1001', treshold: 200, warning_level_id: defaultWarningLevelId },
+    { prod_id: '1001', treshold: 0, warning_level_id: defaultWarningLevelId },
     { prod_id: '1002', treshold: 100, warning_level_id: defaultWarningLevelId },
     { prod_id: '1003', treshold: 30, warning_level_id: defaultWarningLevelId },
-    { prod_id: '1004', treshold: 80, warning_level_id: defaultWarningLevelId },
+    { prod_id: '1004', treshold: 0, warning_level_id: defaultWarningLevelId },
     { prod_id: '1005', treshold: 150, warning_level_id: defaultWarningLevelId },
     { prod_id: '1006', treshold: 60, warning_level_id: defaultWarningLevelId },
-    { prod_id: '1007', treshold: 100, warning_level_id: defaultWarningLevelId },
+    { prod_id: '1007', treshold: 0, warning_level_id: defaultWarningLevelId },
     { prod_id: '1008', treshold: 80, warning_level_id: defaultWarningLevelId },
     { prod_id: '1009', treshold: 120, warning_level_id: defaultWarningLevelId },
     { prod_id: '2001', treshold: 50, warning_level_id: defaultWarningLevelId },

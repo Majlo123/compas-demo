@@ -63,7 +63,7 @@ export const mockParLevels: ParLevel[] = [
     { product_name: 'Pretzels 300g', product_id: 15001, comodity_group: 'CRISPS AND SNACKS', stockLevel: 58, threshhold: 65, status: 'TRIGGERED' },
     { product_name: 'Popcorn 200g', product_id: 15002, comodity_group: 'CRISPS AND SNACKS', stockLevel: 72, threshhold: 60, status: 'OK' },
     { product_name: 'Trail Mix 250g', product_id: 15003, comodity_group: 'CRISPS AND SNACKS', stockLevel: 35, threshhold: 40, status: 'TRIGGERED' },
-    { product_name: 'Ice Cubes 2kg', product_id: 16001, comodity_group: 'Ice Cubes', stockLevel: 125, threshhold: 100, status: 'OK' },
+    { product_name: 'Ice Cubes 2kg', product_id: 16001, comodity_group: 'ICE CUBES', stockLevel: 125, threshhold: 100, status: 'OK' },
     { product_name: 'Frozen Pizza', product_id: 16002, comodity_group: 'NON FOOD RETAIL', stockLevel: 22, threshhold: 30, status: 'TRIGGERED' },
     { product_name: 'Breakfast Cereal', product_id: 17001, comodity_group: 'GROCERIES AMBIENT', stockLevel: 68, threshhold: 65, status: 'OK' },
     { product_name: 'Granola Bars 6pk', product_id: 17002, comodity_group: 'GROCERIES AMBIENT', stockLevel: 45, threshhold: 55, status: 'TRIGGERED' },

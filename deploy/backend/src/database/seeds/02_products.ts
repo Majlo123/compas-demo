@@ -68,7 +68,7 @@ export async function seed(knex: Knex): Promise<void> {
     { prod_id: '15001', description: 'Pretzels 300g', commodity_group_id: 'CAS_001', commodity_group: 'CRISPS AND SNACKS' },
     { prod_id: '15002', description: 'Popcorn 200g', commodity_group_id: 'CAS_001', commodity_group: 'CRISPS AND SNACKS' },
     { prod_id: '15003', description: 'Trail Mix 250g', commodity_group_id: 'CAS_001', commodity_group: 'CRISPS AND SNACKS' },
-    { prod_id: '16001', description: 'Ice Cubes 2kg', commodity_group_id: 'ICE_001', commodity_group: 'Ice Cubes' },
+    { prod_id: '16001', description: 'Ice Cubes 2kg', commodity_group_id: 'ICE_001', commodity_group: 'ICE CUBES' },
     { prod_id: '16002', description: 'Frozen Pizza', commodity_group_id: 'NFR_001', commodity_group: 'NON FOOD RETAIL' },
     { prod_id: '17001', description: 'Breakfast Cereal', commodity_group_id: 'GRA_001', commodity_group: 'GROCERIES AMBIENT' },
     { prod_id: '17002', description: 'Granola Bars 6pk', commodity_group_id: 'GRA_001', commodity_group: 'GROCERIES AMBIENT' },

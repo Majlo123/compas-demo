@@ -1,10 +1,10 @@
 import { TopBar } from '@/components/top_bar/TopBar';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSidePanel';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 
 import { FiltersDialog } from '@/components/dialog/FiltersDialog';
-import { ParLevelsTable } from '@/components/ParLevelsTable';
+import { ParLevelsTable, GroupingType } from '@/components/ParLevelsTable';
 import { ParLevel } from '@/types/parLevel.types';
 import { Pagination } from '@/components/controls/Pagination';
 import { parLevelApi } from '@/api/parLevel.api';
@@ -19,9 +19,11 @@ const WarningsPage = () => {
   const [paginatedData, setPaginatedData] = useState<ParLevel[]>([]);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
+  const [searchTerm, setSearchTerm] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [allParLevels, setAllParLevels] = useState<ParLevel[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   // Fetch PAR levels from backend API
   useEffect(() => {
@@ -29,7 +31,10 @@ const WarningsPage = () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await parLevelApi.getAll();
+        const data = await parLevelApi.getAll(
+          selectedFilters.length > 0 ? selectedFilters : undefined,
+          searchTerm.trim() ? searchTerm.trim() : undefined
+        );
         setAllParLevels(data);
         setPaginatedData(data);
       } catch (err) {
@@ -42,19 +47,30 @@ const WarningsPage = () => {
     };
 
     fetchParLevels();
+  }, [selectedFilters, searchTerm]);
+
+  const handleSearch = (term: string) => {
+    // Debounce the search; only update state after delay
+    if (searchDebounceTimer.current) {
+      clearTimeout(searchDebounceTimer.current);
+    }
+    searchDebounceTimer.current = setTimeout(() => {
+      setSearchTerm(term.trim());
+    }, 300);
+  };
+
+  // Clear pending debounce on unmount
+  useEffect(() => {
+    return () => {
+      if (searchDebounceTimer.current) {
+        clearTimeout(searchDebounceTimer.current);
+      }
+    };
   }, []);
 
   const handleApplyFilters = () => {
     setIsFiltersOpen(false);
-    // Filter the data based on selected filters
-    if (selectedFilters.length > 0) {
-      const filtered = allParLevels.filter(
-        item => item.comodity_group && selectedFilters.includes(item.comodity_group)
-      );
-      setPaginatedData(filtered);
-    } else {
-      setPaginatedData(allParLevels);
-    }
+    // Filters are automatically applied through useEffect dependency
   };
 
   const handleClearFilters = () => {
@@ -88,9 +104,10 @@ const WarningsPage = () => {
         <main className="flex-1 flex flex-col overflow-hidden gap-7 px-5 py-6 bg-white">
           <TopBar
             selectedGrouping={selectedGrouping ?? undefined}
-            onSearch={(searchTerm) => console.log(searchTerm)}
+            onSearch={handleSearch}
             onGroupingChange={(grouping) => setSelectedGrouping(grouping)}
             managingLevel={selectedLevel ?? undefined}
+            filterCount={(selectedFilters.length > 0 || (searchTerm.trim().length > 0)) ? allParLevels.length : undefined}
             onFilterClick={() => setIsFiltersOpen(true)}
           />
           <div className="flex flex-col max-h-screen overflow-y-auto">
@@ -100,16 +117,25 @@ const WarningsPage = () => {
                   <p className="text-gray-500">Loading PAR levels...</p>
                 </div>
               ) : (
-                <ParLevelsTable parLevels={paginatedData} />
+                <ParLevelsTable
+                  parLevels={
+                    selectedGrouping && selectedGrouping !== 'no-grouping'
+                      ? allParLevels
+                      : paginatedData
+                  }
+                  grouping={selectedGrouping as GroupingType}
+                />
               )}
             </div>
-            <div className="py-4">
-              <Pagination
-                data={allParLevels}
-                itemsPerPage={50}
-                onChange={setPaginatedData}
-              />
-            </div>
+            {(!selectedGrouping || selectedGrouping === 'no-grouping') && (
+              <div className="py-4">
+                <Pagination
+                  data={allParLevels}
+                  itemsPerPage={50}
+                  onChange={setPaginatedData}
+                />
+              </div>
+            )}
           </div>
         </main>
       </div>

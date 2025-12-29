@@ -15,7 +15,7 @@ export const categoryStyles = {
   'FRUIT AND VEGETABLES': 'text-category-fruitVeg',
   'GROCERIES AMBIENT': 'text-category-groceries',
   'HOT BEVERAGES': 'text-category-hotBeverages',
-  'Ice Cubes': 'text-category-ice',
+  'ICE CUBES': 'text-category-ice',
   MEAT: 'text-category-meat',
   'NON FOOD RETAIL': 'text-category-nonfood',
   SANDWICHES: 'text-category-sandwiches',
