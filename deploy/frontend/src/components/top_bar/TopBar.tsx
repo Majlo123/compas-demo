@@ -40,7 +40,7 @@ export const TopBar: React.FC<TopBarProps> = ({ selectedGrouping, onSearch, onGr
                         onSelect={(opt) => onGroupingChange(opt.id)}
                     />
                     <Button icon='filter' variant="secondary" onClick={onFilterClick} className="w-36 justify-start pl-7">
-                        {typeof filterCount === 'number' ? `Filters (${filterCount})` : 'Filter'}
+                        {typeof filterCount === 'number' ? `Filters (${filterCount})` : 'Filters'}
                     </Button>
                 </div>
             </div>
