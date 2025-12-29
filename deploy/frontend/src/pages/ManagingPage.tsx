@@ -26,16 +26,28 @@ const WarningsPage = () => {
   const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
   const updateTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
 
-  // Fetch PAR levels from backend API
+  // Fetch PAR levels from backend API (supports selected warning level)
   useEffect(() => {
     const fetchParLevels = async () => {
       try {
         setIsLoading(true);
         setError(null);
-        const data = await parLevelApi.getAll(
-          selectedFilters.length > 0 ? selectedFilters : undefined,
-          searchTerm.trim() ? searchTerm.trim() : undefined
-        );
+
+        // Always fetch detailed rows through getAll, applying current filters/search
+        const [detailed, idsByWarning] = await Promise.all([
+          parLevelApi.getAll(
+            selectedFilters.length > 0 ? selectedFilters : undefined,
+            searchTerm.trim() ? searchTerm.trim() : undefined
+          ),
+          selectedLevel?.id
+            ? parLevelApi.getByWarningLevelId(selectedLevel.id)
+            : Promise.resolve(null),
+        ]);
+
+        const data = idsByWarning
+          ? detailed.filter((p) => idsByWarning.some((x) => x.prodId === p.product_id))
+          : detailed;
+
         setAllParLevels(data);
         setPaginatedData(data);
       } catch (err) {
@@ -48,7 +60,7 @@ const WarningsPage = () => {
     };
 
     fetchParLevels();
-  }, [selectedFilters, searchTerm]);
+  }, [selectedFilters, searchTerm, selectedLevel?.id]);
 
   const handleSearch = (term: string) => {
     // Debounce the search; only update state after delay
