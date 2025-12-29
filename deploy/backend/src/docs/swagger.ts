@@ -7,6 +7,7 @@ import fs from 'fs';
 import { StatusCode } from 'status-code-enum';
 import swaggerUi from 'swagger-ui-express';
 import { ZodTypeAny } from 'zod';
+// eslint-disable-next-line no-restricted-imports
 import { Role } from '../../../shared/auth.types';
 
 export type EndpointParam = {

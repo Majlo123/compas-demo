@@ -63,7 +63,7 @@ const config = {
   },
   smtp: {
     host: envVars.SMTP_HOST,
-    port: parseInt(envVars.SMTP_PORT),
+    port: parseInt(envVars.SMTP_PORT, 10),
     secure: envVars.SMTP_SECURE === 'true',
     user: envVars.SMTP_USER,
     password: envVars.SMTP_PASSWORD,

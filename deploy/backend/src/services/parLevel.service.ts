@@ -1,6 +1,7 @@
 import knex from 'knex';
 import * as parLevelRepository from 'repos/parLevel.model';
 import * as warningLevelRepository from 'repos/warningLevel.model';
+// eslint-disable-next-line no-restricted-imports
 import knexConfig from '../../knexfile';
 
 const db = knex(knexConfig.development);

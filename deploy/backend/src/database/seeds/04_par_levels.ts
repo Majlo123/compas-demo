@@ -1,5 +1,6 @@
 import { Knex } from 'knex';
 
+// eslint-disable-next-line import/prefer-default-export
 export async function seed(knex: Knex): Promise<void> {
   try {
     // Check if par levels already exist (avoid duplicates)
