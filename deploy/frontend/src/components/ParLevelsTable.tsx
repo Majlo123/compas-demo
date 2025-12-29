@@ -76,7 +76,7 @@ const ParLevelList: React.FC<{
               onChange={
                 onThresholdChange
                   ? (v): void =>
-                      onThresholdChange(level.product_id, Math.max(0, v))
+                    onThresholdChange(level.product_id, Math.max(0, v))
                   : undefined
               }
               min={0}

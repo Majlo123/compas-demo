@@ -9,6 +9,7 @@ import { ParLevelsTable, GroupingType } from '@/components/ParLevelsTable';
 import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSidePanel';
 import { TopBar } from '@/components/top_bar/TopBar';
 import { ParLevel } from '@/types/parLevel.types';
+import { warningLevelApi } from '@/api/warningLevel.api';
 
 const WarningsPage = (): JSX.Element => {
   const [selectedLevel, setSelectedLevel] = useState<SharedWarningLevel | null>(
@@ -24,6 +25,12 @@ const WarningsPage = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
   const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
   const updateTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  useEffect(() => {
+    warningLevelApi.getAll().then((levels) => {
+      setSelectedLevel(levels[0]);
+    });
+  }, []);
 
   // Fetch PAR levels from backend API (supports selected warning level)
   useEffect(() => {
@@ -106,17 +113,18 @@ const WarningsPage = (): JSX.Element => {
 
   const persistParLevelDebounced = (
     prodId: string,
-    newThreshold: number
+    newThreshold: number,
+    warningLevelId: string
   ): void => {
     const existingTimer = updateTimersRef.current[prodId];
     if (existingTimer) clearTimeout(existingTimer);
 
     updateTimersRef.current[prodId] = setTimeout(async (): Promise<void> => {
       try {
-        const updated = await parLevelApi.updateThreshold(prodId, newThreshold);
-        if (!updated && selectedLevel?.id) {
+        const updated = await parLevelApi.updateThreshold(prodId, newThreshold, warningLevelId);
+        if (!updated && warningLevelId) {
           // If not found, try create (upsert behavior)
-          await parLevelApi.create(prodId, newThreshold, selectedLevel.id);
+          await parLevelApi.create(prodId, newThreshold, warningLevelId);
         }
       } catch (err) {
         // eslint-disable-next-line no-console
@@ -129,9 +137,10 @@ const WarningsPage = (): JSX.Element => {
   };
 
   const handleThresholdChange = (prodId: string, newValue: number): void => {
+    const selectedLevelId = selectedLevel?.id;
     const clamped = Math.max(0, Math.round(newValue));
     applyLocalParLevelChange(prodId, clamped);
-    persistParLevelDebounced(prodId, clamped);
+    persistParLevelDebounced(prodId, clamped, selectedLevelId);
   };
 
   const handleApplyFilters = (): void => {

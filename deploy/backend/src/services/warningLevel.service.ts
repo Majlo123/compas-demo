@@ -1,4 +1,5 @@
 import * as warningLevelRepository from 'repos/warningLevel.model';
+import * as parLevelRepository from 'repos/parLevel.model';
 
 /**
  * Get all warning levels (includes productCount)
@@ -24,7 +25,11 @@ export const create = async (data: { name: string; description?: string | null }
     throw new Error(`Warning level with name "${data.name}" already exists`);
   }
 
-  return warningLevelRepository.create(data);
+  const newLevel = await warningLevelRepository.create(data);
+  if (newLevel.id) {
+    await parLevelRepository.createForWarningLevel(newLevel.id);
+  }
+  return newLevel;
 };
 
 /**

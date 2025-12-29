@@ -115,14 +115,15 @@ export const parLevelApi = {
    */
   updateThreshold: async (
     prodId: string,
-    threshold: number
+    threshold: number,
+    warningLevelId: string
   ): Promise<ParLevel | null> => {
     const response = await fetch(
       `${config.backend.apiUrl}/par-levels/${prodId}`,
       {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ threshold }),
+        body: JSON.stringify({ threshold, warningLevelId }),
       }
     );
 

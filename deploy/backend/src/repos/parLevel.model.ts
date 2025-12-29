@@ -107,12 +107,13 @@ export const updateByProdId = async (
   const updateData: any = {
     updated_at: new Date(),
   };
-
+  console.log("backend", data)
   if (data.threshold !== undefined) updateData.treshold = data.threshold;
   if (data.warningLevelId !== undefined) updateData.warning_level_id = data.warningLevelId;
 
   const [result] = await db('par_level')
     .where({ prod_id: prodId })
+    .where({ warning_level_id: data.warningLevelId })
     .update(updateData)
     .returning('*');
 
@@ -123,4 +124,23 @@ export const deleteByProdId = async (prodId: string): Promise<boolean> => {
   const result = await db('par_level').where({ prod_id: prodId }).delete();
 
   return result > 0;
+};
+
+export const createForWarningLevel = async (warningLevelId: string): Promise<void> => {
+  // Get all product IDs from live_stock
+  const products = await db('live_stock').select('prod_id');
+
+  if (products.length === 0) return;
+
+  const parLevels = products.map((p) => ({
+    prod_id: p.prod_id,
+    treshold: 0,
+    warning_level_id: warningLevelId,
+    created_at: new Date(),
+    updated_at: new Date(),
+  }));
+
+  // Bulk insert in chunks
+  const chunkSize = 1000;
+  await db.batchInsert('par_level', parLevels, chunkSize);
 };
