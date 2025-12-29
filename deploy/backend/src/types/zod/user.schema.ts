@@ -18,14 +18,18 @@ export const InviteUsersBodySchema = z.object({
 export const InviteUsersResponseSchema = z.object({
   success: z.boolean(),
   content: z.object({
-    invited: z.array(z.object({
-      email: z.string(),
-      inviteId: z.string(),
-    })),
-    failed: z.array(z.object({
-      email: z.string(),
-      reason: z.string(),
-    })),
+    invited: z.array(
+      z.object({
+        email: z.string(),
+        inviteId: z.string(),
+      }),
+    ),
+    failed: z.array(
+      z.object({
+        email: z.string(),
+        reason: z.string(),
+      }),
+    ),
   }),
 });
 

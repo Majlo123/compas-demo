@@ -36,7 +36,8 @@ const createParLevelRoute = (basePath: string): Router => {
           type: 'array',
           items: { type: 'string' },
           required: false,
-          description: 'Filter by commodity group names (e.g., CRISPS AND SNACKS, ALCOHOLIC BEVERAGE). Multiple values can be provided.',
+          description:
+            'Filter by commodity group names (e.g., CRISPS AND SNACKS, ALCOHOLIC BEVERAGE). Multiple values can be provided.',
         },
       ],
       responses: [

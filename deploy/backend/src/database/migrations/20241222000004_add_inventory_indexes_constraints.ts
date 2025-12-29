@@ -2,13 +2,11 @@ import { Knex } from 'knex';
 
 export async function up(knex: Knex): Promise<void> {
   // Ensure index on live_stock.prod_id (PK already indexed, but add explicit index for clarity)
-  await knex.schema.raw(
-    'CREATE INDEX IF NOT EXISTS idx_live_stock_prod_id ON live_stock(prod_id)'
-  );
+  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_live_stock_prod_id ON live_stock(prod_id)');
 
   // Ensure index on par_level.warning_level_id
   await knex.schema.raw(
-    'CREATE INDEX IF NOT EXISTS idx_par_level_warning_level_id ON par_level(warning_level_id)'
+    'CREATE INDEX IF NOT EXISTS idx_par_level_warning_level_id ON par_level(warning_level_id)',
   );
 
   // Ensure FK live_stock.prod_id -> products.prod_id
@@ -65,5 +63,7 @@ export async function down(knex: Knex): Promise<void> {
   await knex.schema.raw('DROP INDEX IF EXISTS idx_par_level_warning_level_id');
   await knex.schema.raw('ALTER TABLE live_stock DROP CONSTRAINT IF EXISTS live_stock_prod_id_fk');
   await knex.schema.raw('ALTER TABLE par_level DROP CONSTRAINT IF EXISTS par_level_prod_id_fk');
-  await knex.schema.raw('ALTER TABLE par_level DROP CONSTRAINT IF EXISTS par_level_warning_level_fk');
+  await knex.schema.raw(
+    'ALTER TABLE par_level DROP CONSTRAINT IF EXISTS par_level_warning_level_fk',
+  );
 }

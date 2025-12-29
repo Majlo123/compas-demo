@@ -1,6 +1,6 @@
+import knex from 'knex';
 import * as parLevelRepository from 'repos/parLevel.model';
 import * as warningLevelRepository from 'repos/warningLevel.model';
-import knex from 'knex';
 import knexConfig from '../../knexfile';
 
 const db = knex(knexConfig.development);

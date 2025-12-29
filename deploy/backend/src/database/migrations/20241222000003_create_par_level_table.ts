@@ -14,18 +14,20 @@ export async function up(knex: Knex): Promise<void> {
     table.uuid('warning_level_id').notNullable();
     table.timestamp('created_at').defaultTo(knex.fn.now());
     table.timestamp('updated_at').defaultTo(knex.fn.now());
-    
+
     // Foreign key constraints
     table.foreign('prod_id').references('prod_id').inTable('live_stock');
     table.foreign('warning_level_id').references('id').inTable('warning_level');
-    
+
     // Check constraint to ensure threshold is positive
     table.check('treshold >= 0');
   });
 
   // Create indexes for faster queries
   await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_par_level_prod_id ON par_level(prod_id)');
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_par_level_warning_level_id ON par_level(warning_level_id)');
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_par_level_warning_level_id ON par_level(warning_level_id)',
+  );
 }
 
 export async function down(knex: Knex): Promise<void> {

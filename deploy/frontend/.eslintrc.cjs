@@ -46,7 +46,7 @@ module.exports = {
   rules: {
     'prettier/prettier': 'error',
     indent: 'off',
-    'linebreak-style': ['error', 'unix', 'windows'],
+    'linebreak-style': ['error', 'unix'],
     semi: ['error', 'always'],
     '@typescript-eslint/ban-ts-comment': [
       'error',

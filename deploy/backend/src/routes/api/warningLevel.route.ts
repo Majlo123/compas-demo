@@ -32,7 +32,11 @@ const createWarningLevelRoute = (basePath: string): Router => {
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
       responses: [
-        { code: httpStatus.OK, desc: 'Warning levels list', schema: SearchWarningLevelResponseSchema },
+        {
+          code: httpStatus.OK,
+          desc: 'Warning levels list',
+          schema: SearchWarningLevelResponseSchema,
+        },
       ],
       functionName: WarningLevelFunctions.searchWarningLevels,
       basePath,
@@ -45,7 +49,11 @@ const createWarningLevelRoute = (basePath: string): Router => {
       authorize: true,
       allowedRoles: [RoleEnum.Admin],
       responses: [
-        { code: httpStatus.OK, desc: 'All warning levels with productCount', schema: SearchWarningLevelWithCountResponseSchema },
+        {
+          code: httpStatus.OK,
+          desc: 'All warning levels with productCount',
+          schema: SearchWarningLevelWithCountResponseSchema,
+        },
       ],
       functionName: WarningLevelFunctions.getAllWarningLevels,
       basePath,
@@ -59,7 +67,11 @@ const createWarningLevelRoute = (basePath: string): Router => {
       allowedRoles: [RoleEnum.Admin],
       params: [{ name: 'id', in: 'path', type: 'string', required: true }],
       responses: [
-        { code: httpStatus.OK, desc: 'Warning level details', schema: GetWarningLevelResponseSchema },
+        {
+          code: httpStatus.OK,
+          desc: 'Warning level details',
+          schema: GetWarningLevelResponseSchema,
+        },
         { code: httpStatus.NOT_FOUND, desc: 'Warning level not found' },
       ],
       functionName: WarningLevelFunctions.getWarningLevelById,
@@ -78,7 +90,11 @@ const createWarningLevelRoute = (basePath: string): Router => {
         description: 'Critical warning level for immediate attention',
       },
       responses: [
-        { code: httpStatus.CREATED, desc: 'Warning level created', schema: CreateWarningLevelResponseSchema },
+        {
+          code: httpStatus.CREATED,
+          desc: 'Warning level created',
+          schema: CreateWarningLevelResponseSchema,
+        },
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid input data' },
         { code: httpStatus.CONFLICT, desc: 'Warning level with same name already exists' },
       ],
@@ -99,7 +115,11 @@ const createWarningLevelRoute = (basePath: string): Router => {
         description: 'Updated description for high priority warnings',
       },
       responses: [
-        { code: httpStatus.OK, desc: 'Warning level updated', schema: GetWarningLevelResponseSchema },
+        {
+          code: httpStatus.OK,
+          desc: 'Warning level updated',
+          schema: GetWarningLevelResponseSchema,
+        },
         { code: httpStatus.BAD_REQUEST, desc: 'Invalid input data' },
         { code: httpStatus.NOT_FOUND, desc: 'Warning level not found' },
         { code: httpStatus.CONFLICT, desc: 'Warning level with same name already exists' },

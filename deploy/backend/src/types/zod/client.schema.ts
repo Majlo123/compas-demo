@@ -1,5 +1,5 @@
-import { z } from 'zod';
 import { QuerySchema } from 'types/zod/shared.schema';
+import { z } from 'zod';
 
 export const ClientSchema = z.object({
   id: z.string(),

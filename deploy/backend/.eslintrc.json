@@ -23,7 +23,7 @@
   "rules": {
     "prettier/prettier": "error",
     "indent": "off",
-    "linebreak-style": ["error", "unix", "windows"],
+    "linebreak-style": ["error", "unix"],
     "quotes": ["error", "single"],
     "semi": ["error", "always"],
     "@typescript-eslint/ban-ts-comment": [

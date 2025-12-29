@@ -52,7 +52,7 @@ export const findAll = async (commodityGroups?: string[], search?: string): Prom
       'products.description as product_description',
       'products.commodity_group',
       'products.commodity_group_id',
-      'live_stock.quantity'
+      'live_stock.quantity',
     );
 
   // Apply commodity group filtering if provided
@@ -63,14 +63,16 @@ export const findAll = async (commodityGroups?: string[], search?: string): Prom
   // Apply search filtering if provided
   if (search && search.trim()) {
     const searchTerm = `%${search.trim()}%`;
-     query = query.where((qb) => {
-       qb.whereRaw('products.description ilike ?', [searchTerm])
-         .orWhereRaw('par_level.prod_id ilike ?', [searchTerm]);
-     });
+    query = query.where((qb) => {
+      qb.whereRaw('products.description ilike ?', [searchTerm]).orWhereRaw(
+        'par_level.prod_id ilike ?',
+        [searchTerm],
+      );
+    });
   }
 
   const results = await query;
-  return results.map(row => ({
+  return results.map((row) => ({
     prodId: row.prod_id,
     threshold: row.treshold,
     warningLevelId: row.warning_level_id,

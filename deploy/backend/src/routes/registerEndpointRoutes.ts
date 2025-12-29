@@ -1,5 +1,5 @@
-import { Router, RequestHandler } from 'express';
 import { setupSwagger, EndpointMeta } from 'docs/swagger';
+import { Router, RequestHandler } from 'express';
 
 /**
  * Register endpoint routes with Swagger documentation
@@ -11,7 +11,7 @@ const registerEndpointRoutes = (
 ): void => {
   endpointsMeta.forEach((meta) => {
     const method = meta.method.toLowerCase() as keyof Router;
-    const path = meta.path;
+    const { path } = meta;
     const handler = handlers[meta.functionName];
 
     if (!handler) {

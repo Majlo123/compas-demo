@@ -17,10 +17,7 @@ export const findById = async (id: string): Promise<any | null> => {
 /**
  * Create new warning level
  */
-export const create = async (data: {
-  name: string;
-  description?: string | null;
-}): Promise<any> => {
+export const create = async (data: { name: string; description?: string | null }): Promise<any> => {
   // Check if name already exists
   const existing = await warningLevelRepository.findByName(data.name);
   if (existing) {
@@ -38,7 +35,7 @@ export const update = async (
   data: {
     name?: string;
     description?: string | null;
-  }
+  },
 ): Promise<any> => {
   const existing = await warningLevelRepository.findById(id);
   if (!existing) {

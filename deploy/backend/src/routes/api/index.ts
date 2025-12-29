@@ -1,6 +1,6 @@
 import express from 'express';
-import createWarningLevelRoute from 'routes/api/warningLevel.route';
 import createParLevelRoute from 'routes/api/parLevel.route';
+import createWarningLevelRoute from 'routes/api/warningLevel.route';
 
 const apiRouter = express.Router();
 

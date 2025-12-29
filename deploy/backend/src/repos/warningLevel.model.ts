@@ -1,7 +1,6 @@
+import { WarningLevel, CreateWarningLevel } from '@shared/types/warningLevel.types';
 import knex from 'knex';
 import knexConfig from '../../knexfile';
-
-import { WarningLevel, CreateWarningLevel } from '@shared/types/warningLevel.types';
 
 const db = knex(knexConfig.development);
 
@@ -19,17 +18,13 @@ export const create = async (data: CreateWarningLevel): Promise<WarningLevel> =>
 };
 
 export const findById = async (id: string): Promise<WarningLevel | null> => {
-  const result = await db('warning_level')
-    .where({ id })
-    .first();
+  const result = await db('warning_level').where({ id }).first();
 
   return result ? mapToWarningLevel(result) : null;
 };
 
 export const findAll = async (): Promise<WarningLevel[]> => {
-  const results = await db('warning_level')
-    .orderBy('name', 'asc')
-    .select('*');
+  const results = await db('warning_level').orderBy('name', 'asc').select('*');
 
   return results.map(mapToWarningLevel);
 };
@@ -38,7 +33,9 @@ export const findAll = async (): Promise<WarningLevel[]> => {
  * Find all warning levels and include productCount for each level.
  * productCount = number of products with PAR level threshold > 0 associated to the warning level.
  */
-export const findAllWithProductCount = async (): Promise<(WarningLevel & { productCount: number })[]> => {
+export const findAllWithProductCount = async (): Promise<
+  (WarningLevel & { productCount: number })[]
+> => {
   const results = await db('warning_level as wl')
     .leftJoin('par_level as pl', 'wl.id', 'pl.warning_level_id')
     .select(
@@ -55,19 +52,23 @@ export const findAllWithProductCount = async (): Promise<(WarningLevel & { produ
 
   return results.map((row: any) => ({
     ...mapToWarningLevel(row),
-    productCount: typeof row.product_count === 'string' ? parseInt(row.product_count, 10) : Number(row.product_count) || 0,
+    productCount:
+      typeof row.product_count === 'string'
+        ? parseInt(row.product_count, 10)
+        : Number(row.product_count) || 0,
   }));
 };
 
 export const findByName = async (name: string): Promise<WarningLevel | null> => {
-  const result = await db('warning_level')
-    .where({ name })
-    .first();
+  const result = await db('warning_level').where({ name }).first();
 
   return result ? mapToWarningLevel(result) : null;
 };
 
-export const updateById = async (id: string, data: Partial<CreateWarningLevel>): Promise<WarningLevel | null> => {
+export const updateById = async (
+  id: string,
+  data: Partial<CreateWarningLevel>,
+): Promise<WarningLevel | null> => {
   const updateData: any = {
     updated_at: new Date(),
   };
@@ -75,18 +76,13 @@ export const updateById = async (id: string, data: Partial<CreateWarningLevel>):
   if (data.name !== undefined) updateData.name = data.name;
   if (data.description !== undefined) updateData.description = data.description || null;
 
-  const [result] = await db('warning_level')
-    .where({ id })
-    .update(updateData)
-    .returning('*');
+  const [result] = await db('warning_level').where({ id }).update(updateData).returning('*');
 
   return result ? mapToWarningLevel(result) : null;
 };
 
 export const deleteById = async (id: string): Promise<boolean> => {
-  const result = await db('warning_level')
-    .where({ id })
-    .delete();
+  const result = await db('warning_level').where({ id }).delete();
 
   return result > 0;
 };

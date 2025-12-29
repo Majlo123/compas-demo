@@ -1,7 +1,7 @@
 import cors from 'cors';
+import { swaggerDocs } from 'docs/swagger';
 import express from 'express';
 import apiRouter from 'routes/api';
-import { swaggerDocs } from 'docs/swagger';
 
 const app = express();
 

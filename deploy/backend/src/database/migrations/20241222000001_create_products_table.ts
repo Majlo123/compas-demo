@@ -18,8 +18,12 @@ export async function up(knex: Knex): Promise<void> {
   });
 
   // Create indexes
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_products_commodity_group_id ON products(commodity_group_id)');
-  await knex.schema.raw('CREATE INDEX IF NOT EXISTS idx_products_commodity_group ON products(commodity_group)');
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_products_commodity_group_id ON products(commodity_group_id)',
+  );
+  await knex.schema.raw(
+    'CREATE INDEX IF NOT EXISTS idx_products_commodity_group ON products(commodity_group)',
+  );
 }
 
 export async function down(knex: Knex): Promise<void> {

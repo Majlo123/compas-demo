@@ -42,10 +42,12 @@ export const UpdateTeamMemberManagerSchema = z.object({
 });
 
 export const BulkAddTeamMembersSchema = z.object({
-  members: z.array(z.object({
-    userId: z.string().uuid(),
-    isManager: z.boolean().optional(),
-  })),
+  members: z.array(
+    z.object({
+      userId: z.string().uuid(),
+      isManager: z.boolean().optional(),
+    }),
+  ),
 });
 
 export const BulkRemoveTeamMembersSchema = z.object({
@@ -53,10 +55,12 @@ export const BulkRemoveTeamMembersSchema = z.object({
 });
 
 export const BulkUpdateTeamMembersManagerSchema = z.object({
-  members: z.array(z.object({
-    userId: z.string().uuid(),
-    isManager: z.boolean(),
-  })),
+  members: z.array(
+    z.object({
+      userId: z.string().uuid(),
+      isManager: z.boolean(),
+    }),
+  ),
 });
 
 export const CreateTeamMemberSuccessSchema = z.object({

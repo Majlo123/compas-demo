@@ -48,4 +48,6 @@ export type WarningLevelWithCount = z.infer<typeof WarningLevelWithCountSchema>;
 export type CreateWarningLevel = z.infer<typeof CreateWarningLevelSchema>;
 export type UpdateWarningLevel = z.infer<typeof UpdateWarningLevelSchema>;
 export type SearchWarningLevelResponse = z.infer<typeof SearchWarningLevelResponseSchema>;
-export type SearchWarningLevelWithCountResponse = z.infer<typeof SearchWarningLevelWithCountResponseSchema>;
+export type SearchWarningLevelWithCountResponse = z.infer<
+  typeof SearchWarningLevelWithCountResponseSchema
+>;

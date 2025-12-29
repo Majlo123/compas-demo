@@ -1,17 +1,17 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import * as parLevelService from 'services/parLevel.service';
-import catchAsync from 'shared/utils/CatchAsync';
 import ApiError from 'shared/error/ApiError';
+import catchAsync from 'shared/utils/CatchAsync';
 
 export const getAllParLevels = catchAsync(async (req: Request, res: Response) => {
   const { commodityGroups, search } = req.query;
-  
+
   // Parse commodity groups from query string
   const filters: string[] = [];
   if (commodityGroups) {
     if (Array.isArray(commodityGroups)) {
-      filters.push(...commodityGroups as string[]);
+      filters.push(...(commodityGroups as string[]));
     } else {
       filters.push(commodityGroups as string);
     }
@@ -19,12 +19,12 @@ export const getAllParLevels = catchAsync(async (req: Request, res: Response) =>
 
   // Parse search term
   const searchTerm = search ? (Array.isArray(search) ? search[0] : search) : undefined;
-  
+
   const result = await parLevelService.findAll(
     filters.length > 0 ? filters : undefined,
-    searchTerm
+    searchTerm,
   );
-  
+
   res.status(httpStatus.OK).send({
     success: true,
     content: result,

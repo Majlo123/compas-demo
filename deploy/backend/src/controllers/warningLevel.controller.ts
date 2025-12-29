@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
 import httpStatus from 'http-status';
 import * as warningLevelService from 'services/warningLevel.service';
-import catchAsync from 'shared/utils/CatchAsync';
 import ApiError from 'shared/error/ApiError';
+import catchAsync from 'shared/utils/CatchAsync';
 
 export const searchWarningLevels = catchAsync(async (req: Request, res: Response) => {
   const query = (req.query.query as string) || '';
