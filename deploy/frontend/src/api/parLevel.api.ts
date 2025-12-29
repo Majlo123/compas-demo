@@ -40,6 +40,34 @@ export const parLevelApi = {
   },
 
   /**
+   * Fetch PAR levels by warning level id (returns minimal rows: prodId, threshold, etc.)
+   */
+  getByWarningLevelId: async (warningLevelId: string): Promise<{
+    prodId: string;
+    threshold: number;
+    warningLevelId: string;
+  }[]> => {
+    const response = await fetch(
+      `${config.backend.apiUrl}/par-levels/warning-level/${warningLevelId}`
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch by warning level: ${response.statusText}`);
+    }
+
+    const data = (await response.json()) as {
+      success: boolean;
+      content: Array<{
+        prodId: string;
+        threshold: number;
+        warningLevelId: string;
+      }>;
+    };
+
+    return data.content ?? [];
+  },
+
+  /**
    * Fetch a single PAR level by product ID
    */
   getByProdId: async (prodId: string): Promise<ParLevel | null> => {
