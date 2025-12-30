@@ -15,6 +15,7 @@ export const searchWarningLevels = catchAsync(async (req: Request, res: Response
 
 export const getAllWarningLevels = catchAsync(async (_req: Request, res: Response) => {
   const result = await warningLevelService.findAll();
+  console.log("warning levels", result)
   res.status(httpStatus.OK).send({
     success: true,
     content: result,
@@ -28,7 +29,6 @@ export const getWarningLevelById = catchAsync(async (req: Request, res: Response
   if (!result) {
     throw new ApiError('Warning level not found', httpStatus.NOT_FOUND);
   }
-
   res.status(httpStatus.OK).send({
     success: true,
     content: result,
