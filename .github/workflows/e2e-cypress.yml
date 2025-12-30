@@ -29,6 +29,10 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from cypress
 
+      - name: Debug via SSH
+        if: failure()
+        uses: mxschmitt/action-tmate@v3
+
       - name: Upload Cypress screenshots
         if: failure()
         uses: actions/upload-artifact@v4
