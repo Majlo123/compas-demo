@@ -1,5 +1,5 @@
-import * as warningLevelRepository from 'repos/warningLevel.model';
 import * as parLevelRepository from 'repos/parLevel.model';
+import * as warningLevelRepository from 'repos/warningLevel.model';
 
 /**
  * Get all warning levels (includes productCount)

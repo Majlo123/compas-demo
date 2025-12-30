@@ -53,7 +53,11 @@ export const findByWarningLevelId = async (warningLevelId: string): Promise<ParL
   return results.map(mapToParLevel);
 };
 
-export const findAll = async (commodityGroups?: string[], search?: string, warningLevelId?: string): Promise<ParLevel[]> => {
+export const findAll = async (
+  commodityGroups?: string[],
+  search?: string,
+  warningLevelId?: string,
+): Promise<ParLevel[]> => {
   let query = db('par_level')
     .leftJoin('products', 'par_level.prod_id', 'products.prod_id')
     .leftJoin('live_stock', 'par_level.prod_id', 'live_stock.prod_id')
@@ -107,7 +111,7 @@ export const updateByProdId = async (
   const updateData: any = {
     updated_at: new Date(),
   };
-  console.log("backend", data)
+  console.log('backend', data);
   if (data.threshold !== undefined) updateData.treshold = data.threshold;
   if (data.warningLevelId !== undefined) updateData.warning_level_id = data.warningLevelId;
 

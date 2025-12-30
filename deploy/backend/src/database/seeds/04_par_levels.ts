@@ -3,8 +3,6 @@ import { Knex } from 'knex';
 // eslint-disable-next-line import/prefer-default-export
 export async function seed(knex: Knex): Promise<void> {
   try {
-
-
     // Get all warning levels to distribute par levels across them
     const warningLevels = await knex('warning_level').select('id').orderBy('name', 'asc');
     if (warningLevels.length === 0) {
@@ -99,9 +97,11 @@ export async function seed(knex: Knex): Promise<void> {
     }
 
     const existingPairs = await knex('par_level').select('prod_id', 'warning_level_id');
-    const existingSet = new Set(existingPairs.map(p => `${p.prod_id}:${p.warning_level_id}`));
+    const existingSet = new Set(existingPairs.map((p) => `${p.prod_id}:${p.warning_level_id}`));
 
-    const newParLevels = parLevels.filter(p => !existingSet.has(`${p.prod_id}:${p.warning_level_id}`));
+    const newParLevels = parLevels.filter(
+      (p) => !existingSet.has(`${p.prod_id}:${p.warning_level_id}`),
+    );
 
     if (newParLevels.length > 0) {
       // split into chunks to avoid parameter limits if necessary, but 1000 items is fine usually

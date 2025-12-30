@@ -11,7 +11,11 @@ const db = knex(knexConfig.development);
  * @param commodityGroups - Optional array of commodity group names to filter by
  * @param search - Optional search term to filter by product description or ID
  */
-export const findAll = async (commodityGroups?: string[], search?: string, warningLevelId?: string): Promise<any[]> => {
+export const findAll = async (
+  commodityGroups?: string[],
+  search?: string,
+  warningLevelId?: string,
+): Promise<any[]> => {
   return parLevelRepository.findAll(commodityGroups, search, warningLevelId);
 };
 
