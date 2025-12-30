@@ -29,16 +29,23 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from cypress
 
-      - name: Debug via tmate
+      - name: Collect Docker logs
         if: failure()
-        uses: mxschmitt/action-tmate@v3
-        with:
-          limit-access-to-actor: true
-          web-shell: true
+        run: |
+          mkdir -p docker-logs
 
-      - name: Keep runner alive for debugging
+          docker ps -a > docker-logs/ps.txt
+          docker logs compas-demo-frontend > docker-logs/frontend.log 2>&1 || true
+          docker logs compas-demo-backend > docker-logs/backend.log 2>&1 || true
+          docker logs compas-demo-cypress-1 > docker-logs/cypress.log 2>&1 || true
+          docker logs compas-demo-proxy > docker-logs/proxy.log 2>&1 || true
+
+      - name: Upload Docker logs
         if: failure()
-        run: sleep infinity
+        uses: actions/upload-artifact@v4
+        with:
+          name: docker-logs
+          path: docker-logs
 
       - name: Upload Cypress screenshots
         if: failure()
