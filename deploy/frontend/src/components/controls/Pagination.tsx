@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import {
   Pagination as ShadcnPagination,
@@ -11,15 +11,15 @@ import {
   PaginationLast,
 } from '@/components/ui/Pagination';
 
-interface PaginationProps<T> {
+interface PaginationProps {
   totalPages: number;
   onChange: (currentPage: number) => void;
 }
 
-export function Pagination<T>({
+export function Pagination({
   totalPages,
   onChange,
-}: PaginationProps<T>): JSX.Element | null {
+}: PaginationProps): JSX.Element | null {
   const [currentPage, setCurrentPage] = useState(1);
 
   useEffect(() => {
@@ -48,10 +48,10 @@ export function Pagination<T>({
 
   const handlePageClick =
     (page: number) =>
-      (e: React.MouseEvent<HTMLAnchorElement>): void => {
-        e.preventDefault();
-        setCurrentPage(page);
-      };
+    (e: React.MouseEvent<HTMLAnchorElement>): void => {
+      e.preventDefault();
+      setCurrentPage(page);
+    };
 
   return totalPages > 1 ? (
     <ShadcnPagination>

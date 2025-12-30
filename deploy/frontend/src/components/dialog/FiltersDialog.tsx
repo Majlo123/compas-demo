@@ -1,5 +1,3 @@
-import type { CommodityGroup } from '@/types/commodityGroups';
-
 import { Button } from '@/components/controls/Button';
 import {
   Dialog,
@@ -11,6 +9,7 @@ import {
   ToggleGroup,
   ToggleGroupItem,
 } from '@/components/controls/ToggleGroup';
+import type { CommodityGroup } from '@/types/commodityGroups';
 
 export type FiltersDialogProps = {
   open: boolean;

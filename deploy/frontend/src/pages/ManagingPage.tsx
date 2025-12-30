@@ -1,15 +1,15 @@
-import { type CommodityGroup, commodityGroups } from '@/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
 import { useState, useEffect, useRef, useMemo } from 'react';
 
 import { parLevelApi } from '@/api/parLevel.api';
+import { warningLevelApi } from '@/api/warningLevel.api';
 import { Pagination } from '@/components/controls/Pagination';
 import { FiltersDialog } from '@/components/dialog/FiltersDialog';
 import { ParLevelsTable, GroupingType } from '@/components/ParLevelsTable';
 import { WarningLevelsSidePanel } from '@/components/side_bar/WarningLevelsSidePanel';
 import { TopBar } from '@/components/top_bar/TopBar';
+import { type CommodityGroup, commodityGroups } from '@/types/commodityGroups';
 import { ParLevel } from '@/types/parLevel.types';
-import { warningLevelApi } from '@/api/warningLevel.api';
 
 const WarningsPage = (): JSX.Element => {
   const [selectedLevel, setSelectedLevel] = useState<SharedWarningLevel | null>(
@@ -51,7 +51,7 @@ const WarningsPage = (): JSX.Element => {
           parLevelApi.getAll(
             selectedFilters.length > 0 ? selectedFilters : undefined,
             searchTerm.trim() ? searchTerm.trim() : undefined,
-            selectedLevel?.id,
+            selectedLevel?.id
           ),
         ]);
 
@@ -97,10 +97,10 @@ const WarningsPage = (): JSX.Element => {
       prev.map((p) =>
         p.product_id === prodId
           ? {
-            ...p,
-            threshhold: newThreshold,
-            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-          }
+              ...p,
+              threshhold: newThreshold,
+              status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
+            }
           : p
       )
     );
@@ -116,7 +116,11 @@ const WarningsPage = (): JSX.Element => {
 
     updateTimersRef.current[prodId] = setTimeout(async (): Promise<void> => {
       try {
-        const updated = await parLevelApi.updateThreshold(prodId, newThreshold, warningLevelId);
+        const updated = await parLevelApi.updateThreshold(
+          prodId,
+          newThreshold,
+          warningLevelId
+        );
         if (!updated && warningLevelId) {
           // If not found, try create (upsert behavior)
           await parLevelApi.create(prodId, newThreshold, warningLevelId);
