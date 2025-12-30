@@ -29,14 +29,16 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from cypress
 
-      - name: Stop stack and cleanup
-        if: always()
-        run: |
-          docker compose down -v
-
       - name: Upload Cypress screenshots
         if: failure()
         uses: actions/upload-artifact@v4
         with:
           name: cypress-screenshots
           path: cypress/screenshots
+
+      - name: Stop stack and cleanup
+        if: always()
+        run: |
+          docker compose down -v
+
+     
