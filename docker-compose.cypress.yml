@@ -1,0 +1,17 @@
+services:
+  cypress:
+    build:
+      context: .
+      dockerfile: deploy/tools/docker/cypress/Dockerfile
+    environment:
+      CYPRESS_BASE_URL: http://proxy
+    volumes:
+      - ./deploy/cypress:/cypress
+      - /cypress/node_modules
+    depends_on:
+      frontend:
+        condition: service_started
+      backend:
+        condition: service_started
+    networks:
+      - local_net

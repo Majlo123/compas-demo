@@ -4,7 +4,7 @@ function App() {
   const [data, setData] = useState<any[] | null>(null);
 
   useEffect(() => {
-    fetch('http://localhost:3000/api/hello')
+    fetch('/api/hello')
       .then((res) => res.json())
       .then((data) => setData(data))
       .catch((err) => console.error('Error fetching data:', err));
@@ -16,8 +16,13 @@ function App() {
       {data ? (
         <ul className="w-full max-w-md bg-white rounded-lg shadow overflow-hidden">
           {data.map((item: any) => (
-            <li key={item.id} className="p-4 border-b border-gray-200 last:border-b-0 hover:bg-gray-50">
-              <h3 className="font-semibold text-lg text-gray-800">{item.name}</h3>
+            <li
+              key={item.id}
+              className="p-4 border-b border-gray-200 last:border-b-0 hover:bg-gray-50"
+            >
+              <h3 className="font-semibold text-lg text-gray-800">
+                {item.name}
+              </h3>
               <p className="text-gray-600">{item.description}</p>
             </li>
           ))}
