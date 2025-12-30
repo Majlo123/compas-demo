@@ -82,21 +82,21 @@ export async function seed(knex: Knex): Promise<void> {
       { prod_id: '18001', treshold: 0 },
     ];
 
-    const parLevels = [];
-    for (const wl of warningLevels) {
-      for (const base of baseParLevels) {
+    const parLevels = warningLevels.flatMap((wl) =>
+      baseParLevels.map((base) => {
         const isZero = Math.random() < 0.7;
         const randomThreshold = Math.floor(Math.random() * 91) + 10;
 
-        parLevels.push({
+        return {
           ...base,
           treshold: isZero ? 0 : randomThreshold,
           warning_level_id: wl.id,
-        });
-      }
-    }
+        };
+      }),
+    );
 
     const existingPairs = await knex('par_level').select('prod_id', 'warning_level_id');
+
     const existingSet = new Set(existingPairs.map((p) => `${p.prod_id}:${p.warning_level_id}`));
 
     const newParLevels = parLevels.filter(
@@ -104,7 +104,6 @@ export async function seed(knex: Knex): Promise<void> {
     );
 
     if (newParLevels.length > 0) {
-      // split into chunks to avoid parameter limits if necessary, but 1000 items is fine usually
       await knex('par_level').insert(newParLevels);
       console.log(`Inserted ${newParLevels.length} new par levels.`);
     } else {
