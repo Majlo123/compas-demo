@@ -29,9 +29,11 @@ jobs:
             --abort-on-container-exit \
             --exit-code-from cypress
 
-      - name: Debug via SSH
-        if: failure()
+      - name: Debug via tmate
         uses: mxschmitt/action-tmate@v3
+        with:
+          detached: false
+          limit-access-to-actor: true
 
       - name: Upload Cypress screenshots
         if: failure()
