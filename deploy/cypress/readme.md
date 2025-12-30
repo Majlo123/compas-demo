@@ -1,0 +1,41 @@
+### Workflow
+
+- This is added so all information about Cypress E2E tests is in one place.
+
+```yaml
+name: E2E Cypress Tests
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Prepare CI env files
+        run: |
+          mkdir -p deploy/tools/env
+          echo "${{ vars.CY_FRONTEND_ENV }}" > deploy/tools/env/frontend.dev.env
+          echo "${{ vars.CY_BACKEND_ENV }}" > deploy/tools/env/backend.dev.env
+
+      - name: Run application stack and Cypress
+        run: |
+          docker compose \
+            -f docker-compose.yml \
+            -f docker-compose.cypress.yml \
+            up \
+            --abort-on-container-exit \
+            --exit-code-from cypress
+
+      - name: Stop stack and cleanup
+        if: always()
+        run: |
+          docker compose down -v
+```
