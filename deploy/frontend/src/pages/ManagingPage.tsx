@@ -128,6 +128,7 @@ const WarningsPage = (): JSX.Element => {
       } catch (err) {
         // eslint-disable-next-line no-console
         console.error('Failed to persist PAR level', err);
+        // Optionally: refetch or show toast; for now, leave optimistic value
       } finally {
         delete updateTimersRef.current[prodId];
       }
