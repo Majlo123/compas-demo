@@ -37,8 +37,8 @@ const ParLevelList: React.FC<{
       </TableRow>
     </TableHeader>
     <TableBody>
-      {parLevels.map((level) => (
-        <TableRow key={level.product_id}>
+      {parLevels.map((level, key) => (
+        <TableRow key={key}>
           <TableCell className="font-medium">
             <div className="flex gap-2 flex-col">
               <p className="text-p2 m-0 font-bold">{level.product_name}</p>
@@ -76,7 +76,7 @@ const ParLevelList: React.FC<{
               onChange={
                 onThresholdChange
                   ? (v): void =>
-                      onThresholdChange(level.product_id, Math.max(0, v))
+                    onThresholdChange(level.product_id, Math.max(0, v))
                   : undefined
               }
               min={0}
