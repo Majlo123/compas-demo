@@ -33,8 +33,11 @@ jobs:
         if: failure()
         uses: mxschmitt/action-tmate@v3
         with:
-          detached: false
-          limit-access-to-actor: false
+          limit-access-to-actor: true
+
+      - name: Keep runner alive for debugging
+        if: failure()
+        run: sleep infinity
 
       - name: Upload Cypress screenshots
         if: failure()
