@@ -1,6 +1,6 @@
 import { type CommodityGroup, commodityGroups } from '@/types/commodityGroups';
 import type { WarningLevel as SharedWarningLevel } from '@shared/types/warningLevel.types';
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 
 import { parLevelApi } from '@/api/parLevel.api';
 import { Pagination } from '@/components/controls/Pagination';
@@ -16,7 +16,7 @@ const WarningsPage = (): JSX.Element => {
     null
   );
   const [selectedGrouping, setSelectedGrouping] = useState<string | null>(null);
-  const [paginatedData, setPaginatedData] = useState<ParLevel[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [selectedFilters, setSelectedFilters] = useState<CommodityGroup[]>([]);
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -25,6 +25,13 @@ const WarningsPage = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
   const searchDebounceTimer = useRef<NodeJS.Timeout | null>(null);
   const updateTimersRef = useRef<Record<string, NodeJS.Timeout>>({});
+
+  const itemsPerPage = 50;
+  const paginatedData = useMemo(() => {
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    return allParLevels.slice(startIndex, endIndex);
+  }, [allParLevels, currentPage, itemsPerPage]);
 
   useEffect(() => {
     warningLevelApi.getAll().then((levels) => {
@@ -49,7 +56,6 @@ const WarningsPage = (): JSX.Element => {
         ]);
 
         setAllParLevels(detailed);
-        setPaginatedData(detailed);
       } catch (err) {
         const errorMessage =
           err instanceof Error ? err.message : 'Failed to fetch PAR levels';
@@ -88,17 +94,6 @@ const WarningsPage = (): JSX.Element => {
     newThreshold: number
   ): void => {
     setAllParLevels((prev) =>
-      prev.map((p) =>
-        p.product_id === prodId
-          ? {
-            ...p,
-            threshhold: newThreshold,
-            status: p.stockLevel < newThreshold ? 'TRIGGERED' : 'OK',
-          }
-          : p
-      )
-    );
-    setPaginatedData((prev) =>
       prev.map((p) =>
         p.product_id === prodId
           ? {
@@ -150,7 +145,6 @@ const WarningsPage = (): JSX.Element => {
 
   const handleClearFilters = (): void => {
     setSelectedFilters([]);
-    setPaginatedData(allParLevels);
   };
 
   if (error) {
@@ -212,9 +206,8 @@ const WarningsPage = (): JSX.Element => {
             {(!selectedGrouping || selectedGrouping === 'no-grouping') && (
               <div className="py-4">
                 <Pagination
-                  data={allParLevels}
-                  itemsPerPage={50}
-                  onChange={setPaginatedData}
+                  totalPages={Math.ceil(allParLevels.length / itemsPerPage)}
+                  onChange={setCurrentPage}
                 />
               </div>
             )}

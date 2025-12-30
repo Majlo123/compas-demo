@@ -12,29 +12,19 @@ import {
 } from '@/components/ui/Pagination';
 
 interface PaginationProps<T> {
-  data: T[];
-  itemsPerPage?: number;
-  onChange: (paginatedData: T[]) => void;
+  totalPages: number;
+  onChange: (currentPage: number) => void;
 }
 
 export function Pagination<T>({
-  data,
-  itemsPerPage = 5,
+  totalPages,
   onChange,
 }: PaginationProps<T>): JSX.Element | null {
   const [currentPage, setCurrentPage] = useState(1);
 
-  const totalPages = Math.ceil(data.length / itemsPerPage);
-
-  const paginatedData = useMemo(() => {
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    return data.slice(startIndex, endIndex);
-  }, [data, currentPage, itemsPerPage]);
-
   useEffect(() => {
-    onChange(paginatedData);
-  }, [paginatedData, onChange]);
+    onChange(currentPage);
+  }, [currentPage, onChange]);
 
   const handleFirstPage = (e: React.MouseEvent<HTMLAnchorElement>): void => {
     e.preventDefault();
@@ -58,10 +48,10 @@ export function Pagination<T>({
 
   const handlePageClick =
     (page: number) =>
-    (e: React.MouseEvent<HTMLAnchorElement>): void => {
-      e.preventDefault();
-      setCurrentPage(page);
-    };
+      (e: React.MouseEvent<HTMLAnchorElement>): void => {
+        e.preventDefault();
+        setCurrentPage(page);
+      };
 
   return totalPages > 1 ? (
     <ShadcnPagination>
