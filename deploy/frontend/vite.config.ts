@@ -19,7 +19,10 @@ export default defineConfig({
       host: 'localhost',
     },
     fs: {
-      allow: ['../shared'],
+      allow: [
+        '/frontend',
+        '/shared',
+      ],
     },
   },
   resolve: {
