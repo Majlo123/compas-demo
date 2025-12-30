@@ -89,7 +89,7 @@ export const findAll = async (
   if (warningLevelId && warningLevelId.trim()) {
     query = query.where({ warning_level_id: warningLevelId });
   }
-
+  console.log("query", query)
   const results = await query;
   return results.map((row) => ({
     prodId: row.prod_id,

@@ -16,6 +16,7 @@ export const findAll = async (
   search?: string,
   warningLevelId?: string,
 ): Promise<any[]> => {
+  console.log("find all par levels")
   return parLevelRepository.findAll(commodityGroups, search, warningLevelId);
 };
 

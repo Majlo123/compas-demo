@@ -6,7 +6,7 @@ import catchAsync from 'shared/utils/CatchAsync';
 
 export const getAllParLevels = catchAsync(async (req: Request, res: Response) => {
   const { commodityGroups, search, warningLevelId } = req.query;
-
+  console.log("get all par levels")
   // Parse commodity groups from query string
   const filters: string[] = [];
   if (commodityGroups) {
@@ -28,7 +28,7 @@ export const getAllParLevels = catchAsync(async (req: Request, res: Response) =>
     searchTerm,
     warningLevelId as string,
   );
-
+  console.log("result", result)
   res.status(httpStatus.OK).send({
     success: true,
     content: result,
