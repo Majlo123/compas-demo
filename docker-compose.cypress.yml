@@ -8,6 +8,7 @@ services:
     volumes:
       - ./deploy/cypress:/cypress
       - /cypress/node_modules
+      - ./cypress/screenshots:/cypress/cypress/screenshots
     depends_on:
       frontend:
         condition: service_started
