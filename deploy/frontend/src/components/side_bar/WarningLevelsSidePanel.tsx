@@ -151,7 +151,7 @@ export const WarningLevelsSidePanel = ({
 
   return (
     <>
-      <aside className={`hidden md:w-64 bg-surface md:flex flex-col lg:w-96 ${className}`}>
+      <aside className={`hidden md:w-56 bg-surface md:flex flex-col lg:w-96 ${className}`}>
         {WarningLevelContent}
       </aside>
     </>

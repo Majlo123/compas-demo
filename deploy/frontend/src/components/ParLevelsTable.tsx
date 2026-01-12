@@ -33,7 +33,7 @@ const ParLevelList: React.FC<{
         <TableHead>COMMODITY GROUP</TableHead>
         <TableHead>STOCK QTY</TableHead>
         <TableHead>THRESHOLD</TableHead>
-        <TableHead className="w-32">STATUS</TableHead>
+        <TableHead className="xl:w-24 w-14">STATUS</TableHead>
       </TableRow>
     </TableHeader>
     <TableBody>

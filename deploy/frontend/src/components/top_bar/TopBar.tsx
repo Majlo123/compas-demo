@@ -49,12 +49,12 @@ export const TopBar: React.FC<TopBarProps> = ({
           </p>
         </div>
       )}
-      <div className="flex gap-10 items-center">
+      <div className="flex gap-2 xl:gap-10 items-center flex-col xl:flex-row">
         <SearchInput
           placeholder="Search Products, Codes or Categories"
           onSearch={onSearch}
         />
-        <div className="flex gap-5">
+        <div className="flex gap-5 items-start w-full">
           <GroupingDropdown
             options={options}
             selectedOptionId={selectedGrouping}
