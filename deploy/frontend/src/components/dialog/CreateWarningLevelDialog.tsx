@@ -65,7 +65,7 @@ export const CreateWarningLevelDialog = ({
       <DialogTrigger asChild>
         <Button
           variant="primary"
-          className="mx-auto flex items-center justify-center w-[280px] rounded-full font-black text-sm text-black tracking-wide py-2.5 mb-4"
+          className="mx-auto flex items-center justify-center w-full lg:w-[280px] rounded-full font-black text-sm text-black tracking-wide py-2.5 mb-4"
           onClick={() => {
             setFormData({ name: '', description: '' });
             setCreateError(null);

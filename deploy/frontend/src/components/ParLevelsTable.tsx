@@ -128,7 +128,7 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
     const withThreshold = parLevels.filter((l) => l.threshhold > 0);
     const noThreshold = parLevels.filter((l) => l.threshhold === 0);
     return (
-      <div className="w-full h-full overflow-y-auto pb-4">
+      <div className="w-full h-full overflow-y-auto pb-4 scrollbar scrollbar-thumb-gray-400 scrollbar-track-transparent">
         <GroupSection
           title="With Threshold"
           count={withThreshold.length}
@@ -166,7 +166,7 @@ export const ParLevelsTable: React.FC<ParLevelsTableProps> = ({
     );
 
     return (
-      <div className="w-full h-full overflow-y-auto pb-4">
+      <div className="w-full h-full overflow-y-auto pb-4 scrollbar scrollbar-thumb-gray-400 scrollbar-track-transparent">
         {Object.entries(groups).map(([groupName, levels]) => (
           <GroupSection
             key={groupName}

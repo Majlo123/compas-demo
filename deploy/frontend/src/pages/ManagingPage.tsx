@@ -189,7 +189,7 @@ const WarningsPage = (): JSX.Element => {
             }
             onFilterClick={() => setIsFiltersOpen(true)}
           />
-          <div className="flex flex-col max-h-screen overflow-y-auto">
+          <div className="flex flex-col max-h-screen overflow-y-auto scrollbar scrollbar-thumb-gray-400 scrollbar-track-transparent">
             <div className="flex-1">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">

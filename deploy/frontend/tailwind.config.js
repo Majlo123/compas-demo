@@ -104,6 +104,7 @@ const config = {
     },
   },
   plugins: [
+    require('tailwind-scrollbar'),
     plugin(function ({ addComponents }) {
       addComponents({
         '.toggle-group': {
