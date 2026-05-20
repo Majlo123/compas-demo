@@ -90,5 +90,3 @@ The project uses `.env` files for configuration:
 - **Frontend**: `deploy/tools/env/frontend.dev.env`
 
 Adjust these files according to your environment needs (database credentials, API keys, etc.)
-
-## Authors: **2C Solution Team**
